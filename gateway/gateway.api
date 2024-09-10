@@ -1,15 +1,16 @@
 syntax = "v1"
 
-type Request {
-	Name string `path:"name,options=you|me"`
-}
+// 引入 web.api 文件
+import "/api/web.api"
 
-type Response {
-	Message string `json:"message"`
-}
-
+// web服务
+@server (
+	prefix: /web
+	group:  web
+)
 service gateway-api {
-	@handler GatewayHandler
-	get /from/:name (Request) returns (Response)
+	@handler ArticleList
+	get /article/list (ArticleListReq) returns (ArticleListResp)
 }
 
+// goctl api go -api gateway.api -dir .

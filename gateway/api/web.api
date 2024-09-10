@@ -1,0 +1,12 @@
+syntax = "v1"
+
+type (
+    ArticleListReq {
+        Cid uint `form:"cid"`
+        Page uint `form:"page"`
+        PageSize uint `form:"page_size"`
+    }
+    ArticleListResp {
+        Total uint `json:"total"`
+    }
+)
