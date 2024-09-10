@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package web;
+option go_package="./web";
+
+message Request {
+  string ping = 1;
+}
+
+message Response {
+  string pong = 1;
+}
+
+service Web {
+  rpc Ping(Request) returns(Response);
+}
