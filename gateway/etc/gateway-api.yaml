@@ -1,3 +1,10 @@
 Name: gateway-api
 Host: 0.0.0.0
 Port: 8888
+
+Log:
+  ServiceName: gateway_api
+  Mode: file
+  KeepDays: 3
+  Rotation: daily
+  Stat: false

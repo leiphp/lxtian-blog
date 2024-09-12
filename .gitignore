@@ -22,3 +22,5 @@ log/
 go.sum
 vendor
 .env
+gateway/logs
+html
