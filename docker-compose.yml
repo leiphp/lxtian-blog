@@ -4,26 +4,6 @@ networks:
     driver: bridge
 
 services:
-  # Traefik网关
-  traefik:
-    image: ${DOCKER_REGISTRY:-localhost:5000}/traefik:v3.1
-    command:
-      - "--providers.docker=true"
-      - "--entrypoints.http.address=:80"
-      - "--entrypoints.blog.address=:3020"
-      - "--api=true"  # 启用Traefik的API
-      - "--api.insecure=true"# 启用Traefik的Web UI
-      - "--providers.docker"
-    ports:
-      - "80:80"
-      - "8070:8080"  # Traefik dashboard
-      - "3020:3020"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    networks:
-      - local
-    restart: always
-
   etcd:
     image: ${DOCKER_REGISTRY:-localhost:5000}/etcd:3.5.10  # 使用 etcd 的镜像
     hostname: etcd-v3
@@ -63,27 +43,6 @@ services:
     networks:
       - local
     restart: always
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.blog-gateway-api.rule=Host(`${HTTP_GATEWAY_DOMAINS}`) && PathPrefix(`/web`)" # 转发规则
-      - "traefik.http.routers.blog-gateway-api.entrypoints=blog"
-      - "traefik.http.services.blog-gateway-api.loadbalancer.server.port=8888"    # 实例的端口
-      - "traefik.docker.network=local"
-      - "traefik.http.services.blog-gateway-api.loadbalancer.server.scheme=http"
-      - "traefik.http.services.blog-gateway-api.loadbalancer.passhostheader=true"
-
-  nginx:
-    image: ${DOCKER_REGISTRY:-localhost:5000}/nginx:latest
-    volumes:
-      - ./html:/usr/share/nginx/html  # 将当前目录的html文件挂载到Nginx容器中
-#      - ./nginx.conf:/etc/nginx/nginx.conf  # 挂载 Nginx 配置文件
-    networks:
-      - local
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.static-files.rule=Host(`${HTTP_WEB_DOMAINS}`)"
-      - "traefik.http.routers.static-files.entrypoints=http"
-      - "traefik.http.services.static-files.loadbalancer.server.port=80"  # Nginx 容器内部的端口
 
 volumes:
   etcd-data: {} # 定义持久化存储卷
