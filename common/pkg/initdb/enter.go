@@ -5,12 +5,17 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/mon"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 	"time"
 )
 
 // InitDB gorm初始化
 func InitDB(MysqlDataSource string) *gorm.DB {
-	db, err := gorm.Open(mysql.Open(MysqlDataSource), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(MysqlDataSource), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true, // 使用单数表名，启用此选项后，`User` 的表将是 `user`
+		},
+	})
 	if err != nil {
 		panic("连接mysql数据库失败, error=" + err.Error())
 	} else {

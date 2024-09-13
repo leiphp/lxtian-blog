@@ -3,14 +3,28 @@ syntax = "proto3";
 package web;
 option go_package="./web";
 
-message Request {
-  string ping = 1;
+message Article {
+  uint32 id = 1;
+  string title = 2;
+  string author = 3;
+  string description = 4;
+  string keywords = 5;
+  string content = 6;
 }
 
-message Response {
-  string pong = 1;
+message ArticleListReq {
+  uint32 cid = 1;
+  uint32 page = 2;
+  uint32 page_size = 3;
+}
+
+message ArticleListResp {
+  uint32 page = 1;
+  uint32 page_size = 2;
+  repeated Article list = 3;
+  uint32 total = 4;
 }
 
 service Web {
-  rpc Ping(Request) returns(Response);
+  rpc ArticleList(ArticleListReq) returns(ArticleListResp);
 }

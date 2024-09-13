@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"lxtian-blog/rpc/web/internal/config"
-	"lxtian-blog/rpc/web/internal/server"
+	"lxtian-blog/rpc/web/internal/server/web"
 	"lxtian-blog/rpc/web/internal/svc"
 	"lxtian-blog/rpc/web/web"
 

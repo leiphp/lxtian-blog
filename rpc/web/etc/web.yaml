@@ -2,5 +2,12 @@ Name: web.rpc
 ListenOn: 0.0.0.0:8081
 Etcd:
   Hosts:
-  - etcd-v3:2379
+  - 127.0.0.1:2379
   Key: web.rpc
+
+Mysql:
+  HOST: ${DB_HOST}
+  PORT: ${DB_PORT}
+  DATABASE: ${DB_DATABASE}
+  USERNAME: ${DB_USERNAME}
+  PASSWORD: ${DB_PASSWORD}

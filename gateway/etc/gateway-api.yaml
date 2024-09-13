@@ -2,6 +2,13 @@ Name: gateway-api
 Host: 0.0.0.0
 Port: 8888
 
+WebRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: web.rpc
+  Timeout: 10000
+
 Log:
   ServiceName: gateway_api
   Mode: file

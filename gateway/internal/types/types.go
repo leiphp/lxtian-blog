@@ -9,14 +9,14 @@ type Article struct {
 }
 
 type ArticleListReq struct {
-	Cid      int `form:"cid"`
-	Page     int `form:"page"`
-	PageSize int `form:"page_size"`
+	Cid      uint32 `form:"cid"`
+	Page     uint32 `form:"page"`
+	PageSize uint32 `form:"page_size"`
 }
 
 type ArticleListResp struct {
-	Page     int       `json:"page"`
-	PageSize int       `json:"page_size"`
-	List     []Article `json:"list"`
-	Total    int       `json:"total"`
+	Page     uint32                   `json:"page"`
+	PageSize uint32                   `json:"page_size"`
+	List     []map[string]interface{} `json:"list"`
+	Total    uint64                   `json:"total"`
 }
