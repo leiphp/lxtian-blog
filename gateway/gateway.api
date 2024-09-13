@@ -9,6 +9,7 @@ import "/api/web.api"
 	group:  web
 )
 service gateway-api {
+	@doc "文章列表"
 	@handler ArticleList
 	get /article/list (ArticleListReq) returns (ArticleListResp)
 }

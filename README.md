@@ -97,3 +97,25 @@ cd ~/lxtian-blog/rpc/member
 $ goctl rpc protoc member.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m
 Done.
 ```
+
+#### mysql model代码生成
+```shell
+# 这将为 article 表生成相应的 Go model 代码，并放在 ./model 目录中。
+cd ~/lxtian-blog/rpc/web
+$ goctl model mysql datasource -url="root:password@tcp(127.0.0.1:3306)/your_database" -table="article" -dir="./model"
+# -table="article,user"：指定要生成的多个表，用逗号分隔表名。
+$ goctl model mysql datasource -url="root:password@tcp(127.0.0.1:3306)/your_database" -table="article,user" -dir="./model"
+# -table="article_*"：使用通配符匹配表名，这里会生成所有以 article_ 开头的表的 model
+goctl model mysql datasource -url="root:password@tcp(127.0.0.1:3306)/your_database" -table="article_*" -dir="./model"
+Done.
+```
+
+#### mongo model代码生成
+```shell
+# 这将为 article 表生成相应的 Go model 代码，并放在 ./model 目录中。
+cd ~/lxtian-blog/rpc/web
+# 生成文档名称为 Article 的 mongo 代码
+$ goctl model mongo --type article --dir .
+Done.
+```
+

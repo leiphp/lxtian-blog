@@ -1,12 +1,22 @@
 syntax = "v1"
 
 type (
+    Article {
+        Id     int    `json:"id"`
+        Title  string `json:"title"`
+        Author  string `json:"author"`
+        Content string `json:"content"`
+    }
+
     ArticleListReq {
-        Cid uint `form:"cid"`
-        Page uint `form:"page"`
-        PageSize uint `form:"page_size"`
+        Cid      int `form:"cid"`
+        Page     int `form:"page"`
+        PageSize int `form:"page_size"`
     }
     ArticleListResp {
-        Total uint `json:"total"`
+        Page       int `json:"page"`
+        PageSize   int `json:"page_size"`
+        List       []Article `json:"list"`
+        Total      int `json:"total"`
     }
 )
