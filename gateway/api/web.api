@@ -1,13 +1,6 @@
 syntax = "v1"
 
 type (
-    Article {
-        Id     int    `json:"id"`
-        Title  string `json:"title"`
-        Author  string `json:"author"`
-        Content string `json:"content"`
-    }
-
     ArticleListReq {
         Cid      uint32 `form:"cid"`
         Page     uint32 `form:"page"`

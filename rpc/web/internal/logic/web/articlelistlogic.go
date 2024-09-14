@@ -2,6 +2,7 @@ package weblogic
 
 import (
 	"context"
+	"encoding/json"
 	"lxtian-blog/rpc/web/model/mysql"
 
 	"lxtian-blog/rpc/web/internal/svc"
@@ -36,26 +37,23 @@ func (l *ArticleListLogic) ArticleList(in *web.ArticleListReq) (*web.ArticleList
 		in.PageSize = 10
 	}
 	offset := (in.Page - 1) * in.PageSize
-	var lxtArticles []mysql.TxyArticle
-	err := l.svcCtx.DB.Where(where).Limit(int(in.PageSize)).Offset(int(offset)).Order("id desc").Debug().Find(&lxtArticles).Error
+	var articles []map[string]interface{}
+	err := l.svcCtx.DB.
+		Model(&mysql.TxyArticle{}).
+		Select("id,title,author,description,keywords,cid").
+		Where(where).
+		Limit(int(in.PageSize)).
+		Offset(int(offset)).
+		Order("id desc").
+		Debug().
+		Find(&articles).Error
 	if err != nil {
 		return nil, err
 	}
-
-	// 创建一个空的切片来存放转换后的结果
-	var articleList []*web.Article
-	for _, article := range lxtArticles {
-		convertedArticle := &web.Article{
-			Id:          uint32(article.Id),
-			Title:       article.Title,
-			Author:      article.Author,
-			Keywords:    article.Keywords,
-			Description: article.Description,
-		}
-		// 将转换后的 Article 指针添加到切片中
-		articleList = append(articleList, convertedArticle)
+	jsonData, err := json.Marshal(articles)
+	if err != nil {
+		return nil, err
 	}
-
 	//计算当前type的总数，给分页算总页
 	var total int64
 	err = l.svcCtx.DB.Model(&mysql.TxyArticle{}).Where(where).Count(&total).Error
@@ -67,6 +65,6 @@ func (l *ArticleListLogic) ArticleList(in *web.ArticleListReq) (*web.ArticleList
 		Page:     in.Page,
 		PageSize: in.PageSize,
 		Total:    uint32(total),
-		List:     articleList,
+		List:     string(jsonData),
 	}, nil
 }

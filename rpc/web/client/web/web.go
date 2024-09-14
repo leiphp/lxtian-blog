@@ -13,7 +13,6 @@ import (
 )
 
 type (
-	Article         = web.Article
 	ArticleListReq  = web.ArticleListReq
 	ArticleListResp = web.ArticleListResp
 
