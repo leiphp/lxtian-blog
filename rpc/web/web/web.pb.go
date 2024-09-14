@@ -154,6 +154,100 @@ func (x *ArticleListResp) GetTotal() uint32 {
 	return 0
 }
 
+type ArticleReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *ArticleReq) Reset() {
+	*x = ArticleReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ArticleReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArticleReq) ProtoMessage() {}
+
+func (x *ArticleReq) ProtoReflect() protoreflect.Message {
+	mi := &file_web_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArticleReq.ProtoReflect.Descriptor instead.
+func (*ArticleReq) Descriptor() ([]byte, []int) {
+	return file_web_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ArticleReq) GetId() uint32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+type ArticleResp struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Data string `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+}
+
+func (x *ArticleResp) Reset() {
+	*x = ArticleResp{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ArticleResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArticleResp) ProtoMessage() {}
+
+func (x *ArticleResp) ProtoReflect() protoreflect.Message {
+	mi := &file_web_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArticleResp.ProtoReflect.Descriptor instead.
+func (*ArticleResp) Descriptor() ([]byte, []int) {
+	return file_web_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ArticleResp) GetData() string {
+	if x != nil {
+		return x.Data
+	}
+	return ""
+}
+
 var File_web_proto protoreflect.FileDescriptor
 
 var file_web_proto_rawDesc = []byte{
@@ -170,12 +264,19 @@ var file_web_proto_rawDesc = []byte{
 	0x08, 0x70, 0x61, 0x67, 0x65, 0x53, 0x69, 0x7a, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x6c, 0x69, 0x73,
 	0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6c, 0x69, 0x73, 0x74, 0x12, 0x14, 0x0a,
 	0x05, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x05, 0x74, 0x6f,
-	0x74, 0x61, 0x6c, 0x32, 0x3f, 0x0a, 0x03, 0x57, 0x65, 0x62, 0x12, 0x38, 0x0a, 0x0b, 0x41, 0x72,
-	0x74, 0x69, 0x63, 0x6c, 0x65, 0x4c, 0x69, 0x73, 0x74, 0x12, 0x13, 0x2e, 0x77, 0x65, 0x62, 0x2e,
-	0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x71, 0x1a, 0x14,
-	0x2e, 0x77, 0x65, 0x62, 0x2e, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x4c, 0x69, 0x73, 0x74,
-	0x52, 0x65, 0x73, 0x70, 0x42, 0x07, 0x5a, 0x05, 0x2e, 0x2f, 0x77, 0x65, 0x62, 0x62, 0x06, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x74, 0x61, 0x6c, 0x22, 0x1c, 0x0a, 0x0a, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x52, 0x65,
+	0x71, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x02, 0x69,
+	0x64, 0x22, 0x21, 0x0a, 0x0b, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x52, 0x65, 0x73, 0x70,
+	0x12, 0x12, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04,
+	0x64, 0x61, 0x74, 0x61, 0x32, 0x6d, 0x0a, 0x03, 0x57, 0x65, 0x62, 0x12, 0x38, 0x0a, 0x0b, 0x41,
+	0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x4c, 0x69, 0x73, 0x74, 0x12, 0x13, 0x2e, 0x77, 0x65, 0x62,
+	0x2e, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x71, 0x1a,
+	0x14, 0x2e, 0x77, 0x65, 0x62, 0x2e, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x4c, 0x69, 0x73,
+	0x74, 0x52, 0x65, 0x73, 0x70, 0x12, 0x2c, 0x0a, 0x07, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65,
+	0x12, 0x0f, 0x2e, 0x77, 0x65, 0x62, 0x2e, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x52, 0x65,
+	0x71, 0x1a, 0x10, 0x2e, 0x77, 0x65, 0x62, 0x2e, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x52,
+	0x65, 0x73, 0x70, 0x42, 0x07, 0x5a, 0x05, 0x2e, 0x2f, 0x77, 0x65, 0x62, 0x62, 0x06, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -190,16 +291,20 @@ func file_web_proto_rawDescGZIP() []byte {
 	return file_web_proto_rawDescData
 }
 
-var file_web_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_web_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_web_proto_goTypes = []any{
 	(*ArticleListReq)(nil),  // 0: web.ArticleListReq
 	(*ArticleListResp)(nil), // 1: web.ArticleListResp
+	(*ArticleReq)(nil),      // 2: web.ArticleReq
+	(*ArticleResp)(nil),     // 3: web.ArticleResp
 }
 var file_web_proto_depIdxs = []int32{
 	0, // 0: web.Web.ArticleList:input_type -> web.ArticleListReq
-	1, // 1: web.Web.ArticleList:output_type -> web.ArticleListResp
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	2, // 1: web.Web.Article:input_type -> web.ArticleReq
+	1, // 2: web.Web.ArticleList:output_type -> web.ArticleListResp
+	3, // 3: web.Web.Article:output_type -> web.ArticleResp
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -235,6 +340,30 @@ func file_web_proto_init() {
 				return nil
 			}
 		}
+		file_web_proto_msgTypes[2].Exporter = func(v any, i int) any {
+			switch v := v.(*ArticleReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_proto_msgTypes[3].Exporter = func(v any, i int) any {
+			switch v := v.(*ArticleResp); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -242,7 +371,7 @@ func file_web_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_web_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

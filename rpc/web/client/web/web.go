@@ -15,9 +15,12 @@ import (
 type (
 	ArticleListReq  = web.ArticleListReq
 	ArticleListResp = web.ArticleListResp
+	ArticleReq      = web.ArticleReq
+	ArticleResp     = web.ArticleResp
 
 	Web interface {
 		ArticleList(ctx context.Context, in *ArticleListReq, opts ...grpc.CallOption) (*ArticleListResp, error)
+		Article(ctx context.Context, in *ArticleReq, opts ...grpc.CallOption) (*ArticleResp, error)
 	}
 
 	defaultWeb struct {
@@ -34,4 +37,9 @@ func NewWeb(cli zrpc.Client) Web {
 func (m *defaultWeb) ArticleList(ctx context.Context, in *ArticleListReq, opts ...grpc.CallOption) (*ArticleListResp, error) {
 	client := web.NewWebClient(m.cli.Conn())
 	return client.ArticleList(ctx, in, opts...)
+}
+
+func (m *defaultWeb) Article(ctx context.Context, in *ArticleReq, opts ...grpc.CallOption) (*ArticleResp, error) {
+	client := web.NewWebClient(m.cli.Conn())
+	return client.Article(ctx, in, opts...)
 }

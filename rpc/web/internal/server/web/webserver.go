@@ -26,3 +26,8 @@ func (s *WebServer) ArticleList(ctx context.Context, in *web.ArticleListReq) (*w
 	l := weblogic.NewArticleListLogic(ctx, s.svcCtx)
 	return l.ArticleList(in)
 }
+
+func (s *WebServer) Article(ctx context.Context, in *web.ArticleReq) (*web.ArticleResp, error) {
+	l := weblogic.NewArticleLogic(ctx, s.svcCtx)
+	return l.Article(in)
+}

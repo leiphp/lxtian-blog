@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Web_ArticleList_FullMethodName = "/web.Web/ArticleList"
+	Web_Article_FullMethodName     = "/web.Web/Article"
 )
 
 // WebClient is the client API for Web service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WebClient interface {
 	ArticleList(ctx context.Context, in *ArticleListReq, opts ...grpc.CallOption) (*ArticleListResp, error)
+	Article(ctx context.Context, in *ArticleReq, opts ...grpc.CallOption) (*ArticleResp, error)
 }
 
 type webClient struct {
@@ -47,11 +49,22 @@ func (c *webClient) ArticleList(ctx context.Context, in *ArticleListReq, opts ..
 	return out, nil
 }
 
+func (c *webClient) Article(ctx context.Context, in *ArticleReq, opts ...grpc.CallOption) (*ArticleResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ArticleResp)
+	err := c.cc.Invoke(ctx, Web_Article_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // WebServer is the server API for Web service.
 // All implementations must embed UnimplementedWebServer
 // for forward compatibility.
 type WebServer interface {
 	ArticleList(context.Context, *ArticleListReq) (*ArticleListResp, error)
+	Article(context.Context, *ArticleReq) (*ArticleResp, error)
 	mustEmbedUnimplementedWebServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedWebServer struct{}
 
 func (UnimplementedWebServer) ArticleList(context.Context, *ArticleListReq) (*ArticleListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ArticleList not implemented")
+}
+func (UnimplementedWebServer) Article(context.Context, *ArticleReq) (*ArticleResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Article not implemented")
 }
 func (UnimplementedWebServer) mustEmbedUnimplementedWebServer() {}
 func (UnimplementedWebServer) testEmbeddedByValue()             {}
@@ -104,6 +120,24 @@ func _Web_ArticleList_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Web_Article_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ArticleReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebServer).Article(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Web_Article_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebServer).Article(ctx, req.(*ArticleReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Web_ServiceDesc is the grpc.ServiceDesc for Web service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +148,10 @@ var Web_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ArticleList",
 			Handler:    _Web_ArticleList_Handler,
+		},
+		{
+			MethodName: "Article",
+			Handler:    _Web_Article_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

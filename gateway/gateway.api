@@ -12,6 +12,10 @@ service gateway-api {
 	@doc "文章列表"
 	@handler ArticleList
 	get /article/list (ArticleListReq) returns (ArticleListResp)
+
+	@doc "文章详情"
+	@handler Article
+	get /article/:id (ArticleReq) returns (ArticleResp)
 }
 
 // goctl api go -api gateway.api -dir .
