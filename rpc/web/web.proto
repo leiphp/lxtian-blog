@@ -9,7 +9,6 @@ message Article {
   string author = 3;
   string description = 4;
   string keywords = 5;
-  string content = 6;
 }
 
 message ArticleListReq {
@@ -28,3 +27,5 @@ message ArticleListResp {
 service Web {
   rpc ArticleList(ArticleListReq) returns(ArticleListResp);
 }
+
+//goctl rpc protoc web.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m

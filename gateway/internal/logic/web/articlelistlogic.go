@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logc"
+	"lxtian-blog/common/pkg/utils"
 	"lxtian-blog/rpc/web/web"
 
 	"lxtian-blog/gateway/internal/svc"
@@ -36,22 +37,15 @@ func (l *ArticleListLogic) ArticleList(req *types.ArticleListReq) (resp *types.A
 		return nil, err
 	}
 	resp = new(types.ArticleListResp)
-	// 定义 resp.List 类型
-	var respList []map[string]interface{}
-	// 遍历 res.List 并转换
-	for _, article := range res.List {
-		articleMap := map[string]interface{}{
-			"id":          article.Id,
-			"title":       article.Title,
-			"author":      article.Author,
-			"description": article.Description,
-			"content":     article.Content,
-		}
-		respList = append(respList, articleMap)
+	// 结构体转map切片
+	respList, err := utils.StructSliceToMapSlice(res.List)
+	if err != nil {
+		logc.Errorf(l.ctx, "StructSliceToMapSlice: %s", err)
+		return nil, err
 	}
 	resp.List = respList
 	resp.Total = uint64(res.GetTotal())
 	resp.Page = res.GetPage()
-	res.PageSize = res.GetPageSize()
+	resp.PageSize = res.GetPageSize()
 	return
 }

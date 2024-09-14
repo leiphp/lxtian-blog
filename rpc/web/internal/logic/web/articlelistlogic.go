@@ -51,7 +51,6 @@ func (l *ArticleListLogic) ArticleList(in *web.ArticleListReq) (*web.ArticleList
 			Author:      article.Author,
 			Keywords:    article.Keywords,
 			Description: article.Description,
-			Content:     article.Content,
 		}
 		// 将转换后的 Article 指针添加到切片中
 		articleList = append(articleList, convertedArticle)

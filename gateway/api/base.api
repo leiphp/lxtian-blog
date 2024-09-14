@@ -3,5 +3,6 @@ syntax =  "v1"
 type Base {
     Page       uint32 `json:"page"`
     PageSize   uint32 `json:"page_size"`
+    List       [] map[string]interface{} `json:"list"`
     Total      uint64 `json:"total"`
 }
