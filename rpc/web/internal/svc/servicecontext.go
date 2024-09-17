@@ -8,8 +8,9 @@ import (
 )
 
 type ServiceContext struct {
-	Config config.Config
-	DB     *gorm.DB
+	Config   config.Config
+	DB       *gorm.DB
+	MongoUri string
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -21,8 +22,10 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		c.Mysql.DATABASE,
 	)
 	mysqlDb := initdb.InitDB(dataSource)
+	mongoUri := initdb.InitMongoUri(c.MongoDB.USERNAME, c.MongoDB.PASSWORD, c.MongoDB.HOST, c.MongoDB.PORT)
 	return &ServiceContext{
-		Config: c,
-		DB:     mysqlDb,
+		Config:   c,
+		DB:       mysqlDb,
+		MongoUri: mongoUri,
 	}
 }

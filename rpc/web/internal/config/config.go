@@ -11,4 +11,11 @@ type Config struct {
 		USERNAME string `json:",env=DB_USERNAME"`
 		PASSWORD string `json:",env=DB_PASSWORD"`
 	}
+	MongoDB struct {
+		HOST     string `json:",env=MONGODB_HOST"`
+		PORT     string `json:",env=MONGODB_PORT"`
+		DATABASE string `json:",env=MONGODB_DATABASE"`
+		USERNAME string `json:",env=MONGODB_USERNAME"`
+		PASSWORD string `json:",env=MONGODB_PASSWORD"`
+	}
 }

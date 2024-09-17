@@ -41,3 +41,14 @@ func InitMongoDB(uri, db, collection string) *mon.Model {
 	conn := mon.MustNewModel(uri, db, collection)
 	return conn
 }
+
+// InitMongoUri 初始化Uri
+func InitMongoUri(username, password, host, port string) string {
+	return fmt.Sprintf("mongodb://%s:%s", host, port)
+	if username == "" && password == "" {
+		// 没有用户名和密码的情况
+		return fmt.Sprintf("mongodb://%s:%s", host, port)
+	}
+	// 有用户名和密码的情况
+	return fmt.Sprintf("mongodb://%s:%s@%s:%s", username, password, host, port)
+}
