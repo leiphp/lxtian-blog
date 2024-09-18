@@ -3,11 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-
+	"lxtian-blog/common/pkg/utils"
 	"lxtian-blog/rpc/web/internal/config"
 	"lxtian-blog/rpc/web/internal/server/web"
 	"lxtian-blog/rpc/web/internal/svc"
 	"lxtian-blog/rpc/web/web"
+	"os"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
@@ -23,6 +24,8 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+	// 使用通用方法解析Etcd主机列表字符串
+	c.Etcd.Hosts = utils.ParseHosts(os.Getenv("ETCD_HOSTS"))
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {

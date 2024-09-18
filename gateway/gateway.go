@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"lxtian-blog/common/pkg/utils"
+	"os"
 
 	"lxtian-blog/gateway/internal/config"
 	"lxtian-blog/gateway/internal/handler"
@@ -19,7 +21,7 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
-
+	c.WebRpc.Etcd.Hosts = utils.ParseHosts(os.Getenv("ETCD_HOSTS"))
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
 

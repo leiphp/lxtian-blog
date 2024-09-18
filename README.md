@@ -122,6 +122,9 @@ Done.
 ### windows注入环境变量
 
 ```shell
+#etcd环境变量,多个逗号隔开
+$env:ETCD_HOSTS="127.0.0.1:2379"
+
 #mysql环境变量
 $env:DB_HOST="127.0.0.1"
 $env:DB_PORT="3306"
