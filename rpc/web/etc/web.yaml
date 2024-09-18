@@ -18,3 +18,9 @@ MongoDB:
   DATABASE: ${MONGODB_DATABASE}
   USERNAME: ${MONGODB_USERNAME}
   PASSWORD: ${MONGODB_PASSWORD}
+
+RedisConfig:
+  Host: ${REDIS_HOST}
+  Type: ${REDIS_TYPE}
+  Pass: ${REDIS_PASS}
+  Tls: false

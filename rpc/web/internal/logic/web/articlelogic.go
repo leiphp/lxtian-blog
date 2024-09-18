@@ -3,6 +3,7 @@ package weblogic
 import (
 	"context"
 	"encoding/json"
+	"github.com/zeromicro/go-zero/core/logc"
 	"lxtian-blog/rpc/web/model/mysql"
 
 	"lxtian-blog/rpc/web/internal/svc"
@@ -53,6 +54,16 @@ func (l *ArticleLogic) Article(in *web.ArticleReq) (*web.ArticleResp, error) {
 		//}
 		//article["content"] = res.Content
 	}
+	// redis实例
+	err = l.svcCtx.Rds.SetCtx(l.ctx, "key", "hello world")
+	if err != nil {
+		logc.Error(l.ctx, err)
+	}
+	v, err := l.svcCtx.Rds.GetCtx(l.ctx, "key")
+	if err != nil {
+		logc.Error(l.ctx, err)
+	}
+	article["v"] = v
 	jsonData, err := json.Marshal(article)
 	if err != nil {
 		return nil, err

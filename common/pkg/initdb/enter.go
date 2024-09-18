@@ -3,6 +3,7 @@ package initdb
 import (
 	"fmt"
 	"github.com/zeromicro/go-zero/core/stores/mon"
+	"github.com/zeromicro/go-zero/core/stores/redis"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
@@ -44,11 +45,35 @@ func InitMongoDB(uri, db, collection string) *mon.Model {
 
 // InitMongoUri 初始化Uri
 func InitMongoUri(username, password, host, port string) string {
-	return fmt.Sprintf("mongodb://%s:%s", host, port)
+	// 兼容windows设置为空的写法$env:MONGODB_USERNAME=""
+	if username == "${MONGODB_USERNAME}" {
+		username = ""
+	}
+	if password == "${MONGODB_PASSWORD}" {
+		password = ""
+	}
 	if username == "" && password == "" {
 		// 没有用户名和密码的情况
 		return fmt.Sprintf("mongodb://%s:%s", host, port)
 	}
 	// 有用户名和密码的情况
 	return fmt.Sprintf("mongodb://%s:%s@%s:%s", username, password, host, port)
+}
+
+// InitRedis 初始化Redis连接
+func InitRedis(host, connType, pass string, tls bool) *redis.Redis {
+	// 兼容windows设置为空的写法$env:REDIS_PASS=""
+	if pass == "${REDIS_PASS}" {
+		pass = ""
+	}
+	conf := redis.RedisConf{
+		Host:        host,
+		Type:        connType,
+		Pass:        pass,
+		Tls:         tls,
+		NonBlock:    false,
+		PingTimeout: time.Second,
+	}
+	rds := redis.MustNewRedis(conf)
+	return rds
 }

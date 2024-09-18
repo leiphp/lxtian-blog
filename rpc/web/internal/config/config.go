@@ -1,6 +1,8 @@
 package config
 
-import "github.com/zeromicro/go-zero/zrpc"
+import (
+	"github.com/zeromicro/go-zero/zrpc"
+)
 
 type Config struct {
 	zrpc.RpcServerConf
@@ -17,5 +19,11 @@ type Config struct {
 		DATABASE string `json:",env=MONGODB_DATABASE"`
 		USERNAME string `json:",env=MONGODB_USERNAME"`
 		PASSWORD string `json:",env=MONGODB_PASSWORD"`
+	}
+	RedisConfig struct {
+		Host string `json:",env=REDIS_HOST"`
+		Type string `json:",env=REDIS_TYPE"`
+		Pass string `json:",env=REDIS_PASS"`
+		Tls  bool   `json:",env=REDIS_TLS"`
 	}
 }
