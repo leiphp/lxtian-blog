@@ -119,3 +119,58 @@ $ goctl model mongo --type article --dir .
 Done.
 ```
 
+### windows注入环境变量
+
+```shell
+#mysql环境变量
+$env:DB_HOST="127.0.0.1"
+$env:DB_PORT="3306"
+$env:DB_DATABASE="lxtblog"
+$env:DB_USERNAME="root"
+$env:DB_PASSWORD="root"
+
+#mongodb环境变量
+$env:MONGODB_HOST="127.0.0.1"
+$env:MONGODB_PORT="27017"
+$env:MONGODB_DATABASE="lxtblog"
+$env:MONGODB_USERNAME=""
+$env:MONGODB_PASSWORD=""
+
+#redis环境变量
+$env:REDIS_HOST="127.0.0.1:6379"
+$env:REDIS_TYPE="node"
+$env:REDIS_PASS=""
+$env:REDIS_TLS=false
+```
+
+
+### 数据库封装操作
+#### mongodb案例
+```shell
+# mongodb获取文章内容
+conn := model.NewArticleModel(l.svcCtx.MongoUri, l.svcCtx.Config.MongoDB.DATABASE, "txy_article")
+contentId, ok := article["title"].(string)
+if !ok {
+    // 处理类型断言失败的情况
+    return nil, errors.New("content_id is not a string")
+}
+res, err := conn.FindOne(l.ctx, contentId)
+if err != nil {
+    return nil, err
+}
+article["content"] = res.Content
+```
+
+#### redis案例
+```shell
+# redis实例
+err = l.svcCtx.Rds.SetCtx(l.ctx, "key", "hello world")
+if err != nil {
+    logc.Error(l.ctx, err)
+}
+v, err := l.svcCtx.Rds.GetCtx(l.ctx, "key")
+if err != nil {
+    logc.Error(l.ctx, err)
+}
+fmt.Println(v)
+```
