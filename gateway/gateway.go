@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"lxtian-blog/common/pkg/utils"
+	"lxtian-blog/gateway/internal/utils/configcenter"
 	"os"
 
 	"lxtian-blog/gateway/internal/config"
@@ -21,7 +22,10 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+	// 使用通用方法解析Etcd主机列表字符串
 	c.WebRpc.Etcd.Hosts = utils.ParseHosts(os.Getenv("ETCD_HOSTS"))
+	// 配置中心加载数据
+	configcenter.LoadConfigFromEtcd(&c)
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
 

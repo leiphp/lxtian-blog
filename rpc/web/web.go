@@ -7,6 +7,7 @@ import (
 	"lxtian-blog/rpc/web/internal/config"
 	"lxtian-blog/rpc/web/internal/server/web"
 	"lxtian-blog/rpc/web/internal/svc"
+	"lxtian-blog/rpc/web/internal/utils/configcenter"
 	"lxtian-blog/rpc/web/web"
 	"os"
 
@@ -26,6 +27,8 @@ func main() {
 	conf.MustLoad(*configFile, &c)
 	// 使用通用方法解析Etcd主机列表字符串
 	c.Etcd.Hosts = utils.ParseHosts(os.Getenv("ETCD_HOSTS"))
+	// 配置中心加载数据
+	configcenter.LoadConfigFromEtcd(&c)
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {

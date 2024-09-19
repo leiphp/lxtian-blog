@@ -24,3 +24,9 @@ RedisConfig:
   Type: ${REDIS_TYPE}
   Pass: ${REDIS_PASS}
   Tls: false
+
+Telemetry:
+  Name: web-rpc
+  Endpoint: ""
+  Batcher: jaeger
+  Sampler: 1.0
