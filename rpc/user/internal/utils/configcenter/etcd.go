@@ -18,7 +18,7 @@ func LoadConfigFromEtcd(c *config.Config) {
 	})
 
 	// 创建 configurator
-	cc := configurator.MustNewConfigCenter[define.WebOverrides](configurator.Config{
+	cc := configurator.MustNewConfigCenter[define.UserOverrides](configurator.Config{
 		Type: "yaml", // 配置值类型：json,yaml,toml
 	}, ss)
 

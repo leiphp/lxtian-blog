@@ -6,7 +6,6 @@ Auth:
   AccessSecret: leixiaotianblog2024
   AccessExpire: 24
 
-
 WebRpc:
   Etcd:
     Hosts:

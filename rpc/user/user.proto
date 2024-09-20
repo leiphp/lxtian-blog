@@ -30,9 +30,9 @@ message InfoResp {
 }
 
 service User {
-  rpc register(RegisterReq) returns(RegisterResp);
-  rpc login (LoginReq) returns (LoginResp);
-  rpc info(InfoReq) returns(InfoResp);
+  rpc Register(RegisterReq) returns(RegisterResp);
+  rpc Login(LoginReq) returns(LoginResp);
+  rpc Info(InfoReq) returns(InfoResp);
 }
 
 //goctl rpc protoc user.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m

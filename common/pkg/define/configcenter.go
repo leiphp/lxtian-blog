@@ -26,3 +26,13 @@ type WebOverrides struct {
 		Sampler  float64 `json:"Sampler"`
 	} `json:"Telemetry"`
 }
+
+// UserOverrides 获取到的配置
+type UserOverrides struct {
+	Telemetry struct {
+		Name     string  `json:"Name"`
+		Endpoint string  `json:"Endpoint"`
+		Batcher  string  `json:"Batcher"`
+		Sampler  float64 `json:"Sampler"`
+	} `json:"Telemetry"`
+}

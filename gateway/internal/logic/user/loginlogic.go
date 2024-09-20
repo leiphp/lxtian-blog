@@ -2,6 +2,9 @@ package user
 
 import (
 	"context"
+	"fmt"
+	"github.com/zeromicro/go-zero/core/logc"
+	"lxtian-blog/rpc/user/user"
 
 	"lxtian-blog/gateway/internal/svc"
 	"lxtian-blog/gateway/internal/types"
@@ -24,7 +27,18 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 }
 
 func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err error) {
-	// todo: add your logic here and delete this line
-
+	res, err := l.svcCtx.UserRpc.Login(l.ctx, &user.LoginReq{
+		Username: req.Username,
+		Password: req.Password,
+	})
+	if err != nil {
+		logc.Errorf(l.ctx, "Login error message: %s", err)
+		return nil, err
+	}
+	fmt.Println("res:", res)
+	resp = new(types.LoginResp)
+	resp.Data = map[string]interface{}{
+		"name": "leixiaotian",
+	}
 	return
 }
