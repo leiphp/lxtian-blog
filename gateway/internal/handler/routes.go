@@ -4,6 +4,7 @@ package handler
 import (
 	"net/http"
 
+	user "lxtian-blog/gateway/internal/handler/user"
 	web "lxtian-blog/gateway/internal/handler/web"
 	"lxtian-blog/gateway/internal/svc"
 
@@ -11,6 +12,34 @@ import (
 )
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/login",
+				Handler: user.LoginHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/register",
+				Handler: user.RegisterHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/user"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/info",
+				Handler: user.InfoHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/user"),
+	)
+
 	server.AddRoutes(
 		[]rest.Route{
 			{

@@ -7,5 +7,10 @@ import (
 
 type Config struct {
 	rest.RestConf
-	WebRpc zrpc.RpcClientConf
+	Auth struct { // JWT 认证需要的密钥和过期时间配置
+		AccessSecret string
+		AccessExpire int64
+	}
+	WebRpc  zrpc.RpcClientConf
+	UserRpc zrpc.RpcClientConf
 }

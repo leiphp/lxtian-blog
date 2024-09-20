@@ -21,3 +21,28 @@ type ArticleReq struct {
 type ArticleResp struct {
 	Data map[string]interface{} `json:"data"`
 }
+
+type InfoResp struct {
+	AccessToken string                 `json:"access_token"`
+	ExpiresIn   uint64                 `json:"expires_in"`
+	Data        map[string]interface{} `json:"data"`
+}
+
+type LoginReq struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type LoginResp struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type RegisterReq struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Code     string `json:"code"`
+}
+
+type RegisterResp struct {
+	Data map[string]interface{} `json:"data"`
+}

@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package user;
+option go_package="./user";
+
+message RegisterReq{
+  string username = 1;
+  string password = 2;
+  string code = 3;
+}
+message RegisterResp{
+  string data = 1;
+}
+
+message LoginReq{
+  string username = 1;
+  string password = 2;
+}
+message LoginResp{
+  string access_token = 1;
+  uint64 expires_in = 2;
+  string user = 3;
+}
+
+message InfoReq {
+  uint32 id = 1;
+}
+message InfoResp {
+  string data = 1;
+}
+
+service User {
+  rpc register(RegisterReq) returns(RegisterResp);
+  rpc login (LoginReq) returns (LoginResp);
+  rpc info(InfoReq) returns(InfoResp);
+}
+
+//goctl rpc protoc user.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m

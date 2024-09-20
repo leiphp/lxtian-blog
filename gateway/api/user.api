@@ -1,0 +1,24 @@
+syntax = "v1"
+
+type (
+    RegisterReq {
+        Username string `json:"username"`
+        Password string `json:"password"`
+        Code     string `json:"code"`
+    }
+    RegisterResp {
+        Data       map[string]interface{} `json:"data"`
+    }
+    LoginReq {
+        Username string `json:"username"`
+        Password string `json:"password"`
+    }
+    LoginResp {
+        Data       map[string]interface{} `json:"data"`
+    }
+    InfoResp {
+        AccessToken string `json:"access_token"`
+        ExpiresIn   uint64 `json:"expires_in"`
+        Data        map[string]interface{} `json:"data"`
+    }
+)

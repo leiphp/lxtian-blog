@@ -2,6 +2,7 @@ syntax = "v1"
 
 // 引入 web.api 文件
 import "/api/web.api"
+import "/api/user.api"
 
 // web服务
 @server (
@@ -16,6 +17,29 @@ service gateway-api {
 	@doc "文章详情"
 	@handler Article
 	get /article/:id (ArticleReq) returns (ArticleResp)
+}
+
+// web服务
+@server (
+	prefix: /user
+	group:  user
+)
+service gateway-api {
+	@handler Register
+	post /register (RegisterReq) returns (RegisterResp)
+
+	@handler Login
+	post /login (LoginReq) returns (LoginResp)
+}
+
+@server (
+	jwt:    Auth // 开启 jwt 认证
+	prefix: /user
+	group:  user
+)
+service gateway-api {
+	@handler Info
+	get /info returns (InfoResp)
 }
 
 // goctl api go -api gateway.api -dir .

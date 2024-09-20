@@ -2,11 +2,23 @@ Name: gateway-api
 Host: 0.0.0.0
 Port: 8888
 
+Auth:
+  AccessSecret: leixiaotianblog2024
+  AccessExpire: 24
+
+
 WebRpc:
   Etcd:
     Hosts:
       - 127.0.0.1:2379
     Key: web.rpc
+  Timeout: 10000
+
+UserRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc
   Timeout: 10000
 
 Log:
