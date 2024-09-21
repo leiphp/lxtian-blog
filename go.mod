@@ -3,7 +3,7 @@ module lxtian-blog
 go 1.22.6
 
 require (
-	github.com/zeromicro/go-zero v1.7.1
+	github.com/zeromicro/go-zero v1.7.2
 	go.mongodb.org/mongo-driver v1.16.1
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.2
