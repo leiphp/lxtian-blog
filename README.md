@@ -177,3 +177,26 @@ if err != nil {
 }
 fmt.Println(v)
 ```
+
+### 内存缓存
+#### 案例
+```shell
+// 测试缓存
+l.svcCtx.Cache.Set("userInfo", map[string]interface{}{
+    "id":   txyUser.Id,
+    "name": "雷小天",
+    "age":  18,
+    "sex":  1,
+})
+v, exist := l.svcCtx.Cache.Get("userInfo")
+if !exist {
+    // deal with not exist
+    return nil, errors.New("deal with not exist:数据不存在")
+}
+value, ok := v.(map[string]interface{})
+if !ok {
+    // deal with type error
+    return nil, errors.New("deal with type error:数据类型错误")
+}
+fmt.Println("value:", value)
+```

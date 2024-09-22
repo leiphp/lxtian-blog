@@ -31,7 +31,7 @@ func (l *ArticleLogic) Article(req *types.ArticleReq) (resp *types.ArticleResp, 
 		Id: req.Id,
 	})
 	if err != nil {
-		logc.Errorf(l.ctx, "Article error message: %s", err)
+		logc.Errorf(l.ctx, "Article error: %s", err)
 		return nil, err
 	}
 	resp = new(types.ArticleResp)

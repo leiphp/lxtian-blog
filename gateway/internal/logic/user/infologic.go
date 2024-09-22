@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 
 	"lxtian-blog/gateway/internal/svc"
 	"lxtian-blog/gateway/internal/types"
@@ -24,7 +25,8 @@ func NewInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *InfoLogic {
 }
 
 func (l *InfoLogic) Info() (resp *types.InfoResp, err error) {
-	// todo: add your logic here and delete this line
-
+	// 获取 jwt 载体信息
+	value := l.ctx.Value("custom-key")
+	fmt.Println("value:", value)
 	return
 }

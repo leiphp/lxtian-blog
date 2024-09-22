@@ -22,10 +22,6 @@ func LoginHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := user.NewLoginLogic(r.Context(), svcCtx)
 		resp, err := l.Login(&req)
-		if err != nil {
-			response.Response(r, w, nil, err)
-		} else {
-			response.Response(r, w, resp.Data, err)
-		}
+		response.Response(r, w, resp, err)
 	}
 }

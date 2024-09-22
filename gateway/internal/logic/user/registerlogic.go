@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/zeromicro/go-zero/core/logc"
 	"lxtian-blog/rpc/user/user"
 
@@ -30,11 +29,11 @@ func NewRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Register
 func (l *RegisterLogic) Register(req *types.RegisterReq) (resp *types.RegisterResp, err error) {
 	res, err := l.svcCtx.UserRpc.Register(l.ctx, &user.RegisterReq{
 		Username: req.Username,
+		Password: req.Password,
+		Code:     req.Code,
 	})
-	fmt.Println("Res:", res)
-	fmt.Println("err222:", err)
 	if err != nil {
-		logc.Errorf(l.ctx, "Register error message: %s", err)
+		logc.Errorf(l.ctx, "Register error: %s", err)
 		return nil, err
 	}
 	resp = new(types.RegisterResp)

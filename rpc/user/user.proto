@@ -17,9 +17,7 @@ message LoginReq{
   string password = 2;
 }
 message LoginResp{
-  string access_token = 1;
-  uint64 expires_in = 2;
-  string user = 3;
+  string data = 1;
 }
 
 message InfoReq {
@@ -30,9 +28,9 @@ message InfoResp {
 }
 
 service User {
-  rpc Register(RegisterReq) returns(RegisterResp);
-  rpc Login(LoginReq) returns(LoginResp);
-  rpc Info(InfoReq) returns(InfoResp);
+  rpc Register (RegisterReq) returns (RegisterResp);
+  rpc Login (LoginReq) returns (LoginResp);
+  rpc Info (InfoReq) returns (InfoResp);
 }
 
 //goctl rpc protoc user.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m

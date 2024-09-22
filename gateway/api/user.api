@@ -14,11 +14,11 @@ type (
         Password string `json:"password"`
     }
     LoginResp {
-        Data       map[string]interface{} `json:"data"`
-    }
-    InfoResp {
         AccessToken string `json:"access_token"`
         ExpiresIn   uint64 `json:"expires_in"`
+        User        map[string]interface{} `json:"user"`
+    }
+    InfoResp {
         Data        map[string]interface{} `json:"data"`
     }
 )

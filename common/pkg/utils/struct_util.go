@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/zeromicro/go-zero/core/logc"
 	"reflect"
 	"strings"
@@ -73,6 +74,38 @@ func StructSliceToMapSliceUsingJSON(slice interface{}) ([]map[string]interface{}
 	var result []map[string]interface{}
 	if err := json.Unmarshal(jsonData, &result); err != nil {
 		return nil, err
+	}
+
+	return result, nil
+}
+
+// ConvertToLowercaseJSONTags 接受一个结构体，将字段名转换为小写并返回一个包含小写键的 map
+func ConvertToLowercaseJSONTags(input interface{}) (map[string]interface{}, error) {
+	result := make(map[string]interface{})
+
+	v := reflect.ValueOf(input)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem() // 获取指针指向的值
+	}
+	if v.Kind() != reflect.Struct {
+		return nil, fmt.Errorf("input must be a struct")
+	}
+
+	t := v.Type()
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		fieldType := t.Field(i)
+
+		// 获取 JSON 标签，默认使用字段名
+		jsonTag := fieldType.Tag.Get("json")
+		if jsonTag == "" {
+			jsonTag = strings.ToLower(fieldType.Name)
+		} else {
+			jsonTagParts := strings.Split(jsonTag, ",")
+			jsonTag = jsonTagParts[0] // 只取第一个部分
+		}
+
+		result[jsonTag] = field.Interface()
 	}
 
 	return result, nil

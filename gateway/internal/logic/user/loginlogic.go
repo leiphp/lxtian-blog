@@ -2,8 +2,9 @@ package user
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"github.com/zeromicro/go-zero/core/logc"
+	"lxtian-blog/common/pkg/jwts"
 	"lxtian-blog/rpc/user/user"
 
 	"lxtian-blog/gateway/internal/svc"
@@ -35,10 +36,22 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 		logc.Errorf(l.ctx, "Login error message: %s", err)
 		return nil, err
 	}
-	fmt.Println("res:", res)
-	resp = new(types.LoginResp)
-	resp.Data = map[string]interface{}{
-		"name": "leixiaotian",
+	var result map[string]interface{}
+	if err := json.Unmarshal([]byte(res.Data), &result); err != nil {
+		return nil, err
 	}
+	// 获取token
+	auth := l.svcCtx.Config.Auth
+	token, err := jwts.GenToken(jwts.JwtPayLoad{
+		UserID:   uint(result["id"].(float64)),
+		Username: result["username"].(string),
+	}, auth.AccessSecret, auth.AccessExpire)
+	if err != nil {
+		return nil, err
+	}
+	resp = new(types.LoginResp)
+	resp.User = result
+	resp.AccessToken = token
+	resp.ExpiresIn = uint64(auth.AccessExpire)
 	return
 }

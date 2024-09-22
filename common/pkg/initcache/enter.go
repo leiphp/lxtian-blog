@@ -10,9 +10,9 @@ import (
 // InitCache 初始化缓存
 func InitCache(num int64, name string) (*collection.Cache, error) {
 	if num == 0 {
-		num = 2
+		num = 10
 	}
-	expireTime := time.Second * time.Duration(num)
+	expireTime := time.Minute * time.Duration(num)
 	cache, err := collection.NewCache(expireTime, collection.WithName(name))
 	if err != nil {
 		logc.Errorf(context.Background(), "InitCache error message: %s", err)

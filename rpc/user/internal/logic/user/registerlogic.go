@@ -2,10 +2,13 @@ package userlogic
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
-	"lxtian-blog/common/pkg/initcache"
-
+	"gorm.io/gorm"
+	encrypt "lxtian-blog/common/pkg/utils"
 	"lxtian-blog/rpc/user/internal/svc"
+	"lxtian-blog/rpc/user/model"
 	"lxtian-blog/rpc/user/user"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -26,22 +29,43 @@ func NewRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Register
 }
 
 func (l *RegisterLogic) Register(in *user.RegisterReq) (*user.RegisterResp, error) {
-	cache, err := initcache.InitCache(2, "user")
+	if in.Code != "000000" {
+		return nil, errors.New("验证码校验失败！")
+	}
+	// 查询用户名
+	var txyUser model.TxyUser
+	err := l.svcCtx.DB.First(&txyUser, "username = ?", in.Username).Debug().Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+	if txyUser.Id > 0 {
+		return nil, errors.New("用户名已存在！")
+	}
+	// 插入数据
+	plaintext := []byte(in.Password)
+	encryptPassword, err := encrypt.Encrypt(plaintext)
 	if err != nil {
 		return nil, err
 	}
-	v, exist := cache.Get("userInfo")
-	if !exist {
-		// deal with not exist
-		return nil, errors.New("deal with not exist:数据不存在")
+	passwordStr := base64.StdEncoding.EncodeToString(encryptPassword)
+	userRes := model.TxyUser{
+		Username: in.Username,
+		Password: passwordStr,
 	}
-	value, ok := v.(string)
-	if !ok {
-		// deal with type error
-		return nil, errors.New("deal with type error:数据类型错误")
+	res := l.svcCtx.DB.Create(&userRes)
+	if res.Error != nil {
+		return nil, res.Error
 	}
-
+	var userInfo = make(map[string]interface{}, 3)
+	userInfo["id"] = userRes.Id
+	userInfo["username"] = userRes.Username
+	userInfo["nickname"] = userRes.Nickname
+	// json格式化
+	jsonData, err := json.Marshal(userInfo)
+	if err != nil {
+		return nil, err
+	}
 	return &user.RegisterResp{
-		Data: value,
+		Data: string(jsonData),
 	}, nil
 }
