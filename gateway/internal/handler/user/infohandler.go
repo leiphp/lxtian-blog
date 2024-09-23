@@ -1,9 +1,9 @@
 package user
 
 import (
+	"lxtian-blog/common/restful/response"
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"lxtian-blog/gateway/internal/logic/user"
 	"lxtian-blog/gateway/internal/svc"
 )
@@ -13,9 +13,9 @@ func InfoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := user.NewInfoLogic(r.Context(), svcCtx)
 		resp, err := l.Info()
 		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			response.Response(r, w, nil, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			response.Response(r, w, resp.Data, err)
 		}
 	}
 }

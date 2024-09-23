@@ -33,9 +33,9 @@ service gateway-api {
 }
 
 @server (
-	jwt:    Auth // 开启 jwt 认证
-	prefix: /user
-	group:  user
+	middleware: JwtMiddleware
+	prefix:     /user
+	group:      user
 )
 service gateway-api {
 	@handler Info

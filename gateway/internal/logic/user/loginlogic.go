@@ -52,6 +52,6 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 	resp = new(types.LoginResp)
 	resp.User = result
 	resp.AccessToken = token
-	resp.ExpiresIn = uint64(auth.AccessExpire)
+	resp.ExpiresIn = uint64(auth.AccessExpire) * 3600
 	return
 }

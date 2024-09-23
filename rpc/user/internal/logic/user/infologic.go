@@ -2,9 +2,12 @@ package userlogic
 
 import (
 	"context"
-	"errors"
+	"encoding/json"
+	"fmt"
 	"lxtian-blog/common/pkg/initcache"
+	"lxtian-blog/common/pkg/utils"
 	"lxtian-blog/rpc/user/internal/svc"
+	"lxtian-blog/rpc/user/model"
 	"lxtian-blog/rpc/user/user"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -25,28 +28,50 @@ func NewInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *InfoLogic {
 }
 
 func (l *InfoLogic) Info(in *user.InfoReq) (*user.InfoResp, error) {
-	cache, err := initcache.InitCache(2, "user")
+	// 初始化缓存，缓存过期时间为 60 * 24 分钟
+	cache, err := initcache.InitCache(60*24, "user")
 	if err != nil {
 		return nil, err
 	}
-	cache.Set("userInfo", map[string]interface{}{
-		"id":   in.Id,
-		"name": "雷小天",
-		"age":  30,
-		"sex":  1,
-	})
-	v, exist := cache.Get("userInfo")
-	if !exist {
-		// deal with not exist
-		return nil, errors.New("deal with not exist:数据不存在")
+	// 尝试从缓存获取用户信息
+	v, exist := cache.Get(fmt.Sprintf("userInfo:%d", in.Id))
+	if exist {
+		// 缓存中存在数据，直接返回
+		return l.returnData(v)
 	}
-	value, ok := v.(string)
-	if !ok {
-		// deal with type error
-		return nil, errors.New("deal with type error:数据类型错误")
+	// 如果缓存中没有，查询数据库
+	txyUser, err := l.getUserFromDB(in.Id)
+	if err != nil {
+		return nil, err
 	}
-	// use value
+	// 转换为JSON小写标签格式
+	res, err := utils.ConvertToLowercaseJSONTags(txyUser)
+	if err != nil {
+		return nil, err
+	}
+	// 设置缓存
+	cache.Set(fmt.Sprintf("userInfo:%d", in.Id), res)
+	// 返回结果
+	return l.returnData(res)
+}
+
+// 从数据库获取用户信息
+func (l *InfoLogic) getUserFromDB(id uint32) (*model.TxyUser, error) {
+	var txyUser model.TxyUser
+	if err := l.svcCtx.DB.First(&txyUser, "id = ?", id).Debug().Error; err != nil {
+		return nil, err
+	}
+	return &txyUser, nil
+}
+
+// 返回InfoResp
+func (l *InfoLogic) returnData(data interface{}) (*user.InfoResp, error) {
+	// 转换缓存中的数据为JSON
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
 	return &user.InfoResp{
-		Data: value,
+		Data: string(jsonData),
 	}, nil
 }
