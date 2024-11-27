@@ -19,8 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Web_ArticleList_FullMethodName = "/web.Web/ArticleList"
-	Web_Article_FullMethodName     = "/web.Web/Article"
+	Web_ArticleList_FullMethodName  = "/web.Web/ArticleList"
+	Web_Article_FullMethodName      = "/web.Web/Article"
+	Web_CategoryList_FullMethodName = "/web.Web/CategoryList"
+	Web_ChatList_FullMethodName     = "/web.Web/ChatList"
+	Web_CommentList_FullMethodName  = "/web.Web/CommentList"
+	Web_OrderList_FullMethodName    = "/web.Web/OrderList"
+	Web_TagsList_FullMethodName     = "/web.Web/TagsList"
 )
 
 // WebClient is the client API for Web service.
@@ -29,6 +34,11 @@ const (
 type WebClient interface {
 	ArticleList(ctx context.Context, in *ArticleListReq, opts ...grpc.CallOption) (*ArticleListResp, error)
 	Article(ctx context.Context, in *ArticleReq, opts ...grpc.CallOption) (*ArticleResp, error)
+	CategoryList(ctx context.Context, in *CategoryListReq, opts ...grpc.CallOption) (*CategoryListResp, error)
+	ChatList(ctx context.Context, in *ChatListReq, opts ...grpc.CallOption) (*ChatListResp, error)
+	CommentList(ctx context.Context, in *CommentListReq, opts ...grpc.CallOption) (*CommentListResp, error)
+	OrderList(ctx context.Context, in *OrderListReq, opts ...grpc.CallOption) (*OrderListResp, error)
+	TagsList(ctx context.Context, in *TagsListReq, opts ...grpc.CallOption) (*TagsListResp, error)
 }
 
 type webClient struct {
@@ -57,12 +67,62 @@ func (c *webClient) Article(ctx context.Context, in *ArticleReq, opts ...grpc.Ca
 	return out, nil
 }
 
+func (c *webClient) CategoryList(ctx context.Context, in *CategoryListReq, opts ...grpc.CallOption) (*CategoryListResp, error) {
+	out := new(CategoryListResp)
+	err := c.cc.Invoke(ctx, Web_CategoryList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *webClient) ChatList(ctx context.Context, in *ChatListReq, opts ...grpc.CallOption) (*ChatListResp, error) {
+	out := new(ChatListResp)
+	err := c.cc.Invoke(ctx, Web_ChatList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *webClient) CommentList(ctx context.Context, in *CommentListReq, opts ...grpc.CallOption) (*CommentListResp, error) {
+	out := new(CommentListResp)
+	err := c.cc.Invoke(ctx, Web_CommentList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *webClient) OrderList(ctx context.Context, in *OrderListReq, opts ...grpc.CallOption) (*OrderListResp, error) {
+	out := new(OrderListResp)
+	err := c.cc.Invoke(ctx, Web_OrderList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *webClient) TagsList(ctx context.Context, in *TagsListReq, opts ...grpc.CallOption) (*TagsListResp, error) {
+	out := new(TagsListResp)
+	err := c.cc.Invoke(ctx, Web_TagsList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // WebServer is the server API for Web service.
 // All implementations must embed UnimplementedWebServer
 // for forward compatibility
 type WebServer interface {
 	ArticleList(context.Context, *ArticleListReq) (*ArticleListResp, error)
 	Article(context.Context, *ArticleReq) (*ArticleResp, error)
+	CategoryList(context.Context, *CategoryListReq) (*CategoryListResp, error)
+	ChatList(context.Context, *ChatListReq) (*ChatListResp, error)
+	CommentList(context.Context, *CommentListReq) (*CommentListResp, error)
+	OrderList(context.Context, *OrderListReq) (*OrderListResp, error)
+	TagsList(context.Context, *TagsListReq) (*TagsListResp, error)
 	mustEmbedUnimplementedWebServer()
 }
 
@@ -75,6 +135,21 @@ func (UnimplementedWebServer) ArticleList(context.Context, *ArticleListReq) (*Ar
 }
 func (UnimplementedWebServer) Article(context.Context, *ArticleReq) (*ArticleResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Article not implemented")
+}
+func (UnimplementedWebServer) CategoryList(context.Context, *CategoryListReq) (*CategoryListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CategoryList not implemented")
+}
+func (UnimplementedWebServer) ChatList(context.Context, *ChatListReq) (*ChatListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChatList not implemented")
+}
+func (UnimplementedWebServer) CommentList(context.Context, *CommentListReq) (*CommentListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CommentList not implemented")
+}
+func (UnimplementedWebServer) OrderList(context.Context, *OrderListReq) (*OrderListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OrderList not implemented")
+}
+func (UnimplementedWebServer) TagsList(context.Context, *TagsListReq) (*TagsListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TagsList not implemented")
 }
 func (UnimplementedWebServer) mustEmbedUnimplementedWebServer() {}
 
@@ -125,6 +200,96 @@ func _Web_Article_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Web_CategoryList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CategoryListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebServer).CategoryList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Web_CategoryList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebServer).CategoryList(ctx, req.(*CategoryListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Web_ChatList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChatListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebServer).ChatList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Web_ChatList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebServer).ChatList(ctx, req.(*ChatListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Web_CommentList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CommentListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebServer).CommentList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Web_CommentList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebServer).CommentList(ctx, req.(*CommentListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Web_OrderList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OrderListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebServer).OrderList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Web_OrderList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebServer).OrderList(ctx, req.(*OrderListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Web_TagsList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TagsListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebServer).TagsList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Web_TagsList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebServer).TagsList(ctx, req.(*TagsListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Web_ServiceDesc is the grpc.ServiceDesc for Web service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,6 +304,26 @@ var Web_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Article",
 			Handler:    _Web_Article_Handler,
+		},
+		{
+			MethodName: "CategoryList",
+			Handler:    _Web_CategoryList_Handler,
+		},
+		{
+			MethodName: "ChatList",
+			Handler:    _Web_ChatList_Handler,
+		},
+		{
+			MethodName: "CommentList",
+			Handler:    _Web_CommentList_Handler,
+		},
+		{
+			MethodName: "OrderList",
+			Handler:    _Web_OrderList_Handler,
+		},
+		{
+			MethodName: "TagsList",
+			Handler:    _Web_TagsList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

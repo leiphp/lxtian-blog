@@ -2,7 +2,8 @@ syntax = "v1"
 
 type (
     ArticleListReq {
-        Cid      uint32 `form:"cid"`
+        Cid      uint32 `form:"cid,optional"`
+        Types    uint32 `form:"types,optional"`
         Page     uint32 `form:"page"`
         PageSize uint32 `form:"page_size"`
     }
@@ -17,5 +18,61 @@ type (
     }
     ArticleResp {
         Data       map[string]interface{} `json:"data"`
+    }
+
+    CategoryListReq {
+        Page     uint32 `form:"page,optional"`
+        PageSize uint32 `form:"page_size,optional"`
+    }
+    CategoryListResp {
+        Page       uint32 `json:"page"`
+        PageSize   uint32 `json:"page_size"`
+        List       [] map[string]interface{} `json:"list"`
+        Total      uint64 `json:"total"`
+    }
+
+    ChatListReq {
+        Cid      uint32 `form:"cid,optional"`
+        Page     uint32 `form:"page"`
+        PageSize uint32 `form:"page_size"`
+    }
+    ChatListResp {
+        Page       uint32 `json:"page"`
+        PageSize   uint32 `json:"page_size"`
+        List       [] map[string]interface{} `json:"list"`
+        Total      uint64 `json:"total"`
+    }
+    CommentListReq {
+        Cid      uint32 `form:"cid,optional"`
+        Page     uint32 `form:"page"`
+        PageSize uint32 `form:"page_size"`
+    }
+    CommentListResp {
+        Page       uint32 `json:"page"`
+        PageSize   uint32 `json:"page_size"`
+        List       [] map[string]interface{} `json:"list"`
+        Total      uint64 `json:"total"`
+    }
+    OrderListReq {
+        Cid      uint32 `form:"cid,optional"`
+        Page     uint32 `form:"page"`
+        PageSize uint32 `form:"page_size"`
+    }
+    OrderListResp {
+        Page       uint32 `json:"page"`
+        PageSize   uint32 `json:"page_size"`
+        List       [] map[string]interface{} `json:"list"`
+        Total      uint64 `json:"total"`
+    }
+    TagsListReq {
+        Cid      uint32 `form:"cid,optional"`
+        Page     uint32 `form:"page"`
+        PageSize uint32 `form:"page_size"`
+    }
+    TagsListResp {
+        Page       uint32 `json:"page"`
+        PageSize   uint32 `json:"page_size"`
+        List       [] map[string]interface{} `json:"list"`
+        Total      uint64 `json:"total"`
     }
 )

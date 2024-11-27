@@ -7,6 +7,7 @@ message ArticleListReq {
   uint32 cid = 1;
   uint32 page = 2;
   uint32 page_size = 3;
+  uint32 types = 4;
 }
 message ArticleListResp {
   uint32 page = 1;
@@ -22,10 +23,70 @@ message ArticleResp {
   string data = 1;
 }
 
+message CategoryListReq {
+  uint32 page = 1;
+  uint32 page_size = 2;
+}
+message CategoryListResp {
+  uint32 page = 1;
+  uint32 page_size = 2;
+  string list = 3;
+  uint32 total = 4;
+}
+
+message ChatListReq {
+  uint32 page = 1;
+  uint32 page_size = 2;
+}
+message ChatListResp {
+  uint32 page = 1;
+  uint32 page_size = 2;
+  string list = 3;
+  uint32 total = 4;
+}
+
+message CommentListReq {
+  uint32 page = 1;
+  uint32 page_size = 2;
+}
+message CommentListResp {
+  uint32 page = 1;
+  uint32 page_size = 2;
+  string list = 3;
+  uint32 total = 4;
+}
+
+message OrderListReq {
+  uint32 page = 1;
+  uint32 page_size = 2;
+}
+message OrderListResp {
+  uint32 page = 1;
+  uint32 page_size = 2;
+  string list = 3;
+  uint32 total = 4;
+}
+
+message TagsListReq {
+  uint32 page = 1;
+  uint32 page_size = 2;
+}
+message TagsListResp {
+  uint32 page = 1;
+  uint32 page_size = 2;
+  string list = 3;
+  uint32 total = 4;
+}
+
 
 service Web {
   rpc ArticleList(ArticleListReq) returns(ArticleListResp);
   rpc Article(ArticleReq) returns(ArticleResp);
+  rpc CategoryList(CategoryListReq) returns(CategoryListResp);
+  rpc ChatList(ChatListReq) returns(ChatListResp);
+  rpc CommentList(CommentListReq) returns(CommentListResp);
+  rpc OrderList(OrderListReq) returns(OrderListResp);
+  rpc TagsList(TagsListReq) returns(TagsListResp);
 }
 
 //goctl rpc protoc web.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m

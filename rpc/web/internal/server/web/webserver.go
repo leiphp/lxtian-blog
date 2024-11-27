@@ -32,3 +32,28 @@ func (s *WebServer) Article(ctx context.Context, in *web.ArticleReq) (*web.Artic
 	l := weblogic.NewArticleLogic(ctx, s.svcCtx)
 	return l.Article(in)
 }
+
+func (s *WebServer) CategoryList(ctx context.Context, in *web.CategoryListReq) (*web.CategoryListResp, error) {
+	l := weblogic.NewCategoryListLogic(ctx, s.svcCtx)
+	return l.CategoryList(in)
+}
+
+func (s *WebServer) ChatList(ctx context.Context, in *web.ChatListReq) (*web.ChatListResp, error) {
+	l := weblogic.NewChatListLogic(ctx, s.svcCtx)
+	return l.ChatList(in)
+}
+
+func (s *WebServer) CommentList(ctx context.Context, in *web.CommentListReq) (*web.CommentListResp, error) {
+	l := weblogic.NewCommentListLogic(ctx, s.svcCtx)
+	return l.CommentList(in)
+}
+
+func (s *WebServer) OrderList(ctx context.Context, in *web.OrderListReq) (*web.OrderListResp, error) {
+	l := weblogic.NewOrderListLogic(ctx, s.svcCtx)
+	return l.OrderList(in)
+}
+
+func (s *WebServer) TagsList(ctx context.Context, in *web.TagsListReq) (*web.TagsListResp, error) {
+	l := weblogic.NewTagsListLogic(ctx, s.svcCtx)
+	return l.TagsList(in)
+}

@@ -11,58 +11,55 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type ArticleListLogic struct {
+type ChatListLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
 }
 
-func NewArticleListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ArticleListLogic {
-	return &ArticleListLogic{
+func NewChatListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ChatListLogic {
+	return &ChatListLogic{
 		ctx:    ctx,
 		svcCtx: svcCtx,
 		Logger: logx.WithContext(ctx),
 	}
 }
 
-func (l *ArticleListLogic) ArticleList(in *web.ArticleListReq) (*web.ArticleListResp, error) {
+func (l *ChatListLogic) ChatList(in *web.ChatListReq) (*web.ChatListResp, error) {
 	where := map[string]interface{}{}
-	if in.Cid > 0 {
-		where["cid"] = in.Cid
-	}
+	where["status"] = 1
 	if in.Page == 0 {
 		in.Page = 1
 	}
 	if in.PageSize == 0 {
-		in.PageSize = 10
+		in.PageSize = 3
 	}
 	offset := (in.Page - 1) * in.PageSize
-	var articles []map[string]interface{}
+	var results []map[string]interface{}
 	err := l.svcCtx.DB.
-		Model(&mysql.TxyArticle{}).
-		Select("txy_article.id,txy_article.path,txy_article.title,txy_article.author,txy_article.description,txy_article.keywords,txy_article.cid,txy_article.created_at,c.name cname").
-		Joins("left join txy_category as c on txy_article.cid = c.id").
+		Model(&mysql.TxyChat{}).
+		Select("id,title,cid,ctime,view_count,status").
 		Where(where).
 		Limit(int(in.PageSize)).
 		Offset(int(offset)).
 		Order("id desc").
 		Debug().
-		Find(&articles).Error
+		Find(&results).Error
 	if err != nil {
 		return nil, err
 	}
-	jsonData, err := json.Marshal(articles)
+	jsonData, err := json.Marshal(results)
 	if err != nil {
 		return nil, err
 	}
 	//计算当前type的总数，给分页算总页
 	var total int64
-	err = l.svcCtx.DB.Model(&mysql.TxyArticle{}).Where(where).Count(&total).Error
+	err = l.svcCtx.DB.Model(&mysql.TxyChat{}).Where(where).Count(&total).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return &web.ArticleListResp{
+	return &web.ChatListResp{
 		Page:     in.Page,
 		PageSize: in.PageSize,
 		Total:    uint32(total),
