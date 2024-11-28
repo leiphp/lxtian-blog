@@ -36,7 +36,7 @@ service gateway-api {
 
 	@doc "标签列表"
 	@handler TagsList
-	get /tags/list (TagsListReq) returns (TagsListResp)
+	get /tag/list returns (TagsListResp)
 }
 
 // web服务

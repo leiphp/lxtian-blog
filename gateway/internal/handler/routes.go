@@ -85,7 +85,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			{
 				// 标签列表
 				Method:  http.MethodGet,
-				Path:    "/tags/list",
+				Path:    "/tag/list",
 				Handler: web.TagsListHandler(serverCtx),
 			},
 		},

@@ -101,15 +101,6 @@ type RegisterResp struct {
 	Data map[string]interface{} `json:"data"`
 }
 
-type TagsListReq struct {
-	Cid      uint32 `form:"cid,optional"`
-	Page     uint32 `form:"page"`
-	PageSize uint32 `form:"page_size"`
-}
-
 type TagsListResp struct {
-	Page     uint32                   `json:"page"`
-	PageSize uint32                   `json:"page_size"`
-	List     []map[string]interface{} `json:"list"`
-	Total    uint64                   `json:"total"`
+	Data []map[string]interface{} `json:"list"`
 }

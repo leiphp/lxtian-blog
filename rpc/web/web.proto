@@ -68,14 +68,9 @@ message OrderListResp {
 }
 
 message TagsListReq {
-  uint32 page = 1;
-  uint32 page_size = 2;
 }
 message TagsListResp {
-  uint32 page = 1;
-  uint32 page_size = 2;
-  string list = 3;
-  uint32 total = 4;
+  string list = 1;
 }
 
 
