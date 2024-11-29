@@ -3,6 +3,7 @@ package weblogic
 import (
 	"context"
 	"encoding/json"
+	"lxtian-blog/rpc/web/internal/consts"
 	"lxtian-blog/rpc/web/model/mysql"
 
 	"lxtian-blog/rpc/web/internal/svc"
@@ -27,8 +28,19 @@ func NewArticleListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Artic
 
 func (l *ArticleListLogic) ArticleList(in *web.ArticleListReq) (*web.ArticleListResp, error) {
 	where := map[string]interface{}{}
+	order := "id desc"
 	if in.Cid > 0 {
 		where["cid"] = in.Cid
+	}
+	if in.Types > 0 {
+		switch in.Types {
+		case consts.ArticleTypesRecommend:
+			where["is_tuijian"] = 1
+		case consts.ArticleTypesRank:
+			order = "view_count desc"
+		default:
+
+		}
 	}
 	if in.Page == 0 {
 		in.Page = 1
@@ -40,12 +52,12 @@ func (l *ArticleListLogic) ArticleList(in *web.ArticleListReq) (*web.ArticleList
 	var articles []map[string]interface{}
 	err := l.svcCtx.DB.
 		Model(&mysql.TxyArticle{}).
-		Select("txy_article.id,txy_article.path,txy_article.title,txy_article.author,txy_article.description,txy_article.keywords,txy_article.cid,txy_article.created_at,c.name cname").
+		Select("txy_article.id,txy_article.path,txy_article.title,txy_article.author,txy_article.description,txy_article.keywords,txy_article.cid,txy_article.created_at,txy_article.view_count,c.name cname").
 		Joins("left join txy_category as c on txy_article.cid = c.id").
 		Where(where).
 		Limit(int(in.PageSize)).
 		Offset(int(offset)).
-		Order("id desc").
+		Order(order).
 		Debug().
 		Find(&articles).Error
 	if err != nil {

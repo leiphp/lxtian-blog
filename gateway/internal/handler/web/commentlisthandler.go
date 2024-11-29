@@ -1,6 +1,8 @@
 package web
 
 import (
+	"github.com/zeromicro/go-zero/core/logc"
+	"lxtian-blog/common/restful/response"
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
@@ -14,16 +16,13 @@ func CommentListHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.CommentListReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
+			logc.Errorf(r.Context(), "CommentListHandler error message: %s", err)
+			response.Response(r, w, nil, err)
 			return
 		}
 
 		l := web.NewCommentListLogic(r.Context(), svcCtx)
 		resp, err := l.CommentList(&req)
-		if err != nil {
-			httpx.ErrorCtx(r.Context(), w, err)
-		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
-		}
+		response.Response(r, w, resp, err)
 	}
 }

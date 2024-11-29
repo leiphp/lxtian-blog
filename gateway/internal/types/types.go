@@ -51,7 +51,6 @@ type ChatListResp struct {
 }
 
 type CommentListReq struct {
-	Cid      uint32 `form:"cid,optional"`
 	Page     uint32 `form:"page"`
 	PageSize uint32 `form:"page_size"`
 }
@@ -79,7 +78,6 @@ type LoginResp struct {
 }
 
 type OrderListReq struct {
-	Cid      uint32 `form:"cid,optional"`
 	Page     uint32 `form:"page"`
 	PageSize uint32 `form:"page_size"`
 }

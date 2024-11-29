@@ -31,6 +31,7 @@ func (l *ArticleListLogic) ArticleList(req *types.ArticleListReq) (resp *types.A
 		Cid:      req.Cid,
 		Page:     req.Page,
 		PageSize: req.PageSize,
+		Types:    req.Types,
 	})
 	if err != nil {
 		logc.Errorf(l.ctx, "ArticleList error message: %s", err)

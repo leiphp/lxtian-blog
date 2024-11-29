@@ -43,7 +43,6 @@ type (
         Total      uint64 `json:"total"`
     }
     CommentListReq {
-        Cid      uint32 `form:"cid,optional"`
         Page     uint32 `form:"page"`
         PageSize uint32 `form:"page_size"`
     }
@@ -54,7 +53,6 @@ type (
         Total      uint64 `json:"total"`
     }
     OrderListReq {
-        Cid      uint32 `form:"cid,optional"`
         Page     uint32 `form:"page"`
         PageSize uint32 `form:"page_size"`
     }
