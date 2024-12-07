@@ -6,10 +6,8 @@ import (
 	"errors"
 	"github.com/zeromicro/go-zero/core/logc"
 	"go.mongodb.org/mongo-driver/mongo"
-	model "lxtian-blog/rpc/web/model/mongo"
-	"lxtian-blog/rpc/web/model/mysql"
-
 	"lxtian-blog/rpc/web/internal/svc"
+	model "lxtian-blog/rpc/web/model/mongo"
 	"lxtian-blog/rpc/web/web"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -31,11 +29,13 @@ func NewArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ArticleLo
 
 func (l *ArticleLogic) Article(in *web.ArticleReq) (*web.ArticleResp, error) {
 	where := map[string]interface{}{}
-	where["id"] = in.Id
+	where["a.id"] = in.Id
 	var article map[string]interface{}
 	err := l.svcCtx.DB.
-		Model(&mysql.TxyArticle{}).
-		Select("id,title,author,description,keywords,content,cid,_id").
+		Table("txy_article as a").
+		Select("a.id,a.title,a.author,a.description,a.keywords,a.content,a.cid,a.tid,a.mid,a.view_count, DATE_FORMAT(a.created_at, '%Y-%m-%d %H:%i:%s') AS created_at, DATE_FORMAT(a.updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at,c.name category_name,t.name tag_name").
+		Joins("left join txy_category c on c.id = a.cid").
+		Joins("left join txy_tag t on t.id = a.tid").
 		Where(where).
 		Debug().
 		Find(&article).Error
@@ -46,7 +46,7 @@ func (l *ArticleLogic) Article(in *web.ArticleReq) (*web.ArticleResp, error) {
 	if len(article) > 0 {
 		// mongodb获取文章内容
 		conn := model.NewArticleModel(l.svcCtx.MongoUri, l.svcCtx.Config.MongoDB.DATABASE, "txy_article")
-		contentId, ok := article["_id"].([]byte)
+		contentId, ok := article["mid"].(string)
 		if !ok {
 			// 处理类型断言失败的情况
 			return nil, errors.New("content_id is not a string")
@@ -65,8 +65,8 @@ func (l *ArticleLogic) Article(in *web.ArticleReq) (*web.ArticleResp, error) {
 		}
 	}
 	// 转换 _id 字段的类型
-	if idBytes, ok := article["_id"].([]byte); ok {
-		article["_id"] = string(idBytes)
+	if idBytes, ok := article["mid"].([]byte); ok {
+		article["mid"] = string(idBytes)
 	}
 	jsonData, err := json.Marshal(article)
 	if err != nil {
