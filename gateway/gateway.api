@@ -18,6 +18,10 @@ service gateway-api {
 	@handler Article
 	get /article/:id (ArticleReq) returns (ArticleResp)
 
+	@doc "文章喜欢"
+	@handler ArticleLike
+	get /article/like/:id (ArticleLikeReq) returns (ArticleLikeResp)
+
 	@doc "分类列表"
 	@handler CategoryList
 	get /category/list (CategoryListReq) returns (CategoryListResp)

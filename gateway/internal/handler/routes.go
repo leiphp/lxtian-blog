@@ -53,6 +53,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: web.ArticleHandler(serverCtx),
 			},
 			{
+				// 文章喜欢
+				Method:  http.MethodGet,
+				Path:    "/article/like/:id",
+				Handler: web.ArticleLikeHandler(serverCtx),
+			},
+			{
 				// 文章列表
 				Method:  http.MethodGet,
 				Path:    "/article/list",

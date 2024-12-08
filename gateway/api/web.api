@@ -20,6 +20,13 @@ type (
         Data       map[string]interface{} `json:"data"`
     }
 
+    ArticleLikeReq {
+        Id      uint32 `path:"id"`
+    }
+    ArticleLikeResp {
+        Data       []map[string]interface{} `json:"data"`
+    }
+
     CategoryListReq {
         Page     uint32 `form:"page,optional"`
         PageSize uint32 `form:"page_size,optional"`

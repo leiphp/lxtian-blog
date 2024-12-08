@@ -3,6 +3,14 @@
 
 package types
 
+type ArticleLikeReq struct {
+	Id uint32 `path:"id"`
+}
+
+type ArticleLikeResp struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
 type ArticleListReq struct {
 	Cid      uint32 `form:"cid,optional"`
 	Types    uint32 `form:"types,optional"`
