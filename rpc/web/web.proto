@@ -8,6 +8,8 @@ message ArticleListReq {
   uint32 page = 2;
   uint32 page_size = 3;
   uint32 types = 4;
+  uint32 tid = 5;
+  string keywords = 6;
 }
 message ArticleListResp {
   uint32 page = 1;
@@ -20,6 +22,13 @@ message ArticleReq {
   uint32 id = 1;
 }
 message ArticleResp {
+  string data = 1;
+}
+
+message ArticleLikeReq {
+  uint32 id = 1;
+}
+message ArticleLikeResp {
   string data = 1;
 }
 
@@ -77,6 +86,7 @@ message TagsListResp {
 service Web {
   rpc ArticleList(ArticleListReq) returns(ArticleListResp);
   rpc Article(ArticleReq) returns(ArticleResp);
+  rpc ArticleLike(ArticleLikeReq) returns(ArticleLikeResp);
   rpc CategoryList(CategoryListReq) returns(CategoryListResp);
   rpc ChatList(ChatListReq) returns(ChatListResp);
   rpc CommentList(CommentListReq) returns(CommentListResp);

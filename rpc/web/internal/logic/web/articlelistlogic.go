@@ -32,6 +32,9 @@ func (l *ArticleListLogic) ArticleList(in *web.ArticleListReq) (*web.ArticleList
 	if in.Cid > 0 {
 		where["cid"] = in.Cid
 	}
+	if in.Tid > 0 {
+		where["tid"] = in.Tid
+	}
 	if in.Types > 0 {
 		switch in.Types {
 		case consts.ArticleTypesRecommend:
@@ -41,6 +44,9 @@ func (l *ArticleListLogic) ArticleList(in *web.ArticleListReq) (*web.ArticleList
 		default:
 
 		}
+	}
+	if in.Keywords != "" {
+		where["title like"] = "%" + in.Keywords + "%"
 	}
 	if in.Page == 0 {
 		in.Page = 1
@@ -52,8 +58,9 @@ func (l *ArticleListLogic) ArticleList(in *web.ArticleListReq) (*web.ArticleList
 	var articles []map[string]interface{}
 	err := l.svcCtx.DB.
 		Model(&mysql.TxyArticle{}).
-		Select("txy_article.id,txy_article.path,txy_article.title,txy_article.author,txy_article.description,txy_article.keywords,txy_article.cid,txy_article.created_at,txy_article.view_count,c.name cname").
+		Select("txy_article.id,txy_article.path,txy_article.title,txy_article.author,txy_article.description,txy_article.keywords,txy_article.cid,txy_article.tid,txy_article.created_at,txy_article.view_count,c.name cname,t.name tname").
 		Joins("left join txy_category as c on txy_article.cid = c.id").
+		Joins("left join txy_tag as t on txy_article.tid = t.id").
 		Where(where).
 		Limit(int(in.PageSize)).
 		Offset(int(offset)).

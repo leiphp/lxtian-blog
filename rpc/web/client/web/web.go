@@ -14,6 +14,8 @@ import (
 )
 
 type (
+	ArticleLikeReq   = web.ArticleLikeReq
+	ArticleLikeResp  = web.ArticleLikeResp
 	ArticleListReq   = web.ArticleListReq
 	ArticleListResp  = web.ArticleListResp
 	ArticleReq       = web.ArticleReq
@@ -32,6 +34,7 @@ type (
 	Web interface {
 		ArticleList(ctx context.Context, in *ArticleListReq, opts ...grpc.CallOption) (*ArticleListResp, error)
 		Article(ctx context.Context, in *ArticleReq, opts ...grpc.CallOption) (*ArticleResp, error)
+		ArticleLike(ctx context.Context, in *ArticleLikeReq, opts ...grpc.CallOption) (*ArticleLikeResp, error)
 		CategoryList(ctx context.Context, in *CategoryListReq, opts ...grpc.CallOption) (*CategoryListResp, error)
 		ChatList(ctx context.Context, in *ChatListReq, opts ...grpc.CallOption) (*ChatListResp, error)
 		CommentList(ctx context.Context, in *CommentListReq, opts ...grpc.CallOption) (*CommentListResp, error)
@@ -58,6 +61,11 @@ func (m *defaultWeb) ArticleList(ctx context.Context, in *ArticleListReq, opts .
 func (m *defaultWeb) Article(ctx context.Context, in *ArticleReq, opts ...grpc.CallOption) (*ArticleResp, error) {
 	client := web.NewWebClient(m.cli.Conn())
 	return client.Article(ctx, in, opts...)
+}
+
+func (m *defaultWeb) ArticleLike(ctx context.Context, in *ArticleLikeReq, opts ...grpc.CallOption) (*ArticleLikeResp, error) {
+	client := web.NewWebClient(m.cli.Conn())
+	return client.ArticleLike(ctx, in, opts...)
 }
 
 func (m *defaultWeb) CategoryList(ctx context.Context, in *CategoryListReq, opts ...grpc.CallOption) (*CategoryListResp, error) {

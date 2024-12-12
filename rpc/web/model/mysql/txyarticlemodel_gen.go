@@ -60,6 +60,7 @@ type (
 		UpdatedAt   sql.NullTime `db:"updated_at"` // 更新时间
 		DeletedAt   sql.NullTime `db:"deleted_at"` // 删除时间
 		Cname       string       `json:"cname"` // 分类名称
+		Tname       string       `json:"tname"` // 标签名称
 	}
 )
 

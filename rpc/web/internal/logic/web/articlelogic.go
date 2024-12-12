@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"lxtian-blog/rpc/web/internal/svc"
 	model "lxtian-blog/rpc/web/model/mongo"
+	"lxtian-blog/rpc/web/model/mysql"
 	"lxtian-blog/rpc/web/web"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -64,6 +65,40 @@ func (l *ArticleLogic) Article(in *web.ArticleReq) (*web.ArticleResp, error) {
 			}
 		}
 	}
+	// 查询上一篇文章
+	var previousArticle mysql.TxyArticle
+	err = l.svcCtx.DB.
+		Model(&mysql.TxyArticle{}).
+		Select("id,title").
+		Where("id < ?", in.Id).
+		Order("id DESC").
+		Limit(1).
+		Scan(&previousArticle).Error
+	if err != nil {
+		return nil, err
+	}
+	article["prev"] = map[string]interface{}{
+		"id":    previousArticle.Id,
+		"title": previousArticle.Title,
+	}
+
+	// 查询下一篇文章的 ID
+	var nextArticle mysql.TxyArticle
+	err = l.svcCtx.DB.
+		Model(&mysql.TxyArticle{}).
+		Select("id,title").
+		Where("id > ?", in.Id).
+		Order("id ASC").
+		Limit(1).
+		Scan(&nextArticle).Error
+	if err != nil {
+		return nil, err
+	}
+	article["next"] = map[string]interface{}{
+		"id":    nextArticle.Id,
+		"title": nextArticle.Title,
+	}
+
 	// 转换 _id 字段的类型
 	if idBytes, ok := article["mid"].([]byte); ok {
 		article["mid"] = string(idBytes)

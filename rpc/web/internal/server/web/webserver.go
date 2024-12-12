@@ -33,6 +33,11 @@ func (s *WebServer) Article(ctx context.Context, in *web.ArticleReq) (*web.Artic
 	return l.Article(in)
 }
 
+func (s *WebServer) ArticleLike(ctx context.Context, in *web.ArticleLikeReq) (*web.ArticleLikeResp, error) {
+	l := weblogic.NewArticleLikeLogic(ctx, s.svcCtx)
+	return l.ArticleLike(in)
+}
+
 func (s *WebServer) CategoryList(ctx context.Context, in *web.CategoryListReq) (*web.CategoryListResp, error) {
 	l := weblogic.NewCategoryListLogic(ctx, s.svcCtx)
 	return l.CategoryList(in)

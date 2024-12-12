@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Web_ArticleList_FullMethodName  = "/web.Web/ArticleList"
 	Web_Article_FullMethodName      = "/web.Web/Article"
+	Web_ArticleLike_FullMethodName  = "/web.Web/ArticleLike"
 	Web_CategoryList_FullMethodName = "/web.Web/CategoryList"
 	Web_ChatList_FullMethodName     = "/web.Web/ChatList"
 	Web_CommentList_FullMethodName  = "/web.Web/CommentList"
@@ -34,6 +35,7 @@ const (
 type WebClient interface {
 	ArticleList(ctx context.Context, in *ArticleListReq, opts ...grpc.CallOption) (*ArticleListResp, error)
 	Article(ctx context.Context, in *ArticleReq, opts ...grpc.CallOption) (*ArticleResp, error)
+	ArticleLike(ctx context.Context, in *ArticleLikeReq, opts ...grpc.CallOption) (*ArticleLikeResp, error)
 	CategoryList(ctx context.Context, in *CategoryListReq, opts ...grpc.CallOption) (*CategoryListResp, error)
 	ChatList(ctx context.Context, in *ChatListReq, opts ...grpc.CallOption) (*ChatListResp, error)
 	CommentList(ctx context.Context, in *CommentListReq, opts ...grpc.CallOption) (*CommentListResp, error)
@@ -61,6 +63,15 @@ func (c *webClient) ArticleList(ctx context.Context, in *ArticleListReq, opts ..
 func (c *webClient) Article(ctx context.Context, in *ArticleReq, opts ...grpc.CallOption) (*ArticleResp, error) {
 	out := new(ArticleResp)
 	err := c.cc.Invoke(ctx, Web_Article_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *webClient) ArticleLike(ctx context.Context, in *ArticleLikeReq, opts ...grpc.CallOption) (*ArticleLikeResp, error) {
+	out := new(ArticleLikeResp)
+	err := c.cc.Invoke(ctx, Web_ArticleLike_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -118,6 +129,7 @@ func (c *webClient) TagsList(ctx context.Context, in *TagsListReq, opts ...grpc.
 type WebServer interface {
 	ArticleList(context.Context, *ArticleListReq) (*ArticleListResp, error)
 	Article(context.Context, *ArticleReq) (*ArticleResp, error)
+	ArticleLike(context.Context, *ArticleLikeReq) (*ArticleLikeResp, error)
 	CategoryList(context.Context, *CategoryListReq) (*CategoryListResp, error)
 	ChatList(context.Context, *ChatListReq) (*ChatListResp, error)
 	CommentList(context.Context, *CommentListReq) (*CommentListResp, error)
@@ -135,6 +147,9 @@ func (UnimplementedWebServer) ArticleList(context.Context, *ArticleListReq) (*Ar
 }
 func (UnimplementedWebServer) Article(context.Context, *ArticleReq) (*ArticleResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Article not implemented")
+}
+func (UnimplementedWebServer) ArticleLike(context.Context, *ArticleLikeReq) (*ArticleLikeResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ArticleLike not implemented")
 }
 func (UnimplementedWebServer) CategoryList(context.Context, *CategoryListReq) (*CategoryListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CategoryList not implemented")
@@ -196,6 +211,24 @@ func _Web_Article_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(WebServer).Article(ctx, req.(*ArticleReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Web_ArticleLike_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ArticleLikeReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebServer).ArticleLike(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Web_ArticleLike_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebServer).ArticleLike(ctx, req.(*ArticleLikeReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -304,6 +337,10 @@ var Web_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Article",
 			Handler:    _Web_Article_Handler,
+		},
+		{
+			MethodName: "ArticleLike",
+			Handler:    _Web_ArticleLike_Handler,
 		},
 		{
 			MethodName: "CategoryList",

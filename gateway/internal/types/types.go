@@ -14,6 +14,8 @@ type ArticleLikeResp struct {
 type ArticleListReq struct {
 	Cid      uint32 `form:"cid,optional"`
 	Types    uint32 `form:"types,optional"`
+	Tid      uint32 `form:"tid,optional"`
+	Keywords string `form:"keywords,optional"`
 	Page     uint32 `form:"page"`
 	PageSize uint32 `form:"page_size"`
 }
