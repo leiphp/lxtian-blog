@@ -11,7 +11,17 @@
 ### 启动开发环境
 
 ```shell
+# 配置环境变量
 cp -n .env.example .env || true
+# 查看 .env 文件的格式是否正确
+cat -A .env
+# 重新加载环境变量 确保 .env 文件被正确解析
+docker-compose config
+# 如果发现问题，可以手动修复或者运行 
+dos2unix .env
+# 新版本禁用 Docker BuildKit调试
+DOCKER_BUILDKIT=0 docker-compose up -d --build
+# 运行
 docker compose up -d
 ```
 
