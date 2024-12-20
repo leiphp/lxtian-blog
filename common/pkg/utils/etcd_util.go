@@ -10,7 +10,7 @@ func ParseHosts(hosts string) []string {
 		splitHosts := strings.Split(hosts, ",")
 		result = append(result, splitHosts...)
 	} else {
-		result = append(result, "127.0.0.1:2379")
+		result = append(result, "etcd:2379")
 	}
 	return result
 }

@@ -40,6 +40,26 @@ services:
       - local
     restart: always
 
+  user-rpc:
+    image: ${DOCKER_REGISTRY:-localhost:5000}/${DOCKER_ENV:?请设置docker环境}.user-rpc:latest
+    build:
+      context: .
+      dockerfile: ./rpc/user/Dockerfile
+    environment:
+      - ETCD_HOSTS=etcd:2379  # 设置 etcd 地址
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_TYPE=${REDIS_TYPE}
+      - REDIS_PASS=${REDIS_PASS}
+      - REDIS_TLS=${REDIS_TLS}
+    networks:
+      - local
+    restart: always
+
   gateway-api:
     image: ${DOCKER_REGISTRY:-localhost:5000}/${DOCKER_ENV:?请设置docker环境}.gateway-api:latest
     build:
