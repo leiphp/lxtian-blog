@@ -2,7 +2,7 @@ Name: user.rpc
 ListenOn: 0.0.0.0:8082
 Etcd:
   Hosts:
-    - 127.0.0.1:2379
+    - etcd:2379
   Key: user.rpc
 
 Mysql:
@@ -11,6 +11,19 @@ Mysql:
   DATABASE: ${DB_DATABASE}
   USERNAME: ${DB_USERNAME}
   PASSWORD: ${DB_PASSWORD}
+
+MongoDB:
+  HOST: ${MONGODB_HOST}
+  PORT: ${MONGODB_PORT}
+  DATABASE: ${MONGODB_DATABASE}
+  USERNAME: ${MONGODB_USERNAME}
+  PASSWORD: ${MONGODB_PASSWORD}
+
+RedisConfig:
+  Host: ${REDIS_HOST}
+  Type: ${REDIS_TYPE}
+  Pass: ${REDIS_PASS}
+  Tls: false
 
 Telemetry:
   Name: user-rpc

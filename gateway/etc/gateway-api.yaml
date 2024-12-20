@@ -9,14 +9,14 @@ Auth:
 WebRpc:
   Etcd:
     Hosts:
-      - 127.0.0.1:2379
+      - etcd:2379
     Key: web.rpc
   Timeout: 10000
 
 UserRpc:
   Etcd:
     Hosts:
-      - 127.0.0.1:2379
+      - etcd:2379
     Key: user.rpc
   Timeout: 10000
 

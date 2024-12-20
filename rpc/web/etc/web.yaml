@@ -2,7 +2,7 @@ Name: web.rpc
 ListenOn: 0.0.0.0:8081
 Etcd:
   Hosts:
-  - 127.0.0.1:2379
+    - etcd:2379
   Key: web.rpc
 
 Mysql:

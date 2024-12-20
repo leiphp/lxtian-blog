@@ -6,7 +6,7 @@ networks:
 services:
   etcd:
     image: ${DOCKER_REGISTRY:-localhost:5000}/etcd:3.5.10  # 使用 etcd 的镜像
-    hostname: etcd-v3
+    hostname: etcd
     environment:
       - ETCD_DATA_DIR=/etcd-data
       - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
@@ -14,6 +14,8 @@ services:
       - ALLOW_NONE_AUTHENTICATION=yes
     volumes:
       - etcd-data:/etcd-data  # 持久化存储
+    ports:
+      - "2379:2379"  # 映射端口
     networks:
       - local
     restart: always
@@ -24,12 +26,16 @@ services:
       context: .
       dockerfile: ./rpc/web/Dockerfile
     environment:
-      - ETCD_ENDPOINTS=http://etcd-v3:2379  # 设置 etcd 地址
+      - ETCD_HOSTS=etcd:2379  # 设置 etcd 地址
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - DB_DATABASE=${DB_DATABASE}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_TYPE=${REDIS_TYPE}
+      - REDIS_PASS=${REDIS_PASS}
+      - REDIS_TLS=${REDIS_TLS}
     networks:
       - local
     restart: always
@@ -42,7 +48,7 @@ services:
     ports:
       - ${DOCKER_GATEWAY_PORT:-8888}:8888
     environment:
-      - ETCD_ENDPOINTS=http://etcd-v3:2379  # 设置 etcd 地址
+      - ETCD_HOSTS=etcd:2379  # 设置 etcd 地址
     volumes:
       - ${PWD}/logs:/app/logs:cached
     networks:

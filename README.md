@@ -23,6 +23,28 @@ dos2unix .env
 DOCKER_BUILDKIT=0 docker-compose up -d --build
 # 运行
 docker compose up -d
+
+# 配置中心
+/gateway
+Telemetry:
+  Name: web-rpc
+  Endpoint: ""
+  Batcher: jaeger
+  Sampler: 1.0
+  
+ShortLink:
+  Url: ""
+  Key: ""
+  Domain: ""
+  Protocol: ""
+  
+  
+/web
+Telemetry:
+  Name: web-rpc
+  Endpoint: ""
+  Batcher: jaeger
+  Sampler: 1.0
 ```
 
 ### 安装/更新项目依赖
