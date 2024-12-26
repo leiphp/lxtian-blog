@@ -36,6 +36,11 @@ services:
       - REDIS_TYPE=${REDIS_TYPE}
       - REDIS_PASS=${REDIS_PASS}
       - REDIS_TLS=${REDIS_TLS}
+      - MONGODB_HOST=${MONGODB_HOST}
+      - MONGODB_PORT=${MONGODB_PORT}
+      - MONGODB_DATABASE=${MONGODB_DATABASE}
+      - MONGODB_USERNAME=${MONGODB_USERNAME}
+      - MONGODB_PASSWORD=${MONGODB_PASSWORD}
     networks:
       - local
     restart: always

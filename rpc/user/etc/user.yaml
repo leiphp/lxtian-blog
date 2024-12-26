@@ -2,7 +2,7 @@ Name: user.rpc
 ListenOn: 0.0.0.0:8082
 Etcd:
   Hosts:
-    - etcd:2379
+    - ${ETCD_HOSTS}
   Key: user.rpc
 
 Mysql:

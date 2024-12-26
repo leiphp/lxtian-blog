@@ -1,6 +1,9 @@
 package utils
 
-import "strings"
+import (
+	"os"
+	"strings"
+)
 
 // ParseHosts 接受一个包含多个主机地址的字符串（逗号分隔），并返回一个解析后的主机地址列表
 func ParseHosts(hosts string) []string {
@@ -10,7 +13,7 @@ func ParseHosts(hosts string) []string {
 		splitHosts := strings.Split(hosts, ",")
 		result = append(result, splitHosts...)
 	} else {
-		result = append(result, "etcd:2379")
+		result = append(result, os.Getenv("ETCD_HOSTS"))
 	}
 	return result
 }

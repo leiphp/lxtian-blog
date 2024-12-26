@@ -22,7 +22,7 @@ func main() {
 	flag.Parse()
 
 	var c config.Config
-	conf.MustLoad(*configFile, &c)
+	conf.MustLoad(*configFile, &c, conf.UseEnv())
 	// 使用通用方法解析Etcd主机列表字符串
 	c.WebRpc.Etcd.Hosts = utils.ParseHosts(os.Getenv("ETCD_HOSTS"))
 	// 配置中心加载数据
