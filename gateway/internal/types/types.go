@@ -72,6 +72,11 @@ type CommentListResp struct {
 	Total    uint64                   `json:"total"`
 }
 
+type GetqrResp struct {
+	Uuid  string `json:"uuid"`
+	QrImg string `json:"qr_img"`
+}
+
 type InfoResp struct {
 	Data map[string]interface{} `json:"data"`
 }

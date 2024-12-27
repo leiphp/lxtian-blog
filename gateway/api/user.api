@@ -1,6 +1,11 @@
 syntax = "v1"
 
 type (
+    GetqrResp {
+        Uuid    string `json:"uuid"`
+        QrImg   string `json:"qr_img"`
+    }
+
     RegisterReq {
         Username string `json:"username"`
         Password string `json:"password"`
@@ -9,6 +14,7 @@ type (
     RegisterResp {
         Data       map[string]interface{} `json:"data"`
     }
+
     LoginReq {
         Username string `json:"username"`
         Password string `json:"password"`

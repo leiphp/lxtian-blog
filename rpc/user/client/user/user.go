@@ -14,6 +14,8 @@ import (
 )
 
 type (
+	GetqrReq     = user.GetqrReq
+	GetqrResp    = user.GetqrResp
 	InfoReq      = user.InfoReq
 	InfoResp     = user.InfoResp
 	LoginReq     = user.LoginReq
@@ -22,6 +24,7 @@ type (
 	RegisterResp = user.RegisterResp
 
 	User interface {
+		Getqr(ctx context.Context, in *GetqrReq, opts ...grpc.CallOption) (*GetqrResp, error)
 		Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*RegisterResp, error)
 		Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginResp, error)
 		Info(ctx context.Context, in *InfoReq, opts ...grpc.CallOption) (*InfoResp, error)
@@ -36,6 +39,11 @@ func NewUser(cli zrpc.Client) User {
 	return &defaultUser{
 		cli: cli,
 	}
+}
+
+func (m *defaultUser) Getqr(ctx context.Context, in *GetqrReq, opts ...grpc.CallOption) (*GetqrResp, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.Getqr(ctx, in, opts...)
 }
 
 func (m *defaultUser) Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*RegisterResp, error) {

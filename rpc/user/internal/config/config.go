@@ -11,4 +11,10 @@ type Config struct {
 		USERNAME string `json:",env=DB_USERNAME"`
 		PASSWORD string `json:",env=DB_PASSWORD"`
 	}
+	RedisConfig struct {
+		Host string `json:",env=REDIS_HOST"`
+		Type string `json:",env=REDIS_TYPE"`
+		Pass string `json:",env=REDIS_PASS"`
+		Tls  bool   `json:",env=REDIS_TLS"`
+	}
 }

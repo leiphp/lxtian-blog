@@ -49,9 +49,15 @@ service gateway-api {
 	group:  user
 )
 service gateway-api {
+	@doc "获取二维码"
+	@handler Getqr
+	get /getqr returns (GetqrResp)
+
+	@doc "用户注册"
 	@handler Register
 	post /register (RegisterReq) returns (RegisterResp)
 
+	@doc "用户登录"
 	@handler Login
 	post /login (LoginReq) returns (LoginResp)
 }
