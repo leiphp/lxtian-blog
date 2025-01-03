@@ -20,11 +20,14 @@ type (
 	InfoResp     = user.InfoResp
 	LoginReq     = user.LoginReq
 	LoginResp    = user.LoginResp
+	QrStatusReq  = user.QrStatusReq
+	QrStatusResp = user.QrStatusResp
 	RegisterReq  = user.RegisterReq
 	RegisterResp = user.RegisterResp
 
 	User interface {
 		Getqr(ctx context.Context, in *GetqrReq, opts ...grpc.CallOption) (*GetqrResp, error)
+		QrStatus(ctx context.Context, in *QrStatusReq, opts ...grpc.CallOption) (*QrStatusResp, error)
 		Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*RegisterResp, error)
 		Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginResp, error)
 		Info(ctx context.Context, in *InfoReq, opts ...grpc.CallOption) (*InfoResp, error)
@@ -44,6 +47,11 @@ func NewUser(cli zrpc.Client) User {
 func (m *defaultUser) Getqr(ctx context.Context, in *GetqrReq, opts ...grpc.CallOption) (*GetqrResp, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.Getqr(ctx, in, opts...)
+}
+
+func (m *defaultUser) QrStatus(ctx context.Context, in *QrStatusReq, opts ...grpc.CallOption) (*QrStatusResp, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.QrStatus(ctx, in, opts...)
 }
 
 func (m *defaultUser) Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*RegisterResp, error) {

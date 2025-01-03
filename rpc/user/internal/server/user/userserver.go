@@ -28,6 +28,11 @@ func (s *UserServer) Getqr(ctx context.Context, in *user.GetqrReq) (*user.GetqrR
 	return l.Getqr(in)
 }
 
+func (s *UserServer) QrStatus(ctx context.Context, in *user.QrStatusReq) (*user.QrStatusResp, error) {
+	l := userlogic.NewQrStatusLogic(ctx, s.svcCtx)
+	return l.QrStatus(in)
+}
+
 func (s *UserServer) Register(ctx context.Context, in *user.RegisterReq) (*user.RegisterResp, error) {
 	l := userlogic.NewRegisterLogic(ctx, s.svcCtx)
 	return l.Register(in)

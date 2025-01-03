@@ -104,6 +104,15 @@ type OrderListResp struct {
 	Total    uint64                   `json:"total"`
 }
 
+type QrStatusReq struct {
+	Uuid   string `json:"uuid"`
+	Status uint32 `json:"status"`
+}
+
+type QrStatusResp struct {
+	Data uint32 `json:"data"`
+}
+
 type RegisterReq struct {
 	Username string `json:"username"`
 	Password string `json:"password"`

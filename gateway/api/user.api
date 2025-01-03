@@ -6,6 +6,14 @@ type (
         QrImg   string `json:"qr_img"`
     }
 
+    QrStatusReq {
+        Uuid   string `json:"uuid"`
+        Status uint32 `json:"status"`
+    }
+    QrStatusResp {
+        Data   uint32 `json:"data"`
+    }
+
     RegisterReq {
         Username string `json:"username"`
         Password string `json:"password"`

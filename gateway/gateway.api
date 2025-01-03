@@ -53,6 +53,10 @@ service gateway-api {
 	@handler Getqr
 	get /getqr returns (GetqrResp)
 
+	@doc "更新扫码状态"
+	@handler QrStatus
+	put /qr/status (QrStatusReq) returns (QrStatusResp)
+
 	@doc "用户注册"
 	@handler Register
 	post /register (RegisterReq) returns (RegisterResp)

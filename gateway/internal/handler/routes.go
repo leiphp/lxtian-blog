@@ -29,6 +29,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: user.LoginHandler(serverCtx),
 			},
 			{
+				// 更新扫码状态
+				Method:  http.MethodPut,
+				Path:    "/qr/status",
+				Handler: user.QrStatusHandler(serverCtx),
+			},
+			{
 				// 用户注册
 				Method:  http.MethodPost,
 				Path:    "/register",

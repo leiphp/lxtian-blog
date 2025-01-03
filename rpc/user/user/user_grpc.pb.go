@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	User_Getqr_FullMethodName    = "/user.User/Getqr"
+	User_QrStatus_FullMethodName = "/user.User/QrStatus"
 	User_Register_FullMethodName = "/user.User/Register"
 	User_Login_FullMethodName    = "/user.User/Login"
 	User_Info_FullMethodName     = "/user.User/Info"
@@ -30,6 +31,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
 	Getqr(ctx context.Context, in *GetqrReq, opts ...grpc.CallOption) (*GetqrResp, error)
+	QrStatus(ctx context.Context, in *QrStatusReq, opts ...grpc.CallOption) (*QrStatusResp, error)
 	Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*RegisterResp, error)
 	Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginResp, error)
 	Info(ctx context.Context, in *InfoReq, opts ...grpc.CallOption) (*InfoResp, error)
@@ -46,6 +48,15 @@ func NewUserClient(cc grpc.ClientConnInterface) UserClient {
 func (c *userClient) Getqr(ctx context.Context, in *GetqrReq, opts ...grpc.CallOption) (*GetqrResp, error) {
 	out := new(GetqrResp)
 	err := c.cc.Invoke(ctx, User_Getqr_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) QrStatus(ctx context.Context, in *QrStatusReq, opts ...grpc.CallOption) (*QrStatusResp, error) {
+	out := new(QrStatusResp)
+	err := c.cc.Invoke(ctx, User_QrStatus_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,6 +95,7 @@ func (c *userClient) Info(ctx context.Context, in *InfoReq, opts ...grpc.CallOpt
 // for forward compatibility
 type UserServer interface {
 	Getqr(context.Context, *GetqrReq) (*GetqrResp, error)
+	QrStatus(context.Context, *QrStatusReq) (*QrStatusResp, error)
 	Register(context.Context, *RegisterReq) (*RegisterResp, error)
 	Login(context.Context, *LoginReq) (*LoginResp, error)
 	Info(context.Context, *InfoReq) (*InfoResp, error)
@@ -96,6 +108,9 @@ type UnimplementedUserServer struct {
 
 func (UnimplementedUserServer) Getqr(context.Context, *GetqrReq) (*GetqrResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Getqr not implemented")
+}
+func (UnimplementedUserServer) QrStatus(context.Context, *QrStatusReq) (*QrStatusResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QrStatus not implemented")
 }
 func (UnimplementedUserServer) Register(context.Context, *RegisterReq) (*RegisterResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
@@ -133,6 +148,24 @@ func _User_Getqr_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).Getqr(ctx, req.(*GetqrReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_QrStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QrStatusReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).QrStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_QrStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).QrStatus(ctx, req.(*QrStatusReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -201,6 +234,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Getqr",
 			Handler:    _User_Getqr_Handler,
+		},
+		{
+			MethodName: "QrStatus",
+			Handler:    _User_QrStatus_Handler,
 		},
 		{
 			MethodName: "Register",

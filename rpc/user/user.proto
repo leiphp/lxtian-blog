@@ -9,6 +9,14 @@ message GetqrResp{
   string qr_img = 2;
 }
 
+message QrStatusReq{
+  string uuid = 1;
+  uint32 status = 2;
+}
+message QrStatusResp{
+  string data = 1;
+}
+
 message RegisterReq{
   string username = 1;
   string password = 2;
@@ -35,6 +43,7 @@ message InfoResp {
 
 service User {
   rpc Getqr (GetqrReq) returns (GetqrResp);
+  rpc QrStatus (QrStatusReq) returns (QrStatusResp);
   rpc Register (RegisterReq) returns (RegisterResp);
   rpc Login (LoginReq) returns (LoginResp);
   rpc Info (InfoReq) returns (InfoResp);
