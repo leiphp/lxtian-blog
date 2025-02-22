@@ -29,6 +29,11 @@ message RegisterResp{
 message LoginReq{
   string username = 1;
   string password = 2;
+  uint32 login_type = 3;
+  string code = 4;
+  string uuid = 5;
+  string nickname = 6;
+  string head_img = 7;
 }
 message LoginResp{
   string data = 1;

@@ -3,8 +3,14 @@ Host: 0.0.0.0
 Port: 8888
 
 Auth:
-  AccessSecret: leixiaotianblog2024
+  AccessSecret: ${ACCESS_SECRET}
   AccessExpire: 24
+
+RedisConfig:
+  Host: ${REDIS_HOST}
+  Type: ${REDIS_TYPE}
+  Pass: ${REDIS_PASS}
+  Tls: false
 
 WebRpc:
   Etcd:
@@ -26,6 +32,10 @@ Log:
   KeepDays: 3
   Rotation: daily
   Stat: false
+
+WsService:
+  Host: 127.0.0.1
+  Port: 8889
 
 Telemetry:
   Name: gateway-api

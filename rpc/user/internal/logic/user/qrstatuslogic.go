@@ -3,6 +3,9 @@ package userlogic
 import (
 	"context"
 	"errors"
+	"fmt"
+	"lxtian-blog/common/pkg/define"
+	"lxtian-blog/common/pkg/utils"
 	"lxtian-blog/rpc/user/internal/svc"
 	"lxtian-blog/rpc/user/user"
 	"strings"
@@ -37,13 +40,15 @@ func (l *QrStatusLogic) QrStatus(in *user.QrStatusReq) (*user.QrStatusResp, erro
 	switch in.Status {
 	case 2:
 		//已扫码
-		l.svcCtx.Rds.Setex(in.Uuid, `{"code":2}`, 5*60)
+		l.svcCtx.Rds.Setex(in.Uuid, fmt.Sprintf(`{"code":%d}`, define.AlreadyCode), 5*60)
+		utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, "123456", "已扫码")
 	case 3:
 		//正在登录
-		l.svcCtx.Rds.Setex(in.Uuid, `{"code":3}`, 5*60)
+		l.svcCtx.Rds.Setex(in.Uuid, fmt.Sprintf(`{"code":%d}`, define.GoingCode), 5*60)
+		utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, "123456", "正在登录")
 	case 4:
 		//取消登录
-		l.svcCtx.Rds.Setex(in.Uuid, `{"code":4}`, 5*60)
+		l.svcCtx.Rds.Setex(in.Uuid, fmt.Sprintf(`{"code":%d}`, define.CancelCode), 5*60)
 	default:
 		return nil, errors.New("登录状态码错误")
 	}

@@ -2,10 +2,12 @@ package userlogic
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/leiphp/wechat/miniapp"
 	"github.com/leiphp/wechat/utils"
 	"github.com/zeromicro/go-zero/core/logx"
+	"lxtian-blog/common/pkg/define"
 	"lxtian-blog/rpc/user/internal/svc"
 	"lxtian-blog/rpc/user/user"
 	"strings"
@@ -31,7 +33,7 @@ func (l *GetqrLogic) Getqr(in *user.GetqrReq) (*user.GetqrResp, error) {
 		myApp *miniapp.App
 	)
 	page = "pages/login/login"
-	myApp = miniapp.New("wxa529b8575b203971", "5259b09834a89655159fa650b06ba34d")
+	myApp = miniapp.New(l.svcCtx.Config.MiniAppConf.Appid, l.svcCtx.Config.MiniAppConf.Secret)
 	//获取uuid
 	uuid := uuid.New().String()
 	uuid = strings.Replace(uuid, "-", "", -1)
@@ -60,7 +62,7 @@ func (l *GetqrLogic) Getqr(in *user.GetqrReq) (*user.GetqrResp, error) {
 	imgBinary := utils.ByteToBase64(response)
 	//生成标识
 
-	err = l.svcCtx.Rds.Setex(uuid, `{"code":1}`, 5*60)
+	err = l.svcCtx.Rds.Setex(uuid, fmt.Sprintf(`{"code":%d}`, define.DefaultCode), 5*60)
 	if err != nil {
 		return nil, err
 	}

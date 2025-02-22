@@ -17,4 +17,13 @@ type Config struct {
 		Pass string `json:",env=REDIS_PASS"`
 		Tls  bool   `json:",env=REDIS_TLS"`
 	}
+	WsService struct {
+		Host string
+		Port int
+	}
+
+	MiniAppConf struct {
+		Appid  string `json:",env=APPID"`
+		Secret string `json:",env=SECRET"`
+	}
 }

@@ -82,8 +82,12 @@ type InfoResp struct {
 }
 
 type LoginReq struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	LoginType int32                  `json:"login_type,optional"`
+	Username  string                 `json:"username,optional"`
+	Password  string                 `json:"password,optional"`
+	Code      string                 `json:"code,optional"`
+	Uuid      string                 `json:"uuid,optional"`
+	Userinfo  map[string]interface{} `json:"userinfo"`
 }
 
 type LoginResp struct {

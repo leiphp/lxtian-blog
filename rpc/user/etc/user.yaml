@@ -25,6 +25,15 @@ RedisConfig:
   Pass: ${REDIS_PASS}
   Tls: false
 
+WsService:
+  Host: 127.0.0.1
+  Port: 8889
+
+MiniAppConf:
+  Appid: ${APPID}
+  Secret: ${SECRET}
+
+
 Telemetry:
   Name: user-rpc
   Endpoint: ""
