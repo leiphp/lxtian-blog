@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"lxtian-blog/common/pkg/define"
 	"net/http"
 )
 
@@ -24,4 +25,25 @@ func SendMessageToChatService(host string, port int, userID, message string) err
 		return fmt.Errorf("failed to send message: %s", resp.Status)
 	}
 	return nil
+}
+
+func GetSocketMessage(token, msg string, userinfo define.User) (string, error) {
+	// 初始化结构体数据
+	loginResponse := define.LoginResponse{
+		Type:     "login",
+		Status:   "success",
+		Msg:      msg,
+		Token:    token,
+		UserInfo: userinfo,
+	}
+	// 将结构体转换为 JSON 字符串
+	jsonData, err := json.Marshal(loginResponse)
+	if err != nil {
+		fmt.Println("JSON 编码失败:", err)
+		return "", err
+	}
+	// 打印 JSON 字符串
+	jsonString := string(jsonData)
+	fmt.Println(jsonString)
+	return jsonString, nil
 }

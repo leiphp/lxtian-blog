@@ -34,14 +34,25 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err error) {
 	var res *user.LoginResp
 	var token string
+	var message string
 	switch req.LoginType {
 	case define.MiniAppLogin: //小程序登录
+		if req.Uuid != "" {
+			jsonStr := fmt.Sprintf(`{"code":%d,"token":"%s"}`, define.GoingCode, token)
+			l.svcCtx.Rds.Setex(req.Uuid, jsonStr, 5*60)
+			message, err = utils.GetSocketMessage(token, "正在登录", define.User{})
+			if err != nil {
+				return nil, err
+			}
+			utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, "123456", message)
+		}
 		res, err = l.svcCtx.UserRpc.Login(l.ctx, &user.LoginReq{
 			LoginType: uint32(req.LoginType),
 			Code:      req.Code,
 			Nickname:  gconv.String(req.Userinfo["nickName"]),
 			HeadImg:   gconv.String(req.Userinfo["avatarUrl"]),
 		})
+		fmt.Println("res:", res)
 		if err != nil {
 			logc.Errorf(l.ctx, "Login error message: %s", err)
 			return nil, err
@@ -50,6 +61,7 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 		if err = json.Unmarshal([]byte(res.Data), &result); err != nil {
 			return nil, err
 		}
+		fmt.Println("result:", result)
 		// 获取token
 		auth := l.svcCtx.Config.Auth
 		token, err = jwts.GenToken(jwts.JwtPayLoad{
@@ -67,9 +79,18 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 
 		// 如果是扫码登录，则设置uuid的状态
 		if req.Uuid != "" {
-			jsonStr := fmt.Sprintf(`{"code":%d,"token":"%s"}`, define.GoingCode, token)
+			jsonStr := fmt.Sprintf(`{"code":%d,"token":"%s"}`, define.SuccessCode, token)
 			l.svcCtx.Rds.Setex(req.Uuid, jsonStr, 5*60)
-			utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, "123456", "正在登录")
+			userinfo := define.User{
+				Id:       gconv.Int64(result["id"]),
+				Nickname: gconv.String(result["nickname"]),
+				HeadImg:  gconv.String(result["head_img"]),
+			}
+			message, err = utils.GetSocketMessage(token, "登录成功", userinfo)
+			if err != nil {
+				return nil, err
+			}
+			utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, "123456", message)
 		}
 
 		resp = new(types.LoginResp)

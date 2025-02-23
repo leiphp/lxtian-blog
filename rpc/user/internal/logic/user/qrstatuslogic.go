@@ -29,6 +29,7 @@ func NewQrStatusLogic(ctx context.Context, svcCtx *svc.ServiceContext) *QrStatus
 }
 
 func (l *QrStatusLogic) QrStatus(in *user.QrStatusReq) (*user.QrStatusResp, error) {
+	var message string
 	//检查uuid是否有效
 	res, err := l.svcCtx.Rds.Get(in.Uuid)
 	if err != nil {
@@ -41,14 +42,27 @@ func (l *QrStatusLogic) QrStatus(in *user.QrStatusReq) (*user.QrStatusResp, erro
 	case 2:
 		//已扫码
 		l.svcCtx.Rds.Setex(in.Uuid, fmt.Sprintf(`{"code":%d}`, define.AlreadyCode), 5*60)
-		utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, "123456", "已扫码")
+		message, err = utils.GetSocketMessage("", "已扫码", define.User{})
+		if err != nil {
+			return nil, err
+		}
+		utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, "123456", message)
 	case 3:
 		//正在登录
 		l.svcCtx.Rds.Setex(in.Uuid, fmt.Sprintf(`{"code":%d}`, define.GoingCode), 5*60)
-		utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, "123456", "正在登录")
+		message, err = utils.GetSocketMessage("", "正在登录", define.User{})
+		if err != nil {
+			return nil, err
+		}
+		utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, "123456", message)
 	case 4:
 		//取消登录
 		l.svcCtx.Rds.Setex(in.Uuid, fmt.Sprintf(`{"code":%d}`, define.CancelCode), 5*60)
+		message, err = utils.GetSocketMessage("", "取消登录", define.User{})
+		if err != nil {
+			return nil, err
+		}
+		utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, "123456", message)
 	default:
 		return nil, errors.New("登录状态码错误")
 	}

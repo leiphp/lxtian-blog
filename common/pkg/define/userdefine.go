@@ -34,3 +34,18 @@ const (
 	wechatLogin  = 3 //微信登录
 	MiniAppLogin = 4 //小程序扫码登录
 )
+
+// 定义与 JSON 匹配的结构体
+type LoginResponse struct {
+	Type     string `json:"type"`
+	Status   string `json:"status"`
+	Msg      string `json:"msg"`
+	Token    string `json:"token"`
+	UserInfo User   `json:"userInfo"`
+}
+
+type User struct {
+	Id       int64  `json:"id"`
+	Nickname string `json:"nickname"`
+	HeadImg  string `json:"head_img"`
+}

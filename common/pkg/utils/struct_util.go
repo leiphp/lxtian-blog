@@ -8,6 +8,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logc"
 	"reflect"
 	"strings"
+	"unicode"
 )
 
 // StructSliceToMapSlice 将任何结构体或结构体指针切片转换为 []map[string]interface{}
@@ -99,7 +100,8 @@ func ConvertToLowercaseJSONTags(input interface{}) (map[string]interface{}, erro
 		// 获取 JSON 标签，默认使用字段名
 		jsonTag := fieldType.Tag.Get("json")
 		if jsonTag == "" {
-			jsonTag = strings.ToLower(fieldType.Name)
+			//jsonTag = strings.ToLower(fieldType.Name)
+			jsonTag = toSnakeCase(fieldType.Name) // 将字段名转换为蛇形命名
 		} else {
 			jsonTagParts := strings.Split(jsonTag, ",")
 			jsonTag = jsonTagParts[0] // 只取第一个部分
@@ -109,4 +111,20 @@ func ConvertToLowercaseJSONTags(input interface{}) (map[string]interface{}, erro
 	}
 
 	return result, nil
+}
+
+// toSnakeCase 将驼峰命名字符串转换为蛇形命名（小写加下划线）
+func toSnakeCase(s string) string {
+	var result []rune
+	for i, r := range s {
+		if unicode.IsUpper(r) {
+			if i > 0 && !unicode.IsUpper(rune(s[i-1])) {
+				result = append(result, '_')
+			}
+			result = append(result, unicode.ToLower(r))
+		} else {
+			result = append(result, r)
+		}
+	}
+	return string(result)
 }
