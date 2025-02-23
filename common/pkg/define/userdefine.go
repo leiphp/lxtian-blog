@@ -48,4 +48,6 @@ type User struct {
 	Id       int64  `json:"id"`
 	Nickname string `json:"nickname"`
 	HeadImg  string `json:"head_img"`
+	Gold     uint64 `json:"gold"`
+	Score    uint64 `json:"score"`
 }

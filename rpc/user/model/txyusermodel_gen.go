@@ -60,7 +60,7 @@ type (
 		Gold          uint64         `db:"gold"`
 		Score         uint64         `db:"score"`
 		Conscore      uint64         `db:"conscore"`
-		CreatedAt     sql.NullTime   `db:"created_at"` // 创建时间
+		CreatedAt     string         `db:"created_at"` // 创建时间
 	}
 )
 
