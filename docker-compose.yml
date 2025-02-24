@@ -61,6 +61,8 @@ services:
       - REDIS_TYPE=${REDIS_TYPE}
       - REDIS_PASS=${REDIS_PASS}
       - REDIS_TLS=${REDIS_TLS}
+      - APPID=${APPID}
+      - SECRET=${SECRET}
     networks:
       - local
     restart: always
@@ -74,6 +76,11 @@ services:
       - ${DOCKER_GATEWAY_PORT:-8888}:8888
     environment:
       - ETCD_HOSTS=etcd:2379  # 设置 etcd 地址
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_TYPE=${REDIS_TYPE}
+      - REDIS_PASS=${REDIS_PASS}
+      - REDIS_TLS=${REDIS_TLS}
+      - ACCESS_SECRET=${ACCESS_SECRET}
     volumes:
       - ${PWD}/logs:/app/logs:cached
     networks:
