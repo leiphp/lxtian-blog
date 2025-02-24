@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/leiphp/wechat/miniapp"
 	"github.com/leiphp/wechat/utils"
+	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"lxtian-blog/common/pkg/define"
 	"lxtian-blog/rpc/user/internal/svc"
@@ -32,6 +33,8 @@ func (l *GetqrLogic) Getqr(in *user.GetqrReq) (*user.GetqrResp, error) {
 		page  string
 		myApp *miniapp.App
 	)
+	logc.Info(l.ctx, "MiniAppConf.Appid:", l.svcCtx.Config.MiniAppConf.Appid)
+	logc.Info(l.ctx, "MiniAppConf.Secret:", l.svcCtx.Config.MiniAppConf.Secret)
 	page = "pages/login/login"
 	myApp = miniapp.New(l.svcCtx.Config.MiniAppConf.Appid, l.svcCtx.Config.MiniAppConf.Secret)
 	//获取uuid

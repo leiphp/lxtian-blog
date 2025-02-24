@@ -25,6 +25,13 @@ RedisConfig:
   Pass: ${REDIS_PASS}
   Tls: false
 
+Log:
+  ServiceName: web_rpc
+  Mode: file
+  KeepDays: 3
+  Rotation: daily
+  Stat: false
+
 Telemetry:
   Name: web-rpc
   Endpoint: ""

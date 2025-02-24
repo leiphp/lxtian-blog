@@ -33,6 +33,12 @@ MiniAppConf:
   Appid: ${APPID}
   Secret: ${SECRET}
 
+Log:
+  ServiceName: user_rpc
+  Mode: file
+  KeepDays: 3
+  Rotation: daily
+  Stat: false
 
 Telemetry:
   Name: user-rpc

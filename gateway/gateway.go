@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/logx"
 	"lxtian-blog/common/pkg/utils"
 	"lxtian-blog/gateway/internal/utils/configcenter"
 	"net/http"
@@ -23,6 +24,7 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c, conf.UseEnv())
+	logx.MustSetup(c.Log) // 初始化日志配置
 	// 使用通用方法解析Etcd主机列表字符串
 	c.WebRpc.Etcd.Hosts = utils.ParseHosts(os.Getenv("ETCD_HOSTS"))
 	// 配置中心加载数据

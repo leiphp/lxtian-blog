@@ -23,4 +23,5 @@ go.sum
 vendor
 .env
 gateway/logs
+rpc/user/logs
 html
