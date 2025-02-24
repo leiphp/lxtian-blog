@@ -34,7 +34,7 @@ Log:
   Stat: false
 
 WsService:
-  Host: 127.0.0.1
+  Host: ${WS_HOST}
   Port: 8889
 
 Telemetry:

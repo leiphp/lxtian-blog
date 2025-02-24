@@ -20,7 +20,7 @@ type Config struct {
 	WebRpc    zrpc.RpcClientConf
 	UserRpc   zrpc.RpcClientConf
 	WsService struct {
-		Host string
+		Host string `json:",env=WS_HOST"`
 		Port int
 	}
 }

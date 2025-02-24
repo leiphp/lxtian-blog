@@ -41,6 +41,8 @@ services:
       - MONGODB_DATABASE=${MONGODB_DATABASE}
       - MONGODB_USERNAME=${MONGODB_USERNAME}
       - MONGODB_PASSWORD=${MONGODB_PASSWORD}
+    volumes:
+      - ${PWD}/rpc/web/logs:/app/logs:cached
     networks:
       - local
     restart: always
@@ -63,6 +65,8 @@ services:
       - REDIS_TLS=${REDIS_TLS}
       - APPID=${APPID}
       - SECRET=${SECRET}
+    volumes:
+      - ${PWD}/rpc/user/logs:/app/logs:cached
     networks:
       - local
     restart: always
