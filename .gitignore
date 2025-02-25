@@ -24,4 +24,5 @@ vendor
 .env
 gateway/logs
 rpc/user/logs
+rpc/web/logs
 html

@@ -18,7 +18,7 @@ type Config struct {
 		Tls  bool   `json:",env=REDIS_TLS"`
 	}
 	WsService struct {
-		Host string
+		Host string `json:",env=WS_HOST"`
 		Port int
 	}
 

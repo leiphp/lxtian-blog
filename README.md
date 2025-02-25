@@ -21,7 +21,7 @@ docker-compose config
 dos2unix .env
 # 新版本禁用 Docker BuildKit调试
 DOCKER_BUILDKIT=0 docker-compose up -d --build
-# 运行
+# 运行[运行前需要通过etcdkeeper配置参数]
 docker compose up -d
 
 # 配置中心
@@ -45,6 +45,13 @@ Telemetry:
   Endpoint: ""
   Batcher: jaeger
   Sampler: 1.0
+  
+/user
+Telemetry:
+  Name: user-rpc
+  Endpoint: ""
+  Batcher: jaeger
+  Sampler: 1.0
 ```
 
 ### 安装/更新项目依赖
@@ -54,10 +61,16 @@ go mod tidy
 go mod vendor
 ```
 
-### 停止开发环境
+### 常用环境部署
 
 ```shell
-docker compose down
+docker compose down //删除所有容器
+docker-compose rm -fsv web-rpc //删除web-rpc
+docker-compose rm -fsv user-rpc
+docker-compose rm -fsv gateway-api
+DOCKER_BUILDKIT=0 docker-compose up -d --build web-rpc //构建web-rpc
+DOCKER_BUILDKIT=0 docker-compose up -d --build user-rpc
+DOCKER_BUILDKIT=0 docker-compose up -d --build gateway-api
 ```
 
 ### 运行单元测试

@@ -6,7 +6,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.6.0
 	github.com/leiphp/unit-go-sdk v1.0.4
-	github.com/leiphp/wechat v1.0.1
+	github.com/leiphp/wechat v1.0.5
 	github.com/zeromicro/go-zero v1.7.2
 	go.mongodb.org/mongo-driver v1.16.1
 	google.golang.org/grpc v1.65.0

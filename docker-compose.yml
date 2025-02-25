@@ -65,6 +65,7 @@ services:
       - REDIS_TLS=${REDIS_TLS}
       - APPID=${APPID}
       - SECRET=${SECRET}
+      - WS_HOST=${WS_HOST}
     volumes:
       - ${PWD}/rpc/user/logs:/app/logs:cached
     networks:
@@ -85,6 +86,7 @@ services:
       - REDIS_PASS=${REDIS_PASS}
       - REDIS_TLS=${REDIS_TLS}
       - ACCESS_SECRET=${ACCESS_SECRET}
+      - WS_HOST=${WS_HOST}
     volumes:
       - ${PWD}/logs:/app/logs:cached
     networks:
