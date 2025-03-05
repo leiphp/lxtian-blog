@@ -14,6 +14,7 @@ import (
 	"lxtian-blog/rpc/user/internal/svc"
 	"lxtian-blog/rpc/user/model"
 	"lxtian-blog/rpc/user/user"
+	"time"
 )
 
 type LoginLogic struct {
@@ -43,12 +44,23 @@ func (l *LoginLogic) Login(in *user.LoginReq) (*user.LoginResp, error) {
 		err = l.svcCtx.DB.First(&txyUser, "openid=? and type =?", userInfo.Openid, define.MiniAppLogin).Debug().Error
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				txyUser.Nickname = ""
-				txyUser.HeadImg = ""
+				nickname, err := utils.GenerateNickname(l.svcCtx.DB, 1)
+				if err != nil {
+					return nil, err
+				}
+				headImg, err := utils.GetRandomAvatar(1)
+				if err != nil {
+					return nil, err
+				}
+				txyUser.Username = "user" + utils.RandomString(8)
+				txyUser.Password = l.getPassword("123456")
+				txyUser.Nickname = nickname
+				txyUser.HeadImg = headImg
 				txyUser.Openid = userInfo.Openid
 				txyUser.SessionKey = userInfo.Session
 				txyUser.MiniappOpenid = userInfo.Appid
 				txyUser.Unionid = userInfo.Unionid
+				txyUser.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
 				txyUser.Type = 4
 				result := l.svcCtx.DB.Create(&txyUser)
 				fmt.Println("Id:", result.RowsAffected)
@@ -56,12 +68,13 @@ func (l *LoginLogic) Login(in *user.LoginReq) (*user.LoginResp, error) {
 		} else {
 			var updateMap = make(map[string]interface{})
 			updateMap["session_key"] = userInfo.Session
-			if in.Nickname != "" {
+			if in.Nickname != "" && in.Nickname != "微信用户" && in.Nickname != txyUser.Nickname {
 				updateMap["nickname"] = in.Nickname
+				if in.HeadImg != "" && in.HeadImg != txyUser.HeadImg {
+					updateMap["head_img"] = in.HeadImg
+				}
 			}
-			if in.HeadImg != "" {
-				updateMap["head_img"] = in.HeadImg
-			}
+
 			l.svcCtx.DB.Model(&txyUser).Where("openid = ? and type = ?", userInfo.Openid, define.MiniAppLogin).Debug().Updates(updateMap)
 		}
 		err = l.svcCtx.DB.First(&txyUser, "openid = ? and type = ?", userInfo.Openid, define.MiniAppLogin).Debug().Error
@@ -121,4 +134,14 @@ func (l *LoginLogic) accountLogin(in *user.LoginReq) (*string, error) {
 	}
 	str := string(jsonData)
 	return &str, nil
+}
+
+func (l *LoginLogic) getPassword(password string) string {
+	plaintext := []byte(password)
+	encryptPassword, err := utils.Encrypt(plaintext)
+	if err != nil {
+		return ""
+	}
+	passwordStr := base64.StdEncoding.EncodeToString(encryptPassword)
+	return passwordStr
 }
