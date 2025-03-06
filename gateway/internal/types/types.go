@@ -130,3 +130,12 @@ type RegisterResp struct {
 type TagsListResp struct {
 	Data []map[string]interface{} `json:"list"`
 }
+
+type UpdateInfoReq struct {
+	Nickname string `json:"nickname,optional"`
+	HeadImg  string `json:"head_img,optional"`
+}
+
+type UpdateInfoResp struct {
+	Data map[string]interface{} `json:"data"`
+}

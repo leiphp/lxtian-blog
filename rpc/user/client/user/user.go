@@ -14,16 +14,18 @@ import (
 )
 
 type (
-	GetqrReq     = user.GetqrReq
-	GetqrResp    = user.GetqrResp
-	InfoReq      = user.InfoReq
-	InfoResp     = user.InfoResp
-	LoginReq     = user.LoginReq
-	LoginResp    = user.LoginResp
-	QrStatusReq  = user.QrStatusReq
-	QrStatusResp = user.QrStatusResp
-	RegisterReq  = user.RegisterReq
-	RegisterResp = user.RegisterResp
+	GetqrReq       = user.GetqrReq
+	GetqrResp      = user.GetqrResp
+	InfoReq        = user.InfoReq
+	InfoResp       = user.InfoResp
+	LoginReq       = user.LoginReq
+	LoginResp      = user.LoginResp
+	QrStatusReq    = user.QrStatusReq
+	QrStatusResp   = user.QrStatusResp
+	RegisterReq    = user.RegisterReq
+	RegisterResp   = user.RegisterResp
+	UpdateInfoReq  = user.UpdateInfoReq
+	UpdateInfoResp = user.UpdateInfoResp
 
 	User interface {
 		Getqr(ctx context.Context, in *GetqrReq, opts ...grpc.CallOption) (*GetqrResp, error)
@@ -31,6 +33,7 @@ type (
 		Register(ctx context.Context, in *RegisterReq, opts ...grpc.CallOption) (*RegisterResp, error)
 		Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginResp, error)
 		Info(ctx context.Context, in *InfoReq, opts ...grpc.CallOption) (*InfoResp, error)
+		UpdateInfo(ctx context.Context, in *UpdateInfoReq, opts ...grpc.CallOption) (*UpdateInfoResp, error)
 	}
 
 	defaultUser struct {
@@ -67,4 +70,9 @@ func (m *defaultUser) Login(ctx context.Context, in *LoginReq, opts ...grpc.Call
 func (m *defaultUser) Info(ctx context.Context, in *InfoReq, opts ...grpc.CallOption) (*InfoResp, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.Info(ctx, in, opts...)
+}
+
+func (m *defaultUser) UpdateInfo(ctx context.Context, in *UpdateInfoReq, opts ...grpc.CallOption) (*UpdateInfoResp, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.UpdateInfo(ctx, in, opts...)
 }

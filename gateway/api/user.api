@@ -39,4 +39,12 @@ type (
     InfoResp {
         Data        map[string]interface{} `json:"data"`
     }
+    UpdateInfoReq {
+        Nickname string `json:"nickname,optional"`
+        HeadImg string `json:"head_img,optional"`
+    }
+    UpdateInfoResp {
+        Data       map[string]interface{} `json:"data"`
+    }
+
 )

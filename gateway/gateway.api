@@ -72,8 +72,13 @@ service gateway-api {
 	group:      user
 )
 service gateway-api {
+	@doc "用户信息"
 	@handler Info
 	get /info returns (InfoResp)
+
+	@doc "修改用户信息"
+	@handler UpdateInfo
+	put /update/info (UpdateInfoReq) returns (UpdateInfoResp)
 }
 
 // goctl api go -api gateway.api -dir .

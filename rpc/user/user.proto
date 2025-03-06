@@ -46,12 +46,22 @@ message InfoResp {
   string data = 1;
 }
 
+message UpdateInfoReq{
+  string nickname = 1;
+  string head_img = 2;
+  uint32 id = 3;
+}
+message UpdateInfoResp{
+  string data = 1;
+}
+
 service User {
   rpc Getqr (GetqrReq) returns (GetqrResp);
   rpc QrStatus (QrStatusReq) returns (QrStatusResp);
   rpc Register (RegisterReq) returns (RegisterResp);
   rpc Login (LoginReq) returns (LoginResp);
   rpc Info (InfoReq) returns (InfoResp);
+  rpc UpdateInfo (UpdateInfoReq) returns (UpdateInfoResp);
 }
 
 //goctl rpc protoc user.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m

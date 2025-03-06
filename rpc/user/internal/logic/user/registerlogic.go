@@ -10,6 +10,7 @@ import (
 	"lxtian-blog/rpc/user/internal/svc"
 	"lxtian-blog/rpc/user/model"
 	"lxtian-blog/rpc/user/user"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -49,8 +50,9 @@ func (l *RegisterLogic) Register(in *user.RegisterReq) (*user.RegisterResp, erro
 	}
 	passwordStr := base64.StdEncoding.EncodeToString(encryptPassword)
 	userRes := model.TxyUser{
-		Username: in.Username,
-		Password: passwordStr,
+		Username:  in.Username,
+		Password:  passwordStr,
+		CreatedAt: time.Now().Format("2006-01-02 15:04:05"),
 	}
 	res := l.svcCtx.DB.Create(&userRes)
 	if res.Error != nil {

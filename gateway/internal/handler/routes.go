@@ -49,9 +49,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Middleware{serverCtx.JwtMiddleware},
 			[]rest.Route{
 				{
+					// 用户信息
 					Method:  http.MethodGet,
 					Path:    "/info",
 					Handler: user.InfoHandler(serverCtx),
+				},
+				{
+					// 修改用户信息
+					Method:  http.MethodPut,
+					Path:    "/update/info",
+					Handler: user.UpdateInfoHandler(serverCtx),
 				},
 			}...,
 		),

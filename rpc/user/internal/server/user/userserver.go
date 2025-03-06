@@ -47,3 +47,8 @@ func (s *UserServer) Info(ctx context.Context, in *user.InfoReq) (*user.InfoResp
 	l := userlogic.NewInfoLogic(ctx, s.svcCtx)
 	return l.Info(in)
 }
+
+func (s *UserServer) UpdateInfo(ctx context.Context, in *user.UpdateInfoReq) (*user.UpdateInfoResp, error) {
+	l := userlogic.NewUpdateInfoLogic(ctx, s.svcCtx)
+	return l.UpdateInfo(in)
+}
