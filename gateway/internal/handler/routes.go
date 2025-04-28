@@ -19,7 +19,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			{
 				// 获取二维码
 				Method:  http.MethodGet,
-				Path:    "/getqr",
+				Path:    "/getqr/:ws_user_id",
 				Handler: user.GetqrHandler(serverCtx),
 			},
 			{

@@ -39,12 +39,17 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 	case define.MiniAppLogin: //小程序登录
 		if req.Uuid != "" {
 			jsonStr := fmt.Sprintf(`{"code":%d,"token":"%s"}`, define.GoingCode, token)
-			l.svcCtx.Rds.Setex(req.Uuid, jsonStr, 5*60)
+			l.svcCtx.Rds.Setex(redis.ReturnRedisKey(redis.UserScanString, req.Uuid), jsonStr, 5*60)
 			message, err = utils.GetSocketMessage(token, "正在登录", define.User{})
 			if err != nil {
 				return nil, err
 			}
-			utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, "123456", message)
+			// 根据二维码id获取ws_user_id
+			wsUserId, err := l.svcCtx.Rds.Get(redis.ReturnRedisKey(redis.WsUserIdString, req.Uuid))
+			if err != nil {
+				return nil, err
+			}
+			utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, wsUserId, message)
 		}
 		res, err = l.svcCtx.UserRpc.Login(l.ctx, &user.LoginReq{
 			LoginType: uint32(req.LoginType),
@@ -80,7 +85,7 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 		// 如果是扫码登录，则设置uuid的状态
 		if req.Uuid != "" {
 			jsonStr := fmt.Sprintf(`{"code":%d,"token":"%s"}`, define.SuccessCode, token)
-			l.svcCtx.Rds.Setex(req.Uuid, jsonStr, 5*60)
+			l.svcCtx.Rds.Setex(redis.ReturnRedisKey(redis.UserScanString, req.Uuid), jsonStr, 5*60)
 			userinfo := define.User{
 				Id:       gconv.Int64(result["id"]),
 				Nickname: gconv.String(result["nickname"]),
@@ -92,7 +97,12 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 			if err != nil {
 				return nil, err
 			}
-			utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, "123456", message)
+			// 根据二维码id获取ws_user_id
+			wsUserId, err := l.svcCtx.Rds.Get(redis.ReturnRedisKey(redis.WsUserIdString, req.Uuid))
+			if err != nil {
+				return nil, err
+			}
+			utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, wsUserId, message)
 		}
 
 		resp = new(types.LoginResp)

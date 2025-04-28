@@ -72,6 +72,10 @@ type CommentListResp struct {
 	Total    uint64                   `json:"total"`
 }
 
+type GetqrReq struct {
+	WsUserId string `path:"ws_user_id"`
+}
+
 type GetqrResp struct {
 	Uuid  string `json:"uuid"`
 	QrImg string `json:"qr_img"`

@@ -3,7 +3,9 @@ syntax = "proto3";
 package user;
 option go_package="./user";
 
-message GetqrReq{}
+message GetqrReq{
+  string ws_user_id = 1;
+}
 message GetqrResp{
   string uuid = 1;
   string qr_img = 2;

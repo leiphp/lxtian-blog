@@ -26,8 +26,8 @@ func NewGetqrLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetqrLogic 
 	}
 }
 
-func (l *GetqrLogic) Getqr() (resp *types.GetqrResp, err error) {
-	res, err := l.svcCtx.UserRpc.Getqr(l.ctx, &user.GetqrReq{})
+func (l *GetqrLogic) Getqr(req *types.GetqrReq) (resp *types.GetqrResp, err error) {
+	res, err := l.svcCtx.UserRpc.Getqr(l.ctx, &user.GetqrReq{WsUserId: req.WsUserId})
 	if err != nil {
 		logc.Errorf(l.ctx, "Getqr error message: %s", err)
 		return nil, err

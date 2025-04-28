@@ -9,6 +9,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"lxtian-blog/common/pkg/define"
+	"lxtian-blog/common/pkg/redis"
 	"lxtian-blog/rpc/user/internal/svc"
 	"lxtian-blog/rpc/user/user"
 	"strings"
@@ -65,11 +66,14 @@ func (l *GetqrLogic) Getqr(in *user.GetqrReq) (*user.GetqrResp, error) {
 	imgBinary := utils.ByteToBase64(response)
 	//生成标识
 
-	err = l.svcCtx.Rds.Setex(uuid, fmt.Sprintf(`{"code":%d}`, define.DefaultCode), 5*60)
+	err = l.svcCtx.Rds.Setex(redis.ReturnRedisKey(redis.UserScanString, uuid), fmt.Sprintf(`{"code":%d}`, define.DefaultCode), 5*60)
 	if err != nil {
 		return nil, err
 	}
-	//g.Redis().DoVar("SET", shared.ReturnRedisKey(shared.API_CACHE_STRING_QRUUID, uuid), gconv.String("create"), "EX", gconv.String(shared.ApiCacheStringQruuidExpire))
+	err = l.svcCtx.Rds.Setex(redis.ReturnRedisKey(redis.WsUserIdString, uuid), in.WsUserId, 5*60)
+	if err != nil {
+		return nil, err
+	}
 
 	return &user.GetqrResp{
 		Uuid:  uuid,

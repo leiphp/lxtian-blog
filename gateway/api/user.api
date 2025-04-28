@@ -1,6 +1,10 @@
 syntax = "v1"
 
 type (
+    GetqrReq {
+        WsUserId   string `path:"ws_user_id"`
+    }
+
     GetqrResp {
         Uuid    string `json:"uuid"`
         QrImg   string `json:"qr_img"`

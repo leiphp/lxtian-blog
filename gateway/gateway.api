@@ -51,7 +51,7 @@ service gateway-api {
 service gateway-api {
 	@doc "获取二维码"
 	@handler Getqr
-	get /getqr returns (GetqrResp)
+	get /getqr/:ws_user_id (GetqrReq) returns (GetqrResp)
 
 	@doc "更新扫码状态"
 	@handler QrStatus
