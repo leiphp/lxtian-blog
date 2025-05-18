@@ -1,3 +1,14 @@
 Name: admin-api
 Host: 0.0.0.0
 Port: 8085
+
+Auth:
+  AccessSecret: ${ACCESS_SECRET}
+  AccessExpire: 24
+
+Mysql:
+  HOST: ${DB_HOST}
+  PORT: ${DB_PORT}
+  DATABASE: ${DB_DATABASE}
+  USERNAME: ${DB_USERNAME}
+  PASSWORD: ${DB_PASSWORD}

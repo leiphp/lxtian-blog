@@ -15,10 +15,44 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				Method:  http.MethodGet,
-				Path:    "/from/:name",
-				Handler: AdminHandler(serverCtx),
+				// 后台登录
+				Method:  http.MethodPost,
+				Path:    "/admin/login",
+				Handler: LoginHandler(serverCtx),
 			},
 		},
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.JwtMiddleware},
+			[]rest.Route{
+				{
+					// 用户信息
+					Method:  http.MethodGet,
+					Path:    "/info",
+					Handler: InfoHandler(serverCtx),
+				},
+				{
+					// 菜单管理
+					Method:  http.MethodGet,
+					Path:    "/menus",
+					Handler: MenusHandler(serverCtx),
+				},
+				{
+					// 角色管理
+					Method:  http.MethodGet,
+					Path:    "/roles",
+					Handler: RolesHandler(serverCtx),
+				},
+				{
+					// 用户管理
+					Method:  http.MethodGet,
+					Path:    "/users",
+					Handler: UsersHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/admin"),
 	)
 }

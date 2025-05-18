@@ -112,3 +112,14 @@ func GetRandomAvatar(gender int) (string, error) {
 	randomIndex := rand.Intn(len(filteredAvatars))
 	return filteredAvatars[randomIndex].URL, nil
 }
+
+// ConvertByteFieldsToString 遍历列表中的字段，如果是 []byte 类型就转成 string
+func ConvertByteFieldsToString(data []map[string]interface{}) {
+	for i := range data {
+		for k, v := range data[i] {
+			if bv, ok := v.([]byte); ok {
+				data[i][k] = string(bv)
+			}
+		}
+	}
+}

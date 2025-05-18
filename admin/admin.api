@@ -1,15 +1,33 @@
 syntax = "v1"
 
-type Request {
-	Name string `path:"name,options=you|me"`
-}
-
-type Response {
-	Message string `json:"message"`
-}
+import "/api/user.api"
 
 service admin-api {
-	@handler AdminHandler
-	get /from/:name (Request) returns (Response)
+	@doc "后台登录"
+	@handler Login
+	post /admin/login (LoginReq) returns (LoginResp)
 }
 
+@server (
+	middleware: JwtMiddleware
+	prefix:     /admin
+)
+service admin-api {
+	@doc "用户管理"
+	@handler Users
+	get /users (UsersReq) returns (UsersResp)
+
+	@doc "角色管理"
+	@handler Roles
+	get /roles (RolesReq) returns (RolesResp)
+
+	@doc "菜单管理"
+	@handler Menus
+	get /menus (MenusReq) returns (MenusResp)
+
+	@doc "用户信息"
+	@handler Info
+	get /info returns (InfoResp)
+}
+
+// goctl api go -api admin.api -dir .

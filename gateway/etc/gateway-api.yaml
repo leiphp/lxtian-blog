@@ -42,3 +42,8 @@ Telemetry:
   Endpoint: ""
   Batcher: jaeger
   Sampler: 1.0
+
+Prometheus:
+  Host: 0.0.0.0  # 监听地址
+  Port: 9080      # 暴露/metrics的端口
+  Path: /metrics  # 指标端点路径（默认）

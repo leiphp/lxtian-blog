@@ -40,5 +40,9 @@ func (l *ArticleLogic) Article(req *types.ArticleReq) (resp *types.ArticleResp, 
 		return nil, err
 	}
 	resp.Data = result
+	// 记录订单创建QPS（标签为方法名）
+	// svc.OrderCreateQPS.WithLabelValues("CreateOrder").Inc()
+	// 记录文章浏览QPS（标签为方法名）
+	svc.ArticleViewQPS.WithLabelValues("ArticleView").Inc()
 	return
 }

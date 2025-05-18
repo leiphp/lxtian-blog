@@ -1,17 +1,20 @@
 package config
 
 import (
-	"github.com/zeromicro/go-zero/core/discov"
 	"github.com/zeromicro/go-zero/rest"
 )
 
 type Config struct {
 	rest.RestConf
-	Etcd EtcdConf `json:",optional"` // 新增 ETCD 配置
-}
-
-type EtcdConf struct {
-	discov.EtcdConf     // 内嵌官方结构体
-	DialTimeout     int `json:",default=2000"` // 自定义字段（单位：毫秒）
-	TTL             int `json:",default=10"`   // 自定义字段（单位：秒）
+	Auth struct { // JWT 认证需要的密钥和过期时间配置
+		AccessSecret string `json:",env=ACCESS_SECRET"`
+		AccessExpire int64
+	}
+	Mysql struct {
+		HOST     string `json:",env=DB_HOST"`
+		PORT     string `json:",env=DB_PORT"`
+		DATABASE string `json:",env=DB_DATABASE"`
+		USERNAME string `json:",env=DB_USERNAME"`
+		PASSWORD string `json:",env=DB_PASSWORD"`
+	}
 }

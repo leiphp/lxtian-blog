@@ -3,10 +3,59 @@
 
 package types
 
-type Request struct {
-	Name string `path:"name,options=you|me"`
+type InfoResp struct {
+	User
 }
 
-type Response struct {
-	Message string `json:"message"`
+type LoginReq struct {
+	Username    string `json:"username"`
+	Password    string `json:"password"`
+	CaptchaId   string `json:"captcha_id,optional"`
+	CaptchaCode string `json:"captcha_code,optional"`
+}
+
+type LoginResp struct {
+	Token string `json:"token"`
+	User  User   `json:"user"`
+}
+
+type MenusReq struct {
+	Perm string `form:"perm,optional"`
+}
+
+type MenusResp struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type RolesReq struct {
+	Keywords string `form:"keywords,optional"`
+	Page     int    `form:"page,default=1"`
+	PageSize int    `form:"page_size,default=10"`
+}
+
+type RolesResp struct {
+	Page     int                      `json:"page"`
+	PageSize int                      `json:"page_size"`
+	List     []map[string]interface{} `json:"list"`
+	Total    int64                    `json:"total"`
+}
+
+type User struct {
+	Id          int      `json:"id"`
+	Username    string   `json:"username"`
+	Role        string   `json:"role"`
+	Permissions []string `json:"permissions"`
+}
+
+type UsersReq struct {
+	Keywords string `form:"keywords,optional"`
+	Page     int    `form:"page,default=1"`
+	PageSize int    `form:"page_size,default=10"`
+}
+
+type UsersResp struct {
+	Page     int                      `json:"page"`
+	PageSize int                      `json:"page_size"`
+	List     []map[string]interface{} `json:"list"`
+	Total    int64                    `json:"total"`
 }
