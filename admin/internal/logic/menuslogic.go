@@ -30,10 +30,10 @@ func (l *MenusLogic) Menus(req *types.MenusReq) (resp *types.MenusResp, err erro
 		return nil, errors.New("invalid permission")
 	}
 	resp = new(types.MenusResp)
-	db := l.svcCtx.DB.Table("txy_menu").Order("txy_menu.id ASC")
+	db := l.svcCtx.DB.Table("txy_menu").Order("txy_menu.sort ASC")
 	if req.Perm != "" {
 		var results []MenuWithPerm
-		err = db.Select("txy_menu.id, txy_menu.title, txy_menu.pid, txy_menu.`index`, txy_menu.icon, txy_menu.permiss, txy_permissions.id as perm_id").
+		err = db.Select("txy_menu.id, txy_menu.title, txy_menu.pid, txy_menu.`index`, txy_menu.icon, txy_menu.permiss, txy_menu.sort, txy_permissions.id as perm_id").
 			Joins("LEFT JOIN txy_permissions ON txy_permissions.menu_id = txy_menu.id AND txy_permissions.type = ?", "menu").
 			Group("txy_menu.id").
 			Scan(&results).Error
@@ -49,12 +49,14 @@ func (l *MenusLogic) Menus(req *types.MenusReq) (resp *types.MenusResp, err erro
 				"index":   item.Index,
 				"icon":    item.Icon,
 				"permiss": item.Permiss,
+				"sort":    item.Sort,
 				"perm_id": item.PermId,
 			})
 		}
 	} else {
 		var results []map[string]interface{}
-		err = db.Select("id, title, pid, `index`, icon, permiss").
+		err = db.Select("id, title, pid, `index`, icon, permiss, sort").
+			Order("sort ASC").
 			Find(&results).Error
 		if err != nil {
 			return nil, err

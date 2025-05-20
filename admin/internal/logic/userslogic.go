@@ -32,6 +32,9 @@ func (l *UsersLogic) Users(req *types.UsersReq) (resp *types.UsersResp, err erro
 		Joins("left join txy_roles as r on r.id = ur.role_id")
 	order := "txy_user.id desc"
 	// 填充WHERE条件
+	if req.Role != "" {
+		baseDB = baseDB.Where("r.`key` = ?", req.Role)
+	}
 	if req.Keywords != "" {
 		baseDB = baseDB.Where("txy_user.username like ?", "%"+req.Keywords+"%")
 	}

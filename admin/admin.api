@@ -25,6 +25,10 @@ service admin-api {
 	@handler Menus
 	get /menus (MenusReq) returns (MenusResp)
 
+	@doc "权限保存"
+	@handler PremSave
+	post /prem/save (PremSaveReq) returns (PremSaveResp)
+
 	@doc "用户信息"
 	@handler Info
 	get /info returns (InfoResp)

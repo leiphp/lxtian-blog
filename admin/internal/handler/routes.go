@@ -40,6 +40,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: MenusHandler(serverCtx),
 				},
 				{
+					// 权限保存
+					Method:  http.MethodPost,
+					Path:    "/prem/save",
+					Handler: PremSaveHandler(serverCtx),
+				},
+				{
 					// 角色管理
 					Method:  http.MethodGet,
 					Path:    "/roles",

@@ -10,6 +10,7 @@ import (
 	"lxtian-blog/common/pkg/jwts"
 	"lxtian-blog/common/pkg/model/mysql"
 	"lxtian-blog/common/pkg/utils"
+	"strings"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -33,13 +34,15 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 	//var txyUser mysql.TxyUser
 	var result struct {
 		mysql.TxyUser
-		Key string `json:"key"`
+		Key         string `json:"key"`
+		Permissions string `json:"permissions"`
 	}
 	err = l.svcCtx.DB.
 		Model(&mysql.TxyUser{}).
-		Select("txy_user.id,nickname,username,password,is_admin,head_img,type,r.key").
+		Select("txy_user.id,nickname,username,password,is_admin,head_img,type,r.key,GROUP_CONCAT(rp.perm_id) AS permissions").
 		Joins("left join txy_user_roles as ur on ur.user_id = txy_user.id").
 		Joins("left join txy_roles as r on r.id = ur.role_id").
+		Joins("left join txy_role_permissions  as rp on rp.role_id = r.id").
 		Where("username = ?", req.Username).
 		Debug().
 		First(&result).Error
@@ -49,6 +52,8 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 		}
 		return nil, err // 其他数据库错误
 	}
+
+	permList := strings.Split(result.Permissions, ",")
 
 	// 数据库密码解密
 	decodedBytes, err := base64.StdEncoding.DecodeString(result.Password)
@@ -79,7 +84,7 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 		Id:          int(result.Id),
 		Username:    result.Username,
 		Role:        result.Key,
-		Permissions: []string{"user:list", "user:create"},
+		Permissions: permList,
 	}
 	return
 }

@@ -42,6 +42,7 @@ type (
 		Index     string       `db:"index"`      // 下标
 		Icon      string       `db:"icon"`       // icon
 		Permiss   string       `db:"permiss"`    // 标识
+		Sort      int64        `db:"sort"`       // 排序越小越靠前
 		CreatedAt sql.NullTime `db:"created_at"` // 创建时间
 		UpdatedAt sql.NullTime `db:"updated_at"` // 更新时间
 		DeletedAt sql.NullTime `db:"deleted_at"` // 删除时间
@@ -76,14 +77,14 @@ func (m *defaultTxyMenuModel) FindOne(ctx context.Context, id uint64) (*TxyMenu,
 }
 
 func (m *defaultTxyMenuModel) Insert(ctx context.Context, data *TxyMenu) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, txyMenuRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Title, data.Pid, data.Index, data.Icon, data.Permiss, data.DeletedAt)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, txyMenuRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Title, data.Pid, data.Index, data.Icon, data.Permiss, data.Sort, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultTxyMenuModel) Update(ctx context.Context, data *TxyMenu) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, txyMenuRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.Title, data.Pid, data.Index, data.Icon, data.Permiss, data.DeletedAt, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.Title, data.Pid, data.Index, data.Icon, data.Permiss, data.Sort, data.DeletedAt, data.Id)
 	return err
 }
 

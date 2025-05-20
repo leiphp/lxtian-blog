@@ -27,6 +27,15 @@ type MenusResp struct {
 	Data []map[string]interface{} `json:"data"`
 }
 
+type PremSaveReq struct {
+	RoleId  int64   `json:"role_id"`
+	PermIds []int64 `json:"perm_ids"`
+}
+
+type PremSaveResp struct {
+	Data bool `json:"data"`
+}
+
 type RolesReq struct {
 	Keywords string `form:"keywords,optional"`
 	Page     int    `form:"page,default=1"`
@@ -48,6 +57,7 @@ type User struct {
 }
 
 type UsersReq struct {
+	Role     string `form:"role,optional"`
 	Keywords string `form:"keywords,optional"`
 	Page     int    `form:"page,default=1"`
 	PageSize int    `form:"page_size,default=10"`
