@@ -34,6 +34,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: InfoHandler(serverCtx),
 				},
 				{
+					// 菜单保存
+					Method:  http.MethodPost,
+					Path:    "/menu/save",
+					Handler: MenuSaveHandler(serverCtx),
+				},
+				{
 					// 菜单管理
 					Method:  http.MethodGet,
 					Path:    "/menus",

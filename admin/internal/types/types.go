@@ -19,6 +19,20 @@ type LoginResp struct {
 	User  User   `json:"user"`
 }
 
+type MenuSaveReq struct {
+	Id      int64  `json:"id,optional"`
+	Title   string `json:"title"`
+	Index   string `json:"index"`
+	Icon    string `json:"icon,optional"`
+	Permiss string `json:"permiss,optional"`
+	Pid     int64  `json:"pid"`
+	Sort    int64  `json:"sort,optional"`
+}
+
+type MenuSaveResp struct {
+	Data bool `json:"data"`
+}
+
 type MenusReq struct {
 	Perm string `form:"perm,optional"`
 }
