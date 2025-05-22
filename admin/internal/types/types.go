@@ -3,6 +3,24 @@
 
 package types
 
+type ArticlesReq struct {
+	Cid      int    `form:"cid,optional"`
+	Keywords string `form:"keywords,optional"`
+	Page     int    `form:"page,default=1"`
+	PageSize int    `form:"page_size,default=10"`
+}
+
+type ArticlesResp struct {
+	Page     int                      `json:"page"`
+	PageSize int                      `json:"page_size"`
+	List     []map[string]interface{} `json:"list"`
+	Total    int64                    `json:"total"`
+}
+
+type CategoryResp struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
 type InfoResp struct {
 	User
 }

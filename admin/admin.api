@@ -1,6 +1,7 @@
 syntax = "v1"
 
 import "/api/user.api"
+import "/api/content.api"
 
 service admin-api {
 	@doc "后台登录"
@@ -36,6 +37,14 @@ service admin-api {
 	@doc "用户信息"
 	@handler Info
 	get /info returns (InfoResp)
+
+	@doc "文章管理"
+	@handler Articles
+	get /articles (ArticlesReq) returns (ArticlesResp)
+
+	@doc "文章分类"
+	@handler Category
+	get /category returns (CategoryResp)
 }
 
 // goctl api go -api admin.api -dir .

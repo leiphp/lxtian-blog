@@ -28,6 +28,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Middleware{serverCtx.JwtMiddleware},
 			[]rest.Route{
 				{
+					// 文章管理
+					Method:  http.MethodGet,
+					Path:    "/articles",
+					Handler: ArticlesHandler(serverCtx),
+				},
+				{
+					// 文章分类
+					Method:  http.MethodGet,
+					Path:    "/category",
+					Handler: CategoryHandler(serverCtx),
+				},
+				{
 					// 用户信息
 					Method:  http.MethodGet,
 					Path:    "/info",
