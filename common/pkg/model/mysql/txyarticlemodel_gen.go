@@ -36,29 +36,26 @@ type (
 	}
 
 	TxyArticle struct {
-		Id          uint64       `db:"id"`       // 文章表主键
-		Title       string       `db:"title"`    // 标题
-		Author      string       `db:"author"`   // 作者
-		Content     string       `db:"content"`  // 文章内容
-		Keywords    string       `db:"keywords"` // 关键字
-		Path        string       `db:"path"`
+		Id          uint64       `db:"id"`          // 文章表主键
+		Title       string       `db:"title"`       // 标题
+		Author      string       `db:"author"`      // 作者
+		Content     string       `db:"content"`     // 文章内容
+		Keywords    string       `db:"keywords"`    // 关键字
+		Path        string       `db:"path"`        // 封面
 		Description string       `db:"description"` // 描述
-		IsHot       int64        `db:"is_hot"`
-		IsTuijian   int64        `db:"is_tuijian"`
+		IsHot       int64        `db:"is_hot"`      // 是否热门
+		IsRec       int64        `db:"is_rec"`      // 是否推荐
 		Status      int64        `db:"status"`      // 状态
-		IsDelete    uint64       `db:"is_delete"`   // 是否删除 1是 0否
 		IsTop       uint64       `db:"is_top"`      // 是否置顶 1是 0否
 		IsOriginal  uint64       `db:"is_original"` // 是否原创
-		ViewCount   uint64       `db:"view_count"`
-		Click       uint64       `db:"click"`      // 点击数
-		Ctime       uint64       `db:"ctime"`      // 添加时间
-		Mtime       uint64       `db:"mtime"`      // 修改时间
-		Cid         uint64       `db:"cid"`        // 分类id
-		Tid         int64        `db:"tid"`        // 标签id
-		Mid         string       `db:"mid"`        // mongodbId
-		CreatedAt   sql.NullTime `db:"created_at"` // 创建时间
-		UpdatedAt   sql.NullTime `db:"updated_at"` // 更新时间
-		DeletedAt   sql.NullTime `db:"deleted_at"` // 删除时间
+		ViewCount   uint64       `db:"view_count"`  // 浏览
+		Click       uint64       `db:"click"`       // 点击数
+		Cid         uint64       `db:"cid"`         // 分类id
+		Tid         int64        `db:"tid"`         // 标签id
+		Mid         string       `db:"mid"`         // mongodbId
+		CreatedAt   sql.NullTime `db:"created_at"`  // 创建时间
+		UpdatedAt   sql.NullTime `db:"updated_at"`  // 更新时间
+		DeletedAt   sql.NullTime `db:"deleted_at"`  // 删除时间
 	}
 )
 
@@ -90,14 +87,14 @@ func (m *defaultTxyArticleModel) FindOne(ctx context.Context, id uint64) (*TxyAr
 }
 
 func (m *defaultTxyArticleModel) Insert(ctx context.Context, data *TxyArticle) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, txyArticleRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Title, data.Author, data.Content, data.Keywords, data.Path, data.Description, data.IsHot, data.IsTuijian, data.Status, data.IsDelete, data.IsTop, data.IsOriginal, data.ViewCount, data.Click, data.Ctime, data.Mtime, data.Cid, data.Tid, data.Mid, data.DeletedAt)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, txyArticleRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Title, data.Author, data.Content, data.Keywords, data.Path, data.Description, data.IsHot, data.IsRec, data.Status, data.IsTop, data.IsOriginal, data.ViewCount, data.Click, data.Cid, data.Tid, data.Mid, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultTxyArticleModel) Update(ctx context.Context, data *TxyArticle) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, txyArticleRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.Title, data.Author, data.Content, data.Keywords, data.Path, data.Description, data.IsHot, data.IsTuijian, data.Status, data.IsDelete, data.IsTop, data.IsOriginal, data.ViewCount, data.Click, data.Ctime, data.Mtime, data.Cid, data.Tid, data.Mid, data.DeletedAt, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.Title, data.Author, data.Content, data.Keywords, data.Path, data.Description, data.IsHot, data.IsRec, data.Status, data.IsTop, data.IsOriginal, data.ViewCount, data.Click, data.Cid, data.Tid, data.Mid, data.DeletedAt, data.Id)
 	return err
 }
 

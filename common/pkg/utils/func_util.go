@@ -123,3 +123,53 @@ func ConvertByteFieldsToString(data []map[string]interface{}) {
 		}
 	}
 }
+
+// 处理东八区字段为标准时间
+func FormatTimeFields(data []map[string]interface{}, fields ...string) {
+	for i := range data {
+		for _, field := range fields {
+			if t, ok := data[i][field].(time.Time); ok {
+				data[i][field] = t.Format("2006-01-02 15:04:05")
+			}
+		}
+	}
+}
+
+// 批量处理字段0/1为true or flase
+func FormatBoolFields(data []map[string]interface{}, fields ...string) {
+	for i := range data {
+		for _, field := range fields {
+			if v, ok := data[i][field]; ok {
+				switch val := v.(type) {
+				case int:
+					data[i][field] = val == 1
+				case int8:
+					data[i][field] = val == 1
+				case uint8:
+					data[i][field] = val == 1
+				case int16:
+					data[i][field] = val == 1
+				case int32:
+					data[i][field] = val == 1
+				case int64:
+					data[i][field] = val == 1
+				case float64:
+					data[i][field] = int(val) == 1
+				case []byte:
+					// 数据库返回 []byte 的情况，如 tinyint(1)
+					if string(val) == "1" {
+						data[i][field] = true
+					} else {
+						data[i][field] = false
+					}
+				default:
+					if v == nil {
+						data[i][field] = false
+					} else {
+						fmt.Printf("未匹配字段 [%s]: 类型[%T], 值=%v\n", field, v, v)
+					}
+				}
+			}
+		}
+	}
+}

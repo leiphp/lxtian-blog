@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"lxtian-blog/common/pkg/model/mysql"
 	"lxtian-blog/common/pkg/utils"
 
 	"lxtian-blog/admin/internal/svc"
@@ -28,16 +27,16 @@ func NewArticlesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Articles
 
 func (l *ArticlesLogic) Articles(req *types.ArticlesReq) (resp *types.ArticlesResp, err error) {
 	// 基础查询构建（包含JOIN和公共WHERE条件）
-	baseDB := l.svcCtx.DB.Model(&mysql.TxyArticle{}).
-		Joins("left join txy_category as c on c.id = txy_article.cid").
-		Joins("left join txy_tag as t on t.id = txy_article.tid")
-	order := "txy_article.id desc"
+	baseDB := l.svcCtx.DB.Table("txy_article as a").
+		Joins("left join txy_category as c on c.id = a.cid").
+		Joins("left join txy_tag as t on t.id = a.tid")
+	order := "a.id desc"
 	// 填充WHERE条件
 	if req.Cid != 0 {
-		baseDB = baseDB.Where("txy.`cid` = ?", req.Cid)
+		baseDB = baseDB.Where("a.`cid` = ?", req.Cid)
 	}
 	if req.Keywords != "" {
-		baseDB = baseDB.Where("txy_user.username like ?", "%"+req.Keywords+"%")
+		baseDB = baseDB.Where("a.title like ?", "%"+req.Keywords+"%")
 	}
 	// 计算总数（使用基础查询，无分页/排序）
 	var total int64
@@ -54,7 +53,7 @@ func (l *ArticlesLogic) Articles(req *types.ArticlesReq) (resp *types.ArticlesRe
 	}
 	offset := (req.Page - 1) * req.PageSize
 	var results []map[string]interface{}
-	err = baseDB.Select("txy_article.id,txy_article.title,txy_article.author,txy_article.path,txy_article.status,txy_article.created_at,txy_article.view_count,txy_article.keywords,c.name cname, t.name tname").
+	err = baseDB.Select("a.id,a.title,a.keywords,a.author,a.path,a.status,a.click,a.view_count,a.is_top,a.is_rec,a.is_hot,a.is_original,a.created_at,c.name cname,t.name tname").
 		Limit(req.PageSize).
 		Offset(offset).
 		Order(order).
@@ -65,6 +64,8 @@ func (l *ArticlesLogic) Articles(req *types.ArticlesReq) (resp *types.ArticlesRe
 
 	// 转换 []byte -> string（特别是中文字段）
 	utils.ConvertByteFieldsToString(results)
+	utils.FormatTimeFields(results, "created_at")
+	utils.FormatBoolFields(results, "status", "is_hot", "is_rec", "is_top", "is_original")
 
 	resp = new(types.ArticlesResp)
 	resp.Page = req.Page
