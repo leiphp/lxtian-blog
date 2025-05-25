@@ -43,9 +43,10 @@ type (
 		Description string         `db:"description"` // 描述
 		Sort        uint64         `db:"sort"`        // 排序
 		Pid         uint64         `db:"pid"`         // 父级栏目id
-		Ctime       int64          `db:"ctime"`       // 添加时间
-		Mtime       int64          `db:"mtime"`
 		Status      int64          `db:"status"`
+		CreatedAt   sql.NullTime   `db:"created_at"` // 创建时间
+		UpdatedAt   sql.NullTime   `db:"updated_at"`
+		DeletedAt   sql.NullTime   `db:"deleted_at"`
 	}
 )
 
@@ -77,14 +78,14 @@ func (m *defaultTxyCategoryModel) FindOne(ctx context.Context, id uint64) (*TxyC
 }
 
 func (m *defaultTxyCategoryModel) Insert(ctx context.Context, data *TxyCategory) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, txyCategoryRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Seoname, data.Keywords, data.Description, data.Sort, data.Pid, data.Ctime, data.Mtime, data.Status)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?)", m.table, txyCategoryRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Name, data.Seoname, data.Keywords, data.Description, data.Sort, data.Pid, data.Status, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultTxyCategoryModel) Update(ctx context.Context, data *TxyCategory) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, txyCategoryRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.Name, data.Seoname, data.Keywords, data.Description, data.Sort, data.Pid, data.Ctime, data.Mtime, data.Status, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.Name, data.Seoname, data.Keywords, data.Description, data.Sort, data.Pid, data.Status, data.DeletedAt, data.Id)
 	return err
 }
 

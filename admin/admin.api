@@ -42,6 +42,10 @@ service admin-api {
 	@handler Articles
 	get /articles (ArticlesReq) returns (ArticlesResp)
 
+	@doc "文章详情"
+	@handler Article
+	get /article/:id (ArticleReq) returns (ArticleResp)
+
 	@doc "文章分类"
 	@handler Category
 	get /category returns (CategoryResp)

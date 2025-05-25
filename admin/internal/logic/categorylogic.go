@@ -7,6 +7,7 @@ import (
 	"lxtian-blog/admin/internal/svc"
 	"lxtian-blog/admin/internal/types"
 	"lxtian-blog/common/pkg/model/mysql"
+	"lxtian-blog/common/pkg/utils"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -39,6 +40,8 @@ func (l *CategoryLogic) Category() (resp *types.CategoryResp, err error) {
 		}
 		return nil, err // 其他数据库错误
 	}
+	utils.FormatTimeFields(results, "created_at", "updated_at")
+	utils.FormatBoolFields(results, "status")
 	resp.Data = results
 	return
 }

@@ -16,6 +16,13 @@ type (
         Total      int64 `json:"total"`
     }
 
+    ArticleReq {
+        Id      uint32 `path:"id"`
+    }
+    ArticleResp {
+        Data       map[string]interface{} `json:"data"`
+    }
+
     CategoryResp {
         Data       [] map[string]interface{} `json:"data"`
     }

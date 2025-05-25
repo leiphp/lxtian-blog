@@ -44,7 +44,7 @@ func (l *ArticleListLogic) ArticleList(in *web.ArticleListReq) (*web.ArticleList
 	if in.Types > 0 {
 		switch in.Types {
 		case consts.ArticleTypesRecommend:
-			where["is_tuijian"] = 1
+			where["is_rec"] = 1
 		case consts.ArticleTypesRank:
 			order = "view_count desc"
 		default:
