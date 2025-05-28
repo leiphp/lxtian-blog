@@ -46,9 +46,17 @@ service admin-api {
 	@handler Article
 	get /article/:id (ArticleReq) returns (ArticleResp)
 
+	@doc "文章保存"
+	@handler ArticleSave
+	post /article/save (ArticleSaveReq) returns (ArticleSaveResp)
+
 	@doc "文章分类"
 	@handler Category
 	get /category returns (CategoryResp)
+
+	@doc "标签列表"
+	@handler Tags
+	get /tags returns (TagsResp)
 }
 
 // goctl api go -api admin.api -dir .

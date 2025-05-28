@@ -34,6 +34,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: ArticleHandler(serverCtx),
 				},
 				{
+					// 文章保存
+					Method:  http.MethodPost,
+					Path:    "/article/save",
+					Handler: ArticleSaveHandler(serverCtx),
+				},
+				{
 					// 文章管理
 					Method:  http.MethodGet,
 					Path:    "/articles",
@@ -74,6 +80,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodGet,
 					Path:    "/roles",
 					Handler: RolesHandler(serverCtx),
+				},
+				{
+					// 标签列表
+					Method:  http.MethodGet,
+					Path:    "/tags",
+					Handler: TagsHandler(serverCtx),
 				},
 				{
 					// 用户管理

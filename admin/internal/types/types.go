@@ -11,6 +11,26 @@ type ArticleResp struct {
 	Data map[string]interface{} `json:"data"`
 }
 
+type ArticleSaveReq struct {
+	Id          int64  `json:"id,optional"`
+	Title       string `json:"title"`
+	Author      string `json:"author"`
+	Content     string `json:"content"`
+	Keywords    string `json:"keywords,optional"`
+	Path        string `json:"path"`
+	Description string `json:"description"`
+	IsHot       int64  `json:"is_hot"`
+	IsRec       int64  `json:"is_rec"`
+	IsTop       int64  `json:"is_top"`
+	IsOriginal  int64  `json:"is_original"`
+	Status      int64  `json:"status"`
+	CreatedAt   string `json:"created_at,optional"`
+}
+
+type ArticleSaveResp struct {
+	Data bool `json:"data"`
+}
+
 type ArticlesReq struct {
 	Cid      int    `form:"cid,optional"`
 	Keywords string `form:"keywords,optional"`
@@ -87,6 +107,10 @@ type RolesResp struct {
 	PageSize int                      `json:"page_size"`
 	List     []map[string]interface{} `json:"list"`
 	Total    int64                    `json:"total"`
+}
+
+type TagsResp struct {
+	Data []map[string]interface{} `json:"data"`
 }
 
 type User struct {

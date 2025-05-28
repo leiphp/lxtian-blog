@@ -23,7 +23,30 @@ type (
         Data       map[string]interface{} `json:"data"`
     }
 
+    ArticleSaveReq {
+        Id           int64  `json:"id,optional"`
+        Title        string `json:"title"`
+        Author       string `json:"author"`
+        Content      string `json:"content"`
+        Keywords     string `json:"keywords,optional"`
+        Path         string `json:"path"`
+        Description  string `json:"description"`
+        IsHot        int64    `json:"is_hot"`
+        IsRec        int64   `json:"is_rec"`
+        IsTop        int64    `json:"is_top"`
+        IsOriginal   int64    `json:"is_original"`
+        Status       int64    `json:"status"`
+        CreatedAt    string `json:"created_at,optional"`
+    }
+    ArticleSaveResp {
+        Data        bool `json:"data"`
+    }
+
     CategoryResp {
+        Data       [] map[string]interface{} `json:"data"`
+    }
+
+    TagsResp {
         Data       [] map[string]interface{} `json:"data"`
     }
 
