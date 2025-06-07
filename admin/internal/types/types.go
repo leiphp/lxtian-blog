@@ -14,6 +14,8 @@ type ArticleResp struct {
 type ArticleSaveReq struct {
 	Id          int64  `json:"id,optional"`
 	Title       string `json:"title"`
+	Cid         uint64 `json:"cid"`
+	Tid         []int  `json:"tid"`
 	Author      string `json:"author"`
 	Content     string `json:"content"`
 	Keywords    string `json:"keywords,optional"`
@@ -111,6 +113,10 @@ type RolesResp struct {
 
 type TagsResp struct {
 	Data []map[string]interface{} `json:"data"`
+}
+
+type UploadResp struct {
+	Url string `json:"url"`
 }
 
 type User struct {

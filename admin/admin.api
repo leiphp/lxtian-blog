@@ -57,6 +57,10 @@ service admin-api {
 	@doc "标签列表"
 	@handler Tags
 	get /tags returns (TagsResp)
+
+	@doc "图片上传"
+	@handler Upload
+	post /upload returns (UploadResp)
 }
 
 // goctl api go -api admin.api -dir .

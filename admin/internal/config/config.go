@@ -17,4 +17,11 @@ type Config struct {
 		USERNAME string `json:",env=DB_USERNAME"`
 		PASSWORD string `json:",env=DB_PASSWORD"`
 	}
+	QiniuOss struct {
+		AccessKey string `json:",env=AccessKey"`
+		SecretKey string `json:",env=SecretKey"`
+		Bucket    string `json:",env=Bucket"`
+		Domain    string `json:",env=Domain"`
+		Region    string `json:",env=Region"`
+	}
 }

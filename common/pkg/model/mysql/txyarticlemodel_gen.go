@@ -51,7 +51,7 @@ type (
 		ViewCount   uint64       `db:"view_count"`  // 浏览
 		Click       uint64       `db:"click"`       // 点击数
 		Cid         uint64       `db:"cid"`         // 分类id
-		Tid         int64        `db:"tid"`         // 标签id
+		Tid         string       `db:"tid"`         // 标签id
 		Mid         string       `db:"mid"`         // mongodbId
 		CreatedAt   sql.NullTime `db:"created_at"`  // 创建时间
 		UpdatedAt   sql.NullTime `db:"updated_at"`  // 更新时间

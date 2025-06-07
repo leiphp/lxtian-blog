@@ -3,6 +3,8 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
+	"fmt"
 	"lxtian-blog/common/pkg/model/mysql"
 	"time"
 
@@ -41,12 +43,17 @@ func (l *ArticleSaveLogic) ArticleSave(req *types.ArticleSaveReq) (resp *types.A
 			tx.Rollback()
 		}
 	}()
-
+	tidJson, err := json.Marshal(req.Tid) // req.Tid 是 []int
+	if err != nil {
+		return nil, fmt.Errorf("标签序列化失败: %w", err)
+	}
 	// 1.判断是插入还是更新
 	data := mysql.TxyArticle{
 		Title:       req.Title,
 		Author:      req.Author,
 		Content:     req.Content,
+		Tid:         string(tidJson),
+		Cid:         req.Cid,
 		Keywords:    req.Keywords,
 		Path:        req.Path,
 		Description: req.Description,

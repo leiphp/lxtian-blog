@@ -7,6 +7,7 @@ import (
 	"lxtian-blog/common/pkg/define"
 	"math/rand"
 	"net/http"
+	"path"
 	"time"
 )
 
@@ -172,4 +173,12 @@ func FormatBoolFields(data []map[string]interface{}, fields ...string) {
 			}
 		}
 	}
+}
+
+// 生成唯一文件名
+func GenerateFilename(original string) string {
+	ext := path.Ext(original) // .png
+	name := fmt.Sprintf("%d_%d%s", time.Now().UnixNano(), rand.Intn(1000), ext)
+	prefix := time.Now().Format("200601")     // 生成 "202506"
+	return fmt.Sprintf("%s/%s", prefix, name) // 返回 "202506/xxx.png"
 }

@@ -12,3 +12,10 @@ Mysql:
   DATABASE: ${DB_DATABASE}
   USERNAME: ${DB_USERNAME}
   PASSWORD: ${DB_PASSWORD}
+
+QiniuOss:
+  AccessKey: ${AccessKey}
+  SecretKey: ${SecretKey}
+  Bucket: ${Bucket}
+  Domain: ${Domain}
+  Region: ${Region}

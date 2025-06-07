@@ -88,6 +88,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: TagsHandler(serverCtx),
 				},
 				{
+					// 图片上传
+					Method:  http.MethodPost,
+					Path:    "/upload",
+					Handler: UploadHandler(serverCtx),
+				},
+				{
 					// 用户管理
 					Method:  http.MethodGet,
 					Path:    "/users",

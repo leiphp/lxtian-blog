@@ -26,16 +26,18 @@ type (
     ArticleSaveReq {
         Id           int64  `json:"id,optional"`
         Title        string `json:"title"`
+        Cid          uint64 `json:"cid"`
+        Tid          []int  `json:"tid"`
         Author       string `json:"author"`
         Content      string `json:"content"`
         Keywords     string `json:"keywords,optional"`
         Path         string `json:"path"`
         Description  string `json:"description"`
-        IsHot        int64    `json:"is_hot"`
-        IsRec        int64   `json:"is_rec"`
-        IsTop        int64    `json:"is_top"`
-        IsOriginal   int64    `json:"is_original"`
-        Status       int64    `json:"status"`
+        IsHot        int64  `json:"is_hot"`
+        IsRec        int64  `json:"is_rec"`
+        IsTop        int64  `json:"is_top"`
+        IsOriginal   int64  `json:"is_original"`
+        Status       int64  `json:"status"`
         CreatedAt    string `json:"created_at,optional"`
     }
     ArticleSaveResp {
@@ -48,6 +50,10 @@ type (
 
     TagsResp {
         Data       [] map[string]interface{} `json:"data"`
+    }
+
+    UploadResp {
+        Url       string `json:"url"`
     }
 
 )
