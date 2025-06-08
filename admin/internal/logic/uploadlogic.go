@@ -3,7 +3,6 @@ package logic
 import (
 	"context"
 	"fmt"
-	"github.com/leiphp/gokit/pkg/sdk/qiniu"
 	"lxtian-blog/admin/internal/svc"
 	"lxtian-blog/admin/internal/types"
 	"lxtian-blog/common/pkg/utils"
@@ -38,17 +37,8 @@ func (l *UploadLogic) Upload(r *http.Request) (resp *types.UploadResp, err error
 
 	// 自定义保存逻辑，例如保存到七牛或本地
 	filename := utils.GenerateFilename(header.Filename)
-	qiniuOss := l.svcCtx.Config.QiniuOss
-	// 上传图片到七牛
-	client := qiniu.NewClient(qiniu.QiniuConfig{
-		AccessKey: qiniuOss.AccessKey,
-		SecretKey: qiniuOss.SecretKey,
-		Bucket:    qiniuOss.Bucket,
-		Domain:    qiniuOss.Domain,
-		Region:    qiniuOss.Region,
-	})
 	// 上传文件
-	url, err := client.UploadFile(file, fmt.Sprintf("blog/cover/%s", filename))
+	url, err := l.svcCtx.QiniuClient.UploadFile(file, fmt.Sprintf("blog/cover/%s", filename))
 	if err != nil {
 		return nil, err
 	}

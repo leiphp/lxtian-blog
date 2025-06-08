@@ -7,6 +7,7 @@ import (
 	"lxtian-blog/admin/internal/svc"
 	"lxtian-blog/admin/internal/types"
 	"lxtian-blog/common/pkg/model/mysql"
+	"strings"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -40,6 +41,11 @@ func (l *ArticleLogic) Article(req *types.ArticleReq) (resp *types.ArticleResp, 
 		}
 		return nil, err // 其他数据库错误
 	}
+	path := result["path"].(string)
+	if !strings.HasPrefix(path, "http://") && !strings.HasPrefix(path, "https://") {
+		path = l.svcCtx.QiniuClient.PrivateURL(path, 3600)
+	}
+	result["path"] = path
 	resp.Data = result
 	return
 }

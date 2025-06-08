@@ -2,6 +2,7 @@ package svc
 
 import (
 	"fmt"
+	"github.com/leiphp/gokit/pkg/sdk/qiniu"
 	"github.com/zeromicro/go-zero/rest"
 	"gorm.io/gorm"
 	"lxtian-blog/admin/internal/config"
@@ -13,6 +14,7 @@ type ServiceContext struct {
 	Config        config.Config
 	JwtMiddleware rest.Middleware
 	DB            *gorm.DB
+	QiniuClient   *qiniu.QiniuClient
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -24,9 +26,17 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		c.Mysql.DATABASE,
 	)
 	mysqlDb := initdb.InitDB(dataSource)
+	client := qiniu.NewClient(qiniu.QiniuConfig{
+		AccessKey: c.QiniuOss.AccessKey,
+		SecretKey: c.QiniuOss.SecretKey,
+		Bucket:    c.QiniuOss.Bucket,
+		Domain:    c.QiniuOss.Domain,
+		Region:    c.QiniuOss.Region,
+	})
 	return &ServiceContext{
 		Config:        c,
 		JwtMiddleware: middleware.NewJwtMiddleware(c.Auth.AccessSecret, c.Auth.AccessExpire).Handle,
 		DB:            mysqlDb,
+		QiniuClient:   client,
 	}
 }
