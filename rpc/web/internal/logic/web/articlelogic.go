@@ -6,9 +6,9 @@ import (
 	"errors"
 	"github.com/zeromicro/go-zero/core/logc"
 	"go.mongodb.org/mongo-driver/mongo"
+	model "lxtian-blog/common/pkg/model/mongo"
+	"lxtian-blog/common/pkg/model/mysql"
 	"lxtian-blog/rpc/web/internal/svc"
-	model "lxtian-blog/rpc/web/model/mongo"
-	"lxtian-blog/rpc/web/model/mysql"
 	"lxtian-blog/rpc/web/web"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -30,7 +30,7 @@ func NewArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ArticleLo
 
 func (l *ArticleLogic) Article(in *web.ArticleReq) (*web.ArticleResp, error) {
 	where := map[string]interface{}{}
-	where["a.id"] = in.Id
+	where["id"] = in.Id
 	var article map[string]interface{}
 	err := l.svcCtx.DB.
 		Table("txy_article as a").

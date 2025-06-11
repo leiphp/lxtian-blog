@@ -25,7 +25,7 @@ func NewCommentListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Comme
 
 func (l *CommentListLogic) CommentList(in *web.CommentListReq) (*web.CommentListResp, error) {
 	where := map[string]interface{}{}
-	where["c.status"] = 1
+	where["status"] = 1
 	where["pid"] = 0
 	if in.Page == 0 {
 		in.Page = 1

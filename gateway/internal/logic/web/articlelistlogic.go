@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/zeromicro/go-zero/core/logc"
 	"lxtian-blog/rpc/web/web"
 
@@ -27,6 +28,7 @@ func NewArticleListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Artic
 }
 
 func (l *ArticleListLogic) ArticleList(req *types.ArticleListReq) (resp *types.ArticleListResp, err error) {
+	fmt.Println("req.tid:", req.Tid)
 	res, err := l.svcCtx.WebRpc.ArticleList(l.ctx, &web.ArticleListReq{
 		Cid:      req.Cid,
 		Page:     req.Page,

@@ -36,26 +36,26 @@ type (
 	}
 
 	TxyArticle struct {
-		Id          uint64       `db:"id"`          // 文章表主键
-		Title       string       `db:"title"`       // 标题
-		Author      string       `db:"author"`      // 作者
-		Content     string       `db:"content"`     // 文章内容
-		Keywords    string       `db:"keywords"`    // 关键字
-		Path        string       `db:"path"`        // 封面
-		Description string       `db:"description"` // 描述
-		IsHot       int64        `db:"is_hot"`      // 是否热门
-		IsRec       int64        `db:"is_rec"`      // 是否推荐
-		Status      int64        `db:"status"`      // 状态
-		IsTop       uint64       `db:"is_top"`      // 是否置顶 1是 0否
-		IsOriginal  uint64       `db:"is_original"` // 是否原创
-		ViewCount   uint64       `db:"view_count"`  // 浏览
-		Click       uint64       `db:"click"`       // 点击数
-		Cid         uint64       `db:"cid"`         // 分类id
-		Tid         string       `db:"tid"`         // 标签id
-		Mid         string       `db:"mid"`         // mongodbId
-		CreatedAt   sql.NullTime `db:"created_at"`  // 创建时间
-		UpdatedAt   sql.NullTime `db:"updated_at"`  // 更新时间
-		DeletedAt   sql.NullTime `db:"deleted_at"`  // 删除时间
+		Id          uint64       `db:"id" json:"id"`          // 文章表主键
+		Title       string       `db:"title" json:"title"`       // 标题
+		Author      string       `db:"author" json:"author"`      // 作者
+		Content     string       `db:"content" json:"content"`     // 文章内容
+		Keywords    string       `db:"keywords" json:"keywords"`    // 关键字
+		Path        string       `db:"path" json:"path"`        // 封面
+		Description string       `db:"description" json:"description"` // 描述
+		IsHot       int64        `db:"is_hot" json:"is_hot"`      // 是否热门
+		IsRec       int64        `db:"is_rec" json:"is_rec"`      // 是否推荐
+		Status      int64        `db:"status" json:"status"`      // 状态
+		IsTop       uint64       `db:"is_top" json:"is_top"`      // 是否置顶 1是 0否
+		IsOriginal  uint64       `db:"is_original" json:"is_original"` // 是否原创
+		ViewCount   uint64       `db:"view_count" json:"view_count"`  // 浏览
+		Click       uint64       `db:"click" json:"click"`       // 点击数
+		Cid         uint64       `db:"cid" json:"cid"`         // 分类id
+		Tid         string       `db:"tid" json:"tid"`         // 标签id
+		Mid         string       `db:"mid" json:"mid"`         // mongodbId
+		CreatedAt   sql.NullTime `db:"created_at" json:"created_at"`  // 创建时间
+		UpdatedAt   sql.NullTime `db:"updated_at" json:"updated_at"`  // 更新时间
+		DeletedAt   sql.NullTime `db:"deleted_at" json:"deleted_at"`  // 删除时间
 	}
 )
 

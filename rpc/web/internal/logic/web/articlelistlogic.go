@@ -3,8 +3,9 @@ package weblogic
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"lxtian-blog/common/pkg/model/mysql"
 	"lxtian-blog/rpc/web/internal/consts"
-	"lxtian-blog/rpc/web/model/mysql"
 
 	"lxtian-blog/rpc/web/internal/svc"
 	"lxtian-blog/rpc/web/web"
@@ -30,16 +31,12 @@ func (l *ArticleListLogic) ArticleList(in *web.ArticleListReq) (*web.ArticleList
 	where := map[string]interface{}{}
 	// 基础查询构建（包含JOIN和公共WHERE条件）
 	baseDB := l.svcCtx.DB.Model(&mysql.TxyArticle{}).
-		Joins("left join txy_category as c on txy_article.cid = c.id").
-		Joins("left join txy_tag as t on txy_article.tid = t.id")
+		Joins("left join txy_category as c on txy_article.cid = c.id")
 
 	order := "id desc"
 	// 填充WHERE条件
 	if in.Cid > 0 {
 		where["cid"] = in.Cid
-	}
-	if in.Tid > 0 {
-		where["tid"] = in.Tid
 	}
 	if in.Types > 0 {
 		switch in.Types {
@@ -57,6 +54,10 @@ func (l *ArticleListLogic) ArticleList(in *web.ArticleListReq) (*web.ArticleList
 	if in.Keywords != "" {
 		baseDB = baseDB.Where("txy_article.title like ?", "%"+in.Keywords+"%")
 	}
+	if in.Tid > 0 {
+		//baseDB = baseDB.Where("tid in (?)", []uint32{in.Tid})
+		baseDB = baseDB.Where("JSON_CONTAINS(txy_article.tid, ?, '$')", fmt.Sprintf("%d", in.Tid))
+	}
 
 	// 计算总数（使用基础查询，无分页/排序）
 	var total int64
@@ -72,8 +73,12 @@ func (l *ArticleListLogic) ArticleList(in *web.ArticleListReq) (*web.ArticleList
 		in.PageSize = 10
 	}
 	offset := (in.Page - 1) * in.PageSize
-	var articles []map[string]interface{}
-	err := baseDB.Select("txy_article.id,txy_article.path,txy_article.title,txy_article.author,txy_article.description,txy_article.keywords,txy_article.cid,txy_article.tid,txy_article.created_at,txy_article.view_count,c.name cname,t.name tname").
+	type ArticleView struct {
+		mysql.TxyArticle
+		Cname string `json:"cname"`
+	}
+	var articles []ArticleView
+	err := baseDB.Select("txy_article.id,txy_article.path,txy_article.title,txy_article.author,txy_article.description,txy_article.keywords,txy_article.cid,txy_article.tid,txy_article.created_at,txy_article.view_count,c.name cname").
 		Limit(int(in.PageSize)).
 		Offset(int(offset)).
 		Order(order).

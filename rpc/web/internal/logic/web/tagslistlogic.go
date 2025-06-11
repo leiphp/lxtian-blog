@@ -3,7 +3,7 @@ package weblogic
 import (
 	"context"
 	"encoding/json"
-	"lxtian-blog/rpc/web/model/mysql"
+	"lxtian-blog/common/pkg/model/mysql"
 
 	"lxtian-blog/rpc/web/internal/svc"
 	"lxtian-blog/rpc/web/web"

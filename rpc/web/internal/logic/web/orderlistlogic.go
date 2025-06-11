@@ -26,7 +26,7 @@ func NewOrderListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OrderLi
 
 func (l *OrderListLogic) OrderList(in *web.OrderListReq) (*web.OrderListResp, error) {
 	where := map[string]interface{}{}
-	where["o.status"] = consts.OrderStatusActive
+	where["status"] = consts.OrderStatusActive
 	if in.Page == 0 {
 		in.Page = 1
 	}
