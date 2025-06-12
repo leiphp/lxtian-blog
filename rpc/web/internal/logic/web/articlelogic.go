@@ -34,9 +34,8 @@ func (l *ArticleLogic) Article(in *web.ArticleReq) (*web.ArticleResp, error) {
 	var article map[string]interface{}
 	err := l.svcCtx.DB.
 		Table("txy_article as a").
-		Select("a.id,a.title,a.author,a.description,a.keywords,a.content,a.cid,a.tid,a.mid,a.view_count, DATE_FORMAT(a.created_at, '%Y-%m-%d %H:%i:%s') AS created_at, DATE_FORMAT(a.updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at,c.name category_name,t.name tag_name").
+		Select("a.id,a.title,a.author,a.description,a.keywords,a.content,a.cid,a.tid,a.mid,a.view_count, DATE_FORMAT(a.created_at, '%Y-%m-%d %H:%i:%s') AS created_at, DATE_FORMAT(a.updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at,c.name category_name").
 		Joins("left join txy_category c on c.id = a.cid").
-		Joins("left join txy_tag t on t.id = a.tid").
 		Where(where).
 		Debug().
 		Find(&article).Error

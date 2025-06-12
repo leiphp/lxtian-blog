@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"lxtian-blog/common/pkg/model/mysql"
-
+	"lxtian-blog/common/pkg/redis"
 	"lxtian-blog/rpc/web/internal/svc"
 	"lxtian-blog/rpc/web/web"
 
@@ -26,9 +26,21 @@ func NewTagsListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *TagsList
 }
 
 func (l *TagsListLogic) TagsList(in *web.TagsListReq) (*web.TagsListResp, error) {
+	// Redis key
+	cacheKey := redis.ReturnRedisKey(redis.ApiWebStringTags, nil)
+
+	// 1. 查缓存
+	cacheStr, err := l.svcCtx.Rds.Get(cacheKey)
+	if err == nil && cacheStr != "" {
+		// 缓存命中，直接返回
+		return &web.TagsListResp{
+			List: cacheStr,
+		}, nil
+	}
+
 	where := map[string]interface{}{}
 	var results []map[string]interface{}
-	err := l.svcCtx.DB.
+	err = l.svcCtx.DB.
 		Model(&mysql.TxyTag{}).
 		Select("txy_tag.id,txy_tag.name, COUNT(at.aid) AS count").
 		Joins("left join txy_article_tag as at on at.tid = txy_tag.id").
@@ -50,7 +62,11 @@ func (l *TagsListLogic) TagsList(in *web.TagsListReq) (*web.TagsListResp, error)
 	if err != nil {
 		return nil, err
 	}
-
+	// 缓存tag
+	err = l.svcCtx.Rds.Set(redis.ReturnRedisKey(redis.ApiWebStringTags, nil), string(jsonData))
+	if err != nil {
+		return nil, err
+	}
 	return &web.TagsListResp{
 		List: string(jsonData),
 	}, nil

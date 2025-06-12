@@ -5,21 +5,21 @@ import "fmt"
 const KeyPrefix = "blog:"
 
 const (
-	API_CACHE_HASH_CATEGORY = 1 //全量分类
-	API_CACHE_HASH_TAG      = 2 //全量标签
-	API_CACHE_HASH_USER     = 3 //全量用户
-	UserTokenString         = 4
-	UserScanString          = 5
-	WsUserIdString          = 6
+	ApiWebStringCategory = 1 //全量分类
+	ApiWebStringTags     = 2 //全量tag
+	ApiUserStringUser    = 3 //全量用户
+	UserTokenString      = 4 //用户token
+	UserScanString       = 5 //用户扫码
+	WsUserIdString       = 6 //wx用户ID
 )
 
 var apiCacheKeys = map[int]string{
-	API_CACHE_HASH_CATEGORY: "BlogDb:Category", //全量分类
-	API_CACHE_HASH_TAG:      "BlogDb:Tag",      //全量标签
-	API_CACHE_HASH_USER:     "BlogDb:User",     //全量用户
-	UserTokenString:         "user:token",      //用户token
-	UserScanString:          "user:scan",       //用户扫码
-	WsUserIdString:          "user:ws",         //wx用户ID
+	ApiWebStringCategory: "web:category",
+	ApiWebStringTags:     "web:tags",
+	ApiUserStringUser:    "user:list",
+	UserTokenString:      "user:token",
+	UserScanString:       "user:scan",
+	WsUserIdString:       "user:ws",
 }
 
 /**

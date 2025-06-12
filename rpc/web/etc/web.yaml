@@ -37,3 +37,10 @@ Telemetry:
   Endpoint: ""
   Batcher: jaeger
   Sampler: 1.0
+
+QiniuOss:
+  AccessKey: ${AccessKey}
+  SecretKey: ${SecretKey}
+  Bucket: ${Bucket}
+  Domain: ${Domain}
+  Region: ${Region}

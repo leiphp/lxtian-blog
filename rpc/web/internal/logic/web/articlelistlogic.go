@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"lxtian-blog/common/pkg/model/mysql"
 	"lxtian-blog/rpc/web/internal/consts"
+	"strings"
 
 	"lxtian-blog/rpc/web/internal/svc"
 	"lxtian-blog/rpc/web/web"
@@ -85,6 +86,11 @@ func (l *ArticleListLogic) ArticleList(in *web.ArticleListReq) (*web.ArticleList
 		Find(&articles).Error
 	if err != nil {
 		return nil, err
+	}
+	for k, article := range articles {
+		if !strings.HasPrefix(article.Path, "http://") && !strings.HasPrefix(article.Path, "https://") {
+			articles[k].Path = l.svcCtx.QiniuClient.PrivateURL(article.Path, 3600)
+		}
 	}
 	jsonData, err := json.Marshal(articles)
 	if err != nil {
