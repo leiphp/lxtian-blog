@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"lxtian-blog/common/pkg/utils"
+	"strings"
 
 	"lxtian-blog/admin/internal/svc"
 	"lxtian-blog/admin/internal/types"
@@ -60,6 +61,12 @@ func (l *ArticlesLogic) Articles(req *types.ArticlesReq) (resp *types.ArticlesRe
 		Find(&results).Error
 	if err != nil {
 		return nil, err
+	}
+
+	for k, article := range results {
+		if !strings.HasPrefix(article["path"].(string), "http://") && !strings.HasPrefix(article["path"].(string), "https://") {
+			results[k]["path"] = l.svcCtx.QiniuClient.PrivateURL(article["path"].(string), 3600)
+		}
 	}
 
 	// 转换 []byte -> string（特别是中文字段）
