@@ -24,6 +24,8 @@ type (
 	CategoryListResp = web.CategoryListResp
 	ChatListReq      = web.ChatListReq
 	ChatListResp     = web.ChatListResp
+	ColumnListReq    = web.ColumnListReq
+	ColumnListResp   = web.ColumnListResp
 	CommentListReq   = web.CommentListReq
 	CommentListResp  = web.CommentListResp
 	OrderListReq     = web.OrderListReq
@@ -40,6 +42,7 @@ type (
 		CommentList(ctx context.Context, in *CommentListReq, opts ...grpc.CallOption) (*CommentListResp, error)
 		OrderList(ctx context.Context, in *OrderListReq, opts ...grpc.CallOption) (*OrderListResp, error)
 		TagsList(ctx context.Context, in *TagsListReq, opts ...grpc.CallOption) (*TagsListResp, error)
+		ColumnList(ctx context.Context, in *ColumnListReq, opts ...grpc.CallOption) (*ColumnListResp, error)
 	}
 
 	defaultWeb struct {
@@ -91,4 +94,9 @@ func (m *defaultWeb) OrderList(ctx context.Context, in *OrderListReq, opts ...gr
 func (m *defaultWeb) TagsList(ctx context.Context, in *TagsListReq, opts ...grpc.CallOption) (*TagsListResp, error) {
 	client := web.NewWebClient(m.cli.Conn())
 	return client.TagsList(ctx, in, opts...)
+}
+
+func (m *defaultWeb) ColumnList(ctx context.Context, in *ColumnListReq, opts ...grpc.CallOption) (*ColumnListResp, error) {
+	client := web.NewWebClient(m.cli.Conn())
+	return client.ColumnList(ctx, in, opts...)
 }

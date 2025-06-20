@@ -82,6 +82,11 @@ message TagsListResp {
   string list = 1;
 }
 
+message ColumnListReq {
+}
+message ColumnListResp {
+  string list = 1;
+}
 
 service Web {
   rpc ArticleList(ArticleListReq) returns(ArticleListResp);
@@ -92,6 +97,7 @@ service Web {
   rpc CommentList(CommentListReq) returns(CommentListResp);
   rpc OrderList(OrderListReq) returns(OrderListResp);
   rpc TagsList(TagsListReq) returns(TagsListResp);
+  rpc ColumnList(ColumnListReq) returns(ColumnListResp);
 }
 
 //goctl rpc protoc web.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m

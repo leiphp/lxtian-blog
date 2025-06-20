@@ -74,4 +74,17 @@ type (
     TagsListResp {
         Data       [] map[string]interface{} `json:"list"`
     }
+    ColumnListResp {
+        Data       [] map[string]interface{} `json:"list"`
+    }
+    BookListReq {
+        Page     uint32 `form:"page"`
+        PageSize uint32 `form:"page_size"`
+    }
+    BookListResp {
+        Page       uint32 `json:"page"`
+        PageSize   uint32 `json:"page_size"`
+        List       [] map[string]interface{} `json:"list"`
+        Total      uint64 `json:"total"`
+    }
 )

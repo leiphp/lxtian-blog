@@ -41,6 +41,14 @@ service gateway-api {
 	@doc "标签列表"
 	@handler TagsList
 	get /tag/list returns (TagsListResp)
+
+	@doc "专栏列表"
+	@handler ColumnList
+	get /column/list returns (ColumnListResp)
+
+	@doc "书单列表"
+	@handler BookList
+	get /book/list (BookListReq) returns (BookListResp)
 }
 
 // web服务

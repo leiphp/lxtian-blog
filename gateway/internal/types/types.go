@@ -35,6 +35,18 @@ type ArticleResp struct {
 	Data map[string]interface{} `json:"data"`
 }
 
+type BookListReq struct {
+	Page     uint32 `form:"page"`
+	PageSize uint32 `form:"page_size"`
+}
+
+type BookListResp struct {
+	Page     uint32                   `json:"page"`
+	PageSize uint32                   `json:"page_size"`
+	List     []map[string]interface{} `json:"list"`
+	Total    uint64                   `json:"total"`
+}
+
 type CategoryListReq struct {
 	Page     uint32 `form:"page,optional"`
 	PageSize uint32 `form:"page_size,optional"`
@@ -58,6 +70,10 @@ type ChatListResp struct {
 	PageSize uint32                   `json:"page_size"`
 	List     []map[string]interface{} `json:"list"`
 	Total    uint64                   `json:"total"`
+}
+
+type ColumnListResp struct {
+	Data []map[string]interface{} `json:"list"`
 }
 
 type CommentListReq struct {

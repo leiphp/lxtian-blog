@@ -11,6 +11,7 @@ const (
 	UserTokenString      = 4 //用户token
 	UserScanString       = 5 //用户扫码
 	WsUserIdString       = 6 //wx用户ID
+	ApiWebStringColumn   = 7 //全量column
 )
 
 var apiCacheKeys = map[int]string{
@@ -20,6 +21,7 @@ var apiCacheKeys = map[int]string{
 	UserTokenString:      "user:token",
 	UserScanString:       "user:scan",
 	WsUserIdString:       "user:ws",
+	ApiWebStringColumn:   "web:column",
 }
 
 /**

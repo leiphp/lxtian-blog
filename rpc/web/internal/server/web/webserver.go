@@ -62,3 +62,8 @@ func (s *WebServer) TagsList(ctx context.Context, in *web.TagsListReq) (*web.Tag
 	l := weblogic.NewTagsListLogic(ctx, s.svcCtx)
 	return l.TagsList(in)
 }
+
+func (s *WebServer) ColumnList(ctx context.Context, in *web.ColumnListReq) (*web.ColumnListResp, error) {
+	l := weblogic.NewColumnListLogic(ctx, s.svcCtx)
+	return l.ColumnList(in)
+}
