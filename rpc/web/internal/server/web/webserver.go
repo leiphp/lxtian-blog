@@ -67,3 +67,8 @@ func (s *WebServer) ColumnList(ctx context.Context, in *web.ColumnListReq) (*web
 	l := weblogic.NewColumnListLogic(ctx, s.svcCtx)
 	return l.ColumnList(in)
 }
+
+func (s *WebServer) BookList(ctx context.Context, in *web.BookListReq) (*web.BookListResp, error) {
+	l := weblogic.NewBookListLogic(ctx, s.svcCtx)
+	return l.BookList(in)
+}

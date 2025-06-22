@@ -80,6 +80,8 @@ type (
     BookListReq {
         Page     uint32 `form:"page"`
         PageSize uint32 `form:"page_size"`
+        Column   uint32 `form:"column,optional"`
+        Keywords string `form:"keywords,optional"`
     }
     BookListResp {
         Page       uint32 `json:"page"`

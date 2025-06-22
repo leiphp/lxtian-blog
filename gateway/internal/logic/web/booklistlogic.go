@@ -2,6 +2,9 @@ package web
 
 import (
 	"context"
+	"encoding/json"
+	"github.com/zeromicro/go-zero/core/logc"
+	"lxtian-blog/rpc/web/web"
 
 	"lxtian-blog/gateway/internal/svc"
 	"lxtian-blog/gateway/internal/types"
@@ -25,7 +28,24 @@ func NewBookListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *BookList
 }
 
 func (l *BookListLogic) BookList(req *types.BookListReq) (resp *types.BookListResp, err error) {
-	// todo: add your logic here and delete this line
-
+	res, err := l.svcCtx.WebRpc.BookList(l.ctx, &web.BookListReq{
+		Column:   req.Column,
+		Page:     req.Page,
+		PageSize: req.PageSize,
+		Keywords: req.Keywords,
+	})
+	if err != nil {
+		logc.Errorf(l.ctx, "ColumnList error message: %s", err)
+		return nil, err
+	}
+	var result []map[string]interface{}
+	if err := json.Unmarshal([]byte(res.List), &result); err != nil {
+		return nil, err
+	}
+	resp = new(types.BookListResp)
+	resp.List = result
+	resp.Total = uint64(res.GetTotal())
+	resp.Page = res.GetPage()
+	resp.PageSize = res.GetPageSize()
 	return
 }

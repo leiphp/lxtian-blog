@@ -28,6 +28,7 @@ const (
 	Web_OrderList_FullMethodName    = "/web.Web/OrderList"
 	Web_TagsList_FullMethodName     = "/web.Web/TagsList"
 	Web_ColumnList_FullMethodName   = "/web.Web/ColumnList"
+	Web_BookList_FullMethodName     = "/web.Web/BookList"
 )
 
 // WebClient is the client API for Web service.
@@ -43,6 +44,7 @@ type WebClient interface {
 	OrderList(ctx context.Context, in *OrderListReq, opts ...grpc.CallOption) (*OrderListResp, error)
 	TagsList(ctx context.Context, in *TagsListReq, opts ...grpc.CallOption) (*TagsListResp, error)
 	ColumnList(ctx context.Context, in *ColumnListReq, opts ...grpc.CallOption) (*ColumnListResp, error)
+	BookList(ctx context.Context, in *BookListReq, opts ...grpc.CallOption) (*BookListResp, error)
 }
 
 type webClient struct {
@@ -134,6 +136,15 @@ func (c *webClient) ColumnList(ctx context.Context, in *ColumnListReq, opts ...g
 	return out, nil
 }
 
+func (c *webClient) BookList(ctx context.Context, in *BookListReq, opts ...grpc.CallOption) (*BookListResp, error) {
+	out := new(BookListResp)
+	err := c.cc.Invoke(ctx, Web_BookList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // WebServer is the server API for Web service.
 // All implementations must embed UnimplementedWebServer
 // for forward compatibility
@@ -147,6 +158,7 @@ type WebServer interface {
 	OrderList(context.Context, *OrderListReq) (*OrderListResp, error)
 	TagsList(context.Context, *TagsListReq) (*TagsListResp, error)
 	ColumnList(context.Context, *ColumnListReq) (*ColumnListResp, error)
+	BookList(context.Context, *BookListReq) (*BookListResp, error)
 	mustEmbedUnimplementedWebServer()
 }
 
@@ -180,6 +192,9 @@ func (UnimplementedWebServer) TagsList(context.Context, *TagsListReq) (*TagsList
 }
 func (UnimplementedWebServer) ColumnList(context.Context, *ColumnListReq) (*ColumnListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ColumnList not implemented")
+}
+func (UnimplementedWebServer) BookList(context.Context, *BookListReq) (*BookListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BookList not implemented")
 }
 func (UnimplementedWebServer) mustEmbedUnimplementedWebServer() {}
 
@@ -356,6 +371,24 @@ func _Web_ColumnList_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Web_BookList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BookListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebServer).BookList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Web_BookList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebServer).BookList(ctx, req.(*BookListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Web_ServiceDesc is the grpc.ServiceDesc for Web service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -398,6 +431,10 @@ var Web_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ColumnList",
 			Handler:    _Web_ColumnList_Handler,
+		},
+		{
+			MethodName: "BookList",
+			Handler:    _Web_BookList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

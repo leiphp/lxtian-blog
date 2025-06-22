@@ -38,6 +38,8 @@ type ArticleResp struct {
 type BookListReq struct {
 	Page     uint32 `form:"page"`
 	PageSize uint32 `form:"page_size"`
+	Column   uint32 `form:"column,optional"`
+	Keywords string `form:"keywords,optional"`
 }
 
 type BookListResp struct {
