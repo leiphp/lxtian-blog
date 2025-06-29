@@ -1,5 +1,5 @@
 #golang:1.22-alpine
-FROM ccr.ccs.tencentyun.com/lxtian/golang:1.22-alpine AS builder
+FROM ccr.ccs.tencentyun.com/lxtian/golang:1.23-alpine AS builder
 
 LABEL stage=gobuilder
 

@@ -66,6 +66,11 @@ services:
       - APPID=${APPID}
       - SECRET=${SECRET}
       - WS_HOST=${WS_HOST}
+      - AccessKey=${AccessKey}
+      - SecretKey=${SecretKey}
+      - Bucket=${Bucket}
+      - Domain=${Domain}
+      - Region=${Region}
     volumes:
       - ${PWD}/rpc/user/logs:/app/logs:cached
     networks:
@@ -87,6 +92,36 @@ services:
       - REDIS_TLS=${REDIS_TLS}
       - ACCESS_SECRET=${ACCESS_SECRET}
       - WS_HOST=${WS_HOST}
+    volumes:
+      - ${PWD}/logs:/app/logs:cached
+    networks:
+      - local
+    restart: always
+
+  admin-api:
+    image: ${DOCKER_REGISTRY:-localhost:5000}/${DOCKER_ENV:?请设置docker环境}.admin-api:latest
+    build:
+      context: .
+      dockerfile: ./admin/Dockerfile
+    ports:
+      - ${DOCKER_ADMIN_PORT:-8090}:8090
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_TYPE=${REDIS_TYPE}
+      - REDIS_PASS=${REDIS_PASS}
+      - REDIS_TLS=${REDIS_TLS}
+      - ACCESS_SECRET=${ACCESS_SECRET}
+      - WS_HOST=${WS_HOST}
+      - AccessKey=${AccessKey}
+      - SecretKey=${SecretKey}
+      - Bucket=${Bucket}
+      - Domain=${Domain}
+      - Region=${Region}
     volumes:
       - ${PWD}/logs:/app/logs:cached
     networks:
