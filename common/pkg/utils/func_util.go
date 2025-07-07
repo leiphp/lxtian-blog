@@ -182,3 +182,122 @@ func GenerateFilename(original string) string {
 	prefix := time.Now().Format("200601")     // 生成 "202506"
 	return fmt.Sprintf("%s/%s", prefix, name) // 返回 "202506/xxx.png"
 }
+
+type TreeNode struct {
+	Id       int64      `json:"id"`
+	IsGroup  int32      `json:"is_group"`
+	Title    string     `json:"title"`
+	Children []TreeNode `json:"children,omitempty"`
+}
+
+// 构建树结构
+//func BuildTree(data []map[string]interface{}, parentId int64) []TreeNode {
+//	var tree []TreeNode
+//	for _, item := range data {
+//		if item["parent_id"] == parentId {
+//			node := TreeNode{
+//				Id:      item["id"].(int64),
+//				IsGroup: item["is_group"].(int32),
+//				Label:   item["title"].(string),
+//			}
+//			children := BuildTree(data, item["id"].(int64))
+//			if len(children) > 0 {
+//				node.Children = children
+//			}
+//			tree = append(tree, node)
+//		}
+//	}
+//	return tree
+//}
+
+func BuildTree(data []map[string]interface{}, parentId int64) []TreeNode {
+	var tree []TreeNode
+	for _, item := range data {
+		// 安全获取 parent_id 并转换为 int64
+		itemParentID, err := getInt64(item["parent_id"])
+		if err != nil {
+			continue // 或者处理错误
+		}
+
+		if itemParentID != parentId {
+			continue
+		}
+
+		// 安全获取 id
+		id, err := getInt64(item["id"])
+		if err != nil {
+			continue
+		}
+
+		// 安全获取 is_group
+		isGroup, err := getInt32(item["is_group"])
+		if err != nil {
+			continue
+		}
+
+		// 安全获取 title
+		title, ok := item["title"].(string)
+		if !ok {
+			title = ""
+		}
+
+		node := TreeNode{
+			Id:      id,
+			IsGroup: isGroup,
+			Title:   title,
+		}
+
+		// 递归构建子树
+		children := BuildTree(data, id)
+		if len(children) > 0 {
+			node.Children = children
+		}
+
+		tree = append(tree, node)
+	}
+	return tree
+}
+
+// 安全地将 interface{} 转换为 int64
+func getInt64(val interface{}) (int64, error) {
+	switch v := val.(type) {
+	case int64:
+		return v, nil
+	case uint64:
+		return int64(v), nil
+	case int:
+		return int64(v), nil
+	case uint:
+		return int64(v), nil
+	case int32:
+		return int64(v), nil
+	case uint32:
+		return int64(v), nil
+	case float64:
+		return int64(v), nil
+	default:
+		return 0, fmt.Errorf("unsupported type: %T", val)
+	}
+}
+
+// 安全地将 interface{} 转换为 int32
+func getInt32(val interface{}) (int32, error) {
+	switch v := val.(type) {
+	case int32:
+		return v, nil
+	case uint32:
+		return int32(v), nil
+	case int64:
+		return int32(v), nil
+	case uint64:
+		return int32(v), nil
+	case int:
+		return int32(v), nil
+	case uint:
+		return int32(v), nil
+	case float64:
+		return int32(v), nil
+	default:
+		return 0, fmt.Errorf("unsupported type: %T", val)
+	}
+}

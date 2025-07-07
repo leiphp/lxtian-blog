@@ -72,3 +72,8 @@ func (s *WebServer) BookList(ctx context.Context, in *web.BookListReq) (*web.Boo
 	l := weblogic.NewBookListLogic(ctx, s.svcCtx)
 	return l.BookList(in)
 }
+
+func (s *WebServer) Book(ctx context.Context, in *web.BookReq) (*web.BookResp, error) {
+	l := weblogic.NewBookLogic(ctx, s.svcCtx)
+	return l.Book(in)
+}

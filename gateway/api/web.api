@@ -89,4 +89,10 @@ type (
         List       [] map[string]interface{} `json:"list"`
         Total      uint64 `json:"total"`
     }
+    BookReq {
+        Id      uint32 `path:"id"`
+    }
+    BookResp {
+        Data    map[string]interface{} `json:"data"`
+    }
 )

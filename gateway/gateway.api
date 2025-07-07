@@ -49,6 +49,10 @@ service gateway-api {
 	@doc "书单列表"
 	@handler BookList
 	get /book/list (BookListReq) returns (BookListResp)
+
+	@doc "书单详情"
+	@handler Book
+	get /book/:id (BookReq) returns (BookResp)
 }
 
 // web服务

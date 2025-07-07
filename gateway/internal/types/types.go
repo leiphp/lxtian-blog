@@ -49,6 +49,14 @@ type BookListResp struct {
 	Total    uint64                   `json:"total"`
 }
 
+type BookReq struct {
+	Id uint32 `path:"id"`
+}
+
+type BookResp struct {
+	Data map[string]interface{} `json:"data"`
+}
+
 type CategoryListReq struct {
 	Page     uint32 `form:"page,optional"`
 	PageSize uint32 `form:"page_size,optional"`

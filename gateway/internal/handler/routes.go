@@ -86,6 +86,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: web.ArticleListHandler(serverCtx),
 			},
 			{
+				// 书单详情
+				Method:  http.MethodGet,
+				Path:    "/book/:id",
+				Handler: web.BookHandler(serverCtx),
+			},
+			{
 				// 书单列表
 				Method:  http.MethodGet,
 				Path:    "/book/list",

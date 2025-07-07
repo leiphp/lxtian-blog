@@ -101,6 +101,13 @@ message BookListResp {
   uint32 total = 4;
 }
 
+message BookReq {
+  uint32 id = 1;
+}
+message BookResp {
+  string data = 1;
+}
+
 service Web {
   rpc ArticleList(ArticleListReq) returns(ArticleListResp);
   rpc Article(ArticleReq) returns(ArticleResp);
@@ -112,6 +119,7 @@ service Web {
   rpc TagsList(TagsListReq) returns(TagsListResp);
   rpc ColumnList(ColumnListReq) returns(ColumnListResp);
   rpc BookList(BookListReq) returns(BookListResp);
+  rpc Book(BookReq) returns(BookResp);
 }
 
 //goctl rpc protoc web.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m
