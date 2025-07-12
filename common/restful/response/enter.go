@@ -24,7 +24,7 @@ func Response(r *http.Request, w http.ResponseWriter, resp interface{}, err erro
 		return
 	}
 	//错误返回
-	statusCode := http.StatusInternalServerError
+	statusCode := http.StatusOK
 	errCode := uint32(1)
 	// 可以根据错误码，返回具体错误信息
 	errMsg := "服务器错误"

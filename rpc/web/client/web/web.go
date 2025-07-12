@@ -20,6 +20,8 @@ type (
 	ArticleListResp  = web.ArticleListResp
 	ArticleReq       = web.ArticleReq
 	ArticleResp      = web.ArticleResp
+	BookChapterReq   = web.BookChapterReq
+	BookChapterResp  = web.BookChapterResp
 	BookListReq      = web.BookListReq
 	BookListResp     = web.BookListResp
 	BookReq          = web.BookReq
@@ -49,6 +51,7 @@ type (
 		ColumnList(ctx context.Context, in *ColumnListReq, opts ...grpc.CallOption) (*ColumnListResp, error)
 		BookList(ctx context.Context, in *BookListReq, opts ...grpc.CallOption) (*BookListResp, error)
 		Book(ctx context.Context, in *BookReq, opts ...grpc.CallOption) (*BookResp, error)
+		BookChapter(ctx context.Context, in *BookChapterReq, opts ...grpc.CallOption) (*BookChapterResp, error)
 	}
 
 	defaultWeb struct {
@@ -115,4 +118,9 @@ func (m *defaultWeb) BookList(ctx context.Context, in *BookListReq, opts ...grpc
 func (m *defaultWeb) Book(ctx context.Context, in *BookReq, opts ...grpc.CallOption) (*BookResp, error) {
 	client := web.NewWebClient(m.cli.Conn())
 	return client.Book(ctx, in, opts...)
+}
+
+func (m *defaultWeb) BookChapter(ctx context.Context, in *BookChapterReq, opts ...grpc.CallOption) (*BookChapterResp, error) {
+	client := web.NewWebClient(m.cli.Conn())
+	return client.BookChapter(ctx, in, opts...)
 }

@@ -95,4 +95,11 @@ type (
     BookResp {
         Data    map[string]interface{} `json:"data"`
     }
+
+    BookChapterReq {
+        Id      uint32 `path:"id"`
+    }
+    BookChapterResp {
+        Data    map[string]interface{} `json:"data"`
+    }
 )

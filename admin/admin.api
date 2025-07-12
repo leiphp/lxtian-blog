@@ -61,6 +61,22 @@ service admin-api {
 	@doc "图片上传"
 	@handler Upload
 	post /upload returns (UploadResp)
+
+	@doc "书单管理"
+	@handler BooK
+	get /book returns (BookResp)
+
+	@doc "书单章节"
+	@handler BookChapter
+	get /book/chapter/:id (BookChapterReq) returns (BookChapterResp)
+
+	@doc "章节保存"
+	@handler BookChapterSave
+	post /book/chapter/save (BookChapterSaveReq) returns (BookChapterSaveResp)
+
+	@doc "书单详情"
+	@handler ChapterDetail
+	get /book/chapter/detail/:id (ChapterDetailReq) returns (ChapterDetailResp)
 }
 
 // goctl api go -api admin.api -dir .

@@ -35,6 +35,14 @@ type ArticleResp struct {
 	Data map[string]interface{} `json:"data"`
 }
 
+type BookChapterReq struct {
+	Id uint32 `path:"id"`
+}
+
+type BookChapterResp struct {
+	Data map[string]interface{} `json:"data"`
+}
+
 type BookListReq struct {
 	Page     uint32 `form:"page"`
 	PageSize uint32 `form:"page_size"`

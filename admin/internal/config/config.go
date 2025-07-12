@@ -10,6 +10,12 @@ type Config struct {
 		AccessSecret string `json:",env=ACCESS_SECRET"`
 		AccessExpire int64
 	}
+	RedisConfig struct {
+		Host string `json:",env=REDIS_HOST"`
+		Type string `json:",env=REDIS_TYPE"`
+		Pass string `json:",env=REDIS_PASS"`
+		Tls  bool   `json:",env=REDIS_TLS"`
+	}
 	Mysql struct {
 		HOST     string `json:",env=DB_HOST"`
 		PORT     string `json:",env=DB_PORT"`

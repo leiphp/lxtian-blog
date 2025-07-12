@@ -46,6 +46,30 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: ArticlesHandler(serverCtx),
 				},
 				{
+					// 书单管理
+					Method:  http.MethodGet,
+					Path:    "/book",
+					Handler: BooKHandler(serverCtx),
+				},
+				{
+					// 书单章节
+					Method:  http.MethodGet,
+					Path:    "/book/chapter/:id",
+					Handler: BookChapterHandler(serverCtx),
+				},
+				{
+					// 书单详情
+					Method:  http.MethodGet,
+					Path:    "/book/chapter/detail/:id",
+					Handler: ChapterDetailHandler(serverCtx),
+				},
+				{
+					// 章节保存
+					Method:  http.MethodPost,
+					Path:    "/book/chapter/save",
+					Handler: BookChapterSaveHandler(serverCtx),
+				},
+				{
 					// 文章分类
 					Method:  http.MethodGet,
 					Path:    "/category",

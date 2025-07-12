@@ -47,8 +47,40 @@ type ArticlesResp struct {
 	Total    int64                    `json:"total"`
 }
 
+type BookChapterReq struct {
+	Id uint32 `path:"id"`
+}
+
+type BookChapterResp struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
+type BookChapterSaveReq struct {
+	Id      int64  `json:"id,optional"`
+	Title   string `json:"title"`
+	Author  string `json:"author"`
+	Content string `json:"content"`
+	Cate    string `json:"cate"`
+}
+
+type BookChapterSaveResp struct {
+	Data bool `json:"data"`
+}
+
+type BookResp struct {
+	Data []map[string]interface{} `json:"data"`
+}
+
 type CategoryResp struct {
 	Data []map[string]interface{} `json:"data"`
+}
+
+type ChapterDetailReq struct {
+	Id uint32 `path:"id"`
+}
+
+type ChapterDetailResp struct {
+	Data map[string]interface{} `json:"data"`
 }
 
 type InfoResp struct {

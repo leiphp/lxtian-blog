@@ -56,4 +56,32 @@ type (
         Url       string `json:"url"`
     }
 
+    BookResp {
+        Data       [] map[string]interface{} `json:"data"`
+    }
+
+    BookChapterReq {
+        Id      uint32 `path:"id"`
+    }
+    BookChapterResp {
+        Data       []map[string]interface{} `json:"data"`
+    }
+
+    BookChapterSaveReq {
+        Id           int64  `json:"id,optional"`
+        Title        string `json:"title"`
+        Author       string `json:"author"`
+        Content      string `json:"content"`
+        Cate         string `json:"cate"`
+    }
+    BookChapterSaveResp {
+        Data        bool `json:"data"`
+    }
+
+    ChapterDetailReq {
+        Id      uint32 `path:"id"`
+    }
+    ChapterDetailResp {
+        Data       map[string]interface{} `json:"data"`
+    }
 )

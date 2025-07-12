@@ -77,3 +77,8 @@ func (s *WebServer) Book(ctx context.Context, in *web.BookReq) (*web.BookResp, e
 	l := weblogic.NewBookLogic(ctx, s.svcCtx)
 	return l.Book(in)
 }
+
+func (s *WebServer) BookChapter(ctx context.Context, in *web.BookChapterReq) (*web.BookChapterResp, error) {
+	l := weblogic.NewBookChapterLogic(ctx, s.svcCtx)
+	return l.BookChapter(in)
+}

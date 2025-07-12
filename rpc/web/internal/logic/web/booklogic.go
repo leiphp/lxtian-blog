@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"lxtian-blog/common/pkg/model/mysql"
+	"lxtian-blog/common/pkg/redis"
 	"lxtian-blog/common/pkg/utils"
 	"lxtian-blog/rpc/web/internal/svc"
 	"lxtian-blog/rpc/web/web"
@@ -26,10 +27,22 @@ func NewBookLogic(ctx context.Context, svcCtx *svc.ServiceContext) *BookLogic {
 }
 
 func (l *BookLogic) Book(in *web.BookReq) (*web.BookResp, error) {
+	// Redis key
+	cacheKey := redis.ReturnRedisKey(redis.ApiWebStringBook, in.Id)
+
+	// 1. 查缓存
+	cacheStr, err := l.svcCtx.Rds.Get(cacheKey)
+	if err == nil && cacheStr != "" {
+		// 缓存命中，直接返回
+		return &web.BookResp{
+			Data: cacheStr,
+		}, nil
+	}
+
 	res := make(map[string]interface{})
 	var book map[string]interface{}
 	var chapters []map[string]interface{}
-	err := l.svcCtx.DB.
+	err = l.svcCtx.DB.
 		Model(&mysql.TxyBook{}).
 		Select("id,title,slug").
 		Where("id =?", in.Id).
@@ -52,6 +65,11 @@ func (l *BookLogic) Book(in *web.BookReq) (*web.BookResp, error) {
 	res["book"] = book
 	res["chapters"] = utils.BuildTree(chapters, 0)
 	jsonData, err := json.Marshal(res)
+	if err != nil {
+		return nil, err
+	}
+	// 缓存tag
+	err = l.svcCtx.Rds.Set(redis.ReturnRedisKey(redis.ApiWebStringBook, in.Id), string(jsonData))
 	if err != nil {
 		return nil, err
 	}

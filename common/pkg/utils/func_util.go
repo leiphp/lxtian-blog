@@ -136,6 +136,15 @@ func FormatTimeFields(data []map[string]interface{}, fields ...string) {
 	}
 }
 
+// 处理东八区字段为标准时间
+func FormatTimeFieldsInMap(data map[string]interface{}, fields ...string) {
+	for _, field := range fields {
+		if t, ok := data[field].(time.Time); ok {
+			data[field] = t.Format("2006-01-02 15:04:05")
+		}
+	}
+}
+
 // 批量处理字段0/1为true or flase
 func FormatBoolFields(data []map[string]interface{}, fields ...string) {
 	for i := range data {
@@ -300,4 +309,39 @@ func getInt32(val interface{}) (int32, error) {
 	default:
 		return 0, fmt.Errorf("unsupported type: %T", val)
 	}
+}
+
+func BuildTreeMap(data []map[string]interface{}, parentId int64) []map[string]interface{} {
+	var tree []map[string]interface{}
+
+	for _, item := range data {
+		// 获取 parent_id
+		itemParentID, err := getInt64(item["parent_id"])
+		if err != nil || itemParentID != parentId {
+			continue
+		}
+
+		// 获取 id
+		id, err := getInt64(item["id"])
+		if err != nil {
+			continue
+		}
+
+		// 创建当前节点副本（避免原始数据污染）
+		node := map[string]interface{}{
+			"id":       item["id"],
+			"title":    item["title"],
+			"is_group": item["is_group"],
+		}
+
+		// 递归构建子节点
+		children := BuildTreeMap(data, id)
+		if len(children) > 0 {
+			node["children"] = children
+		}
+
+		tree = append(tree, node)
+	}
+
+	return tree
 }

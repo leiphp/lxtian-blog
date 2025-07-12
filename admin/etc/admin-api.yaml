@@ -6,6 +6,12 @@ Auth:
   AccessSecret: ${ACCESS_SECRET}
   AccessExpire: 24
 
+RedisConfig:
+  Host: ${REDIS_HOST}
+  Type: ${REDIS_TYPE}
+  Pass: ${REDIS_PASS}
+  Tls: false
+
 Mysql:
   HOST: ${DB_HOST}
   PORT: ${DB_PORT}
