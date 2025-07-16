@@ -77,6 +77,14 @@ service admin-api {
 	@doc "书单详情"
 	@handler ChapterDetail
 	get /book/chapter/detail/:id (ChapterDetailReq) returns (ChapterDetailResp)
+
+	@doc "专栏列表"
+	@handler ColumnList
+	get /column/list returns (ColumnListResp)
+
+	@doc "书单保存"
+	@handler BookSave
+	post /column/save (BookSaveReq) returns (BookSaveResp)
 }
 
 // goctl api go -api admin.api -dir .

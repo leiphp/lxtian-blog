@@ -41,6 +41,11 @@ services:
       - MONGODB_DATABASE=${MONGODB_DATABASE}
       - MONGODB_USERNAME=${MONGODB_USERNAME}
       - MONGODB_PASSWORD=${MONGODB_PASSWORD}
+      - AccessKey=${AccessKey}
+      - SecretKey=${SecretKey}
+      - Bucket=${Bucket}
+      - Domain=${Domain}
+      - Region=${Region}
     volumes:
       - ${PWD}/rpc/web/logs:/app/logs:cached
     networks:

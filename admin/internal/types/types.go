@@ -71,6 +71,19 @@ type BookResp struct {
 	Data []map[string]interface{} `json:"data"`
 }
 
+type BookSaveReq struct {
+	Id          int64  `json:"id,optional"`
+	Title       string `json:"title"`
+	Slug        string `json:"slug"`
+	ColumnId    uint64 `json:"column_id"`
+	Description string `json:"description"`
+	Status      bool   `json:"status"`
+}
+
+type BookSaveResp struct {
+	Data bool `json:"data"`
+}
+
 type CategoryResp struct {
 	Data []map[string]interface{} `json:"data"`
 }
@@ -81,6 +94,10 @@ type ChapterDetailReq struct {
 
 type ChapterDetailResp struct {
 	Data map[string]interface{} `json:"data"`
+}
+
+type ColumnListResp struct {
+	Data []map[string]interface{} `json:"data"`
 }
 
 type InfoResp struct {

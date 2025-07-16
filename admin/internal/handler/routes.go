@@ -76,6 +76,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: CategoryHandler(serverCtx),
 				},
 				{
+					// 专栏列表
+					Method:  http.MethodGet,
+					Path:    "/column/list",
+					Handler: ColumnListHandler(serverCtx),
+				},
+				{
+					// 书单保存
+					Method:  http.MethodPost,
+					Path:    "/column/save",
+					Handler: BookSaveHandler(serverCtx),
+				},
+				{
 					// 用户信息
 					Method:  http.MethodGet,
 					Path:    "/info",

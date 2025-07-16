@@ -84,4 +84,20 @@ type (
     ChapterDetailResp {
         Data       map[string]interface{} `json:"data"`
     }
+
+    ColumnListResp {
+        Data       [] map[string]interface{} `json:"data"`
+    }
+
+    BookSaveReq {
+        Id           int64  `json:"id,optional"`
+        Title        string `json:"title"`
+        Slug         string `json:"slug"`
+        ColumnId     uint64 `json:"column_id"`
+        Description  string `json:"description"`
+        Status       bool   `json:"status"`
+    }
+    BookSaveResp {
+        Data        bool `json:"data"`
+    }
 )
