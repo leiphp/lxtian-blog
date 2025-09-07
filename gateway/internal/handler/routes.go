@@ -15,39 +15,51 @@ import (
 )
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
+	// 用户公开接口 - 使用用户限流配置
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				// 获取二维码
-				Method:  http.MethodGet,
-				Path:    "/getqr/:ws_user_id",
-				Handler: user.GetqrHandler(serverCtx),
+		rest.WithMiddlewares(
+			[]rest.Middleware{
+				serverCtx.SecurityMiddleware.AntiSpamMiddleware(),
+				serverCtx.SecurityMiddleware.RateLimitMiddleware(security.GetUserRateLimit()),
 			},
-			{
-				// 用户登录
-				Method:  http.MethodPost,
-				Path:    "/login",
-				Handler: user.LoginHandler(serverCtx),
-			},
-			{
-				// 更新扫码状态
-				Method:  http.MethodPut,
-				Path:    "/qr/status",
-				Handler: user.QrStatusHandler(serverCtx),
-			},
-			{
-				// 用户注册
-				Method:  http.MethodPost,
-				Path:    "/register",
-				Handler: user.RegisterHandler(serverCtx),
-			},
-		},
+			[]rest.Route{
+				{
+					// 获取二维码
+					Method:  http.MethodGet,
+					Path:    "/getqr/:ws_user_id",
+					Handler: user.GetqrHandler(serverCtx),
+				},
+				{
+					// 用户登录
+					Method:  http.MethodPost,
+					Path:    "/login",
+					Handler: user.LoginHandler(serverCtx),
+				},
+				{
+					// 更新扫码状态
+					Method:  http.MethodPut,
+					Path:    "/qr/status",
+					Handler: user.QrStatusHandler(serverCtx),
+				},
+				{
+					// 用户注册
+					Method:  http.MethodPost,
+					Path:    "/register",
+					Handler: user.RegisterHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithPrefix("/user"),
 	)
 
+	// 需要认证的用户接口 - 使用用户限流配置
 	server.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.JwtMiddleware},
+			[]rest.Middleware{
+				serverCtx.SecurityMiddleware.AntiSpamMiddleware(),
+				serverCtx.SecurityMiddleware.RateLimitMiddleware(security.GetUserRateLimit()),
+				serverCtx.JwtMiddleware,
+			},
 			[]rest.Route{
 				{
 					// 用户信息
@@ -66,13 +78,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		rest.WithPrefix("/user"),
 	)
 
+	// 文章相关接口 - 使用文章限流配置
 	server.AddRoutes(
 		rest.WithMiddlewares(
 			[]rest.Middleware{
-				// 反刷中间件
 				serverCtx.SecurityMiddleware.AntiSpamMiddleware(),
-				// 通用限流中间件（每分钟60次）
-				serverCtx.SecurityMiddleware.RateLimitMiddleware(security.DefaultRateLimit),
+				serverCtx.SecurityMiddleware.RateLimitMiddleware(security.GetArticleRateLimit()),
 			},
 			[]rest.Route{
 				{
@@ -93,6 +104,44 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/article/list",
 					Handler: web.ArticleListHandler(serverCtx),
 				},
+			}...,
+		),
+		rest.WithPrefix("/web"),
+	)
+
+	// 分类相关接口 - 使用分类限流配置
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{
+				serverCtx.SecurityMiddleware.AntiSpamMiddleware(),
+				serverCtx.SecurityMiddleware.RateLimitMiddleware(security.GetCategoryRateLimit()),
+			},
+			[]rest.Route{
+				{
+					// 分类列表
+					Method:  http.MethodGet,
+					Path:    "/category/list",
+					Handler: web.CategoryListHandler(serverCtx),
+				},
+				{
+					// 标签列表
+					Method:  http.MethodGet,
+					Path:    "/tag/list",
+					Handler: web.TagsListHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/web"),
+	)
+
+	// 其他公开接口 - 使用默认限流配置
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{
+				serverCtx.SecurityMiddleware.AntiSpamMiddleware(),
+				serverCtx.SecurityMiddleware.RateLimitMiddleware(security.GetDefaultRateLimit()),
+			},
+			[]rest.Route{
 				{
 					// 书单详情
 					Method:  http.MethodGet,
@@ -110,12 +159,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodGet,
 					Path:    "/book/list",
 					Handler: web.BookListHandler(serverCtx),
-				},
-				{
-					// 分类列表 - 使用更严格的限流
-					Method:  http.MethodGet,
-					Path:    "/category/list",
-					Handler: web.CategoryListHandler(serverCtx),
 				},
 				{
 					// 说说列表
@@ -140,12 +183,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodGet,
 					Path:    "/order/list",
 					Handler: web.OrderListHandler(serverCtx),
-				},
-				{
-					// 标签列表
-					Method:  http.MethodGet,
-					Path:    "/tag/list",
-					Handler: web.TagsListHandler(serverCtx),
 				},
 			}...,
 		),

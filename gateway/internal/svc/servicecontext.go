@@ -2,12 +2,14 @@ package svc
 
 import (
 	"lxtian-blog/common/pkg/initdb"
+	"lxtian-blog/common/pkg/security"
 	"lxtian-blog/gateway/internal/config"
 	"lxtian-blog/gateway/internal/middleware"
 	"lxtian-blog/rpc/user/client/user"
 	"lxtian-blog/rpc/web/client/web"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
@@ -24,6 +26,14 @@ type ServiceContext struct {
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	rds := initdb.InitRedis(c.RedisConfig.Host, c.RedisConfig.Type, c.RedisConfig.Pass, c.RedisConfig.Tls)
+
+	// 初始化安全配置管理器
+	err := security.InitConfigManager("etc/security.yaml")
+	if err != nil {
+		logc.Errorf(nil, "初始化安全配置失败: %v", err)
+		// 使用默认配置继续运行
+	}
+
 	securityMiddleware := middleware.NewSecurityMiddleware(rds)
 
 	return &ServiceContext{
