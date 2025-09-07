@@ -1,19 +1,23 @@
 package redis
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 const KeyPrefix = "blog:"
 
 const (
-	ApiWebStringCategory    = 1 //全量分类
-	ApiWebStringTags        = 2 //全量tag
-	ApiUserStringUser       = 3 //全量用户
-	UserTokenString         = 4 //用户token
-	UserScanString          = 5 //用户扫码
-	WsUserIdString          = 6 //wx用户ID
-	ApiWebStringColumn      = 7 //全量column
-	ApiWebStringBook        = 8 //图书book
-	ApiWebStringBookChapter = 9 //图书章节
+	ApiWebStringCategory    = 1  //全量分类
+	ApiWebStringTags        = 2  //全量tag
+	ApiUserStringUser       = 3  //全量用户
+	UserTokenString         = 4  //用户token
+	UserScanString          = 5  //用户扫码
+	WsUserIdString          = 6  //wx用户ID
+	ApiWebStringColumn      = 7  //全量column
+	ApiWebStringBook        = 8  //图书book
+	ApiWebStringBookChapter = 9  //图书章节
+	ArticleViewString       = 10 //文章浏览次数记录
 )
 
 var apiCacheKeys = map[int]string{
@@ -26,6 +30,7 @@ var apiCacheKeys = map[int]string{
 	ApiWebStringColumn:      "web:column",
 	ApiWebStringBook:        "web:book",
 	ApiWebStringBookChapter: "web:book:chapter",
+	ArticleViewString:       "article:view",
 }
 
 /**
@@ -39,4 +44,21 @@ func ReturnRedisKey(keyType int, key interface{}) string {
 	}
 	redisKey := KeyPrefix + apiCacheKeys[keyType] + suffix
 	return redisKey
+}
+
+/**
+ * 获取文章浏览次数的Redis Key
+ * 格式: blog:article:view:{article_id}:{ip}:{date}
+ */
+func GetArticleViewKey(articleID uint32, clientIP, date string) string {
+	return fmt.Sprintf("%s%s:%d:%s:%s", KeyPrefix, apiCacheKeys[ArticleViewString], articleID, clientIP, date)
+}
+
+/**
+ * 获取文章浏览次数的Redis Key（使用当前日期）
+ * 格式: blog:article:view:{article_id}:{ip}:{today}
+ */
+func GetArticleViewKeyToday(articleID uint32, clientIP string) string {
+	today := time.Now().Format("2006-01-02")
+	return GetArticleViewKey(articleID, clientIP, today)
 }

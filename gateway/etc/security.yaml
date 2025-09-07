@@ -1,0 +1,50 @@
+# 安全配置文件
+Security:
+  # IP白名单（可选，为空则允许所有IP）
+  IPWhitelist: []
+  
+  # 允许的Referer（可选，为空则不检查Referer）
+  AllowedReferers: []
+  
+  # 限流配置
+  RateLimit:
+    # 通用接口限流
+    Default:
+      WindowSize: "1m"      # 时间窗口：1分钟
+      MaxRequests: 60       # 最大请求数：60次
+    
+    # 文章详情限流
+    Article:
+      WindowSize: "1m"      # 时间窗口：1分钟
+      MaxRequests: 30       # 最大请求数：30次
+    
+    # 分类列表限流
+    Category:
+      WindowSize: "1m"      # 时间窗口：1分钟
+      MaxRequests: 20       # 最大请求数：20次
+  
+  # 反刷配置
+  AntiSpam:
+    MaxRequestsPerMinute: 100   # 每分钟最大请求数
+    MaxRequestsPerHour: 1000    # 每小时最大请求数
+    BlockDuration: "24h"        # 封禁时长：24小时
+    
+    # 可疑User-Agent检测
+    SuspiciousUserAgents:
+      - "bot"
+      - "crawler"
+      - "spider"
+      - "scraper"
+      - "curl"
+      - "wget"
+      - "python"
+      - "java"
+      - "postman"
+      - "insomnia"
+      - "httpie"
+  
+  # 日志配置
+  Logging:
+    EnableRequestLog: true      # 启用请求日志
+    EnableSecurityLog: true     # 启用安全日志
+    LogLevel: "info"            # 日志级别：debug, info, warn, error

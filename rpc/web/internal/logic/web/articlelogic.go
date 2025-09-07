@@ -4,12 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/zeromicro/go-zero/core/logc"
-	"go.mongodb.org/mongo-driver/mongo"
 	model "lxtian-blog/common/pkg/model/mongo"
 	"lxtian-blog/common/pkg/model/mysql"
+	"lxtian-blog/common/pkg/utils"
 	"lxtian-blog/rpc/web/internal/svc"
 	"lxtian-blog/rpc/web/web"
+
+	"github.com/zeromicro/go-zero/core/logc"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -29,6 +31,16 @@ func NewArticleLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ArticleLo
 }
 
 func (l *ArticleLogic) Article(in *web.ArticleReq) (*web.ArticleResp, error) {
+	// 记录浏览次数（如果有IP参数）
+	if in.ClientIp != "" {
+		go func() {
+			viewCountUtil := utils.NewViewCountUtil(l.svcCtx.DB, l.svcCtx.Rds)
+			if err := viewCountUtil.IncrementArticleView(l.ctx, in.Id, in.ClientIp); err != nil {
+				logc.Errorf(l.ctx, "记录文章浏览次数失败: %s", err)
+			}
+		}()
+	}
+
 	where := map[string]interface{}{}
 	where["id"] = in.Id
 	var article map[string]interface{}

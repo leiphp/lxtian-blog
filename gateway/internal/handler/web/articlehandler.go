@@ -1,14 +1,16 @@
 package web
 
 import (
-	"github.com/zeromicro/go-zero/core/logc"
 	"lxtian-blog/common/restful/response"
 	"net/http"
 
-	"github.com/zeromicro/go-zero/rest/httpx"
+	"github.com/zeromicro/go-zero/core/logc"
+
 	"lxtian-blog/gateway/internal/logic/web"
 	"lxtian-blog/gateway/internal/svc"
 	"lxtian-blog/gateway/internal/types"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
 // 文章详情
@@ -21,7 +23,7 @@ func ArticleHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		l := web.NewArticleLogic(r.Context(), svcCtx)
+		l := web.NewArticleLogicWithRequest(r.Context(), svcCtx, r)
 		resp, err := l.Article(&req)
 		if err != nil {
 			response.Response(r, w, nil, err)

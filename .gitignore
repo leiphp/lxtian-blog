@@ -26,3 +26,5 @@ gateway/logs
 rpc/user/logs
 rpc/web/logs
 html
+test/
+docs/
