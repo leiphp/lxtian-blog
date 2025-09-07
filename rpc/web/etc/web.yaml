@@ -30,7 +30,7 @@ Log:
   Mode: file
   KeepDays: 3
   Rotation: daily
-  Stat: false
+  Stat: true
 
 Telemetry:
   Name: web-rpc

@@ -4,8 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/zeromicro/go-zero/core/stores/redis"
 	model "lxtian-blog/common/pkg/model/mongo"
 	"lxtian-blog/common/pkg/model/mysql"
+	redisutil "lxtian-blog/common/pkg/redis"
 	"lxtian-blog/common/pkg/utils"
 	"lxtian-blog/rpc/web/internal/svc"
 	"lxtian-blog/rpc/web/web"
@@ -40,11 +43,21 @@ func (l *ArticleLogic) Article(in *web.ArticleReq) (*web.ArticleResp, error) {
 			}
 		}()
 	}
+	articleID := uint64(in.Id)
+	// 1. 尝试从缓存获取
+	cachedArticle, err := l.getArticleFromCache(l.ctx, articleID)
+	if err == nil && cachedArticle != "" {
+		logx.Infof("从缓存获取文章详情: %d", articleID)
+		// 将缓存数据转换为JSON字符串
+		return &web.ArticleResp{
+			Data: cachedArticle,
+		}, nil
+	}
 
 	where := map[string]interface{}{}
 	where["id"] = in.Id
 	var article map[string]interface{}
-	err := l.svcCtx.DB.
+	err = l.svcCtx.DB.
 		Table("txy_article as a").
 		Select("a.id,a.title,a.author,a.description,a.keywords,a.content,a.cid,a.tid,a.mid,a.view_count, DATE_FORMAT(a.created_at, '%Y-%m-%d %H:%i:%s') AS created_at, DATE_FORMAT(a.updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at,c.name category_name").
 		Joins("left join txy_category c on c.id = a.cid").
@@ -118,7 +131,62 @@ func (l *ArticleLogic) Article(in *web.ArticleReq) (*web.ArticleResp, error) {
 	if err != nil {
 		return nil, err
 	}
+	// 异步写入缓存
+	err = l.setArticleToCache(l.ctx, articleID, string(jsonData))
+	if err != nil {
+		logx.Errorf("写入文章缓存失败: %v", err)
+		return nil, err
+	}
+
 	return &web.ArticleResp{
 		Data: string(jsonData),
 	}, nil
+}
+
+// getArticleCacheKey 获取文章缓存Key
+func (l *ArticleLogic) getArticleCacheKey(articleID uint64) string {
+	return fmt.Sprintf("%sarticle:detail:%d", redisutil.KeyPrefix, articleID)
+}
+
+// getArticleFromCache 从缓存获取文章
+func (l *ArticleLogic) getArticleFromCache(ctx context.Context, articleID uint64) (string, error) {
+	key := l.getArticleCacheKey(articleID)
+
+	data, err := l.svcCtx.Rds.GetCtx(ctx, key)
+	if err != nil {
+		if err == redis.Nil {
+			return "", nil // 缓存不存在
+		}
+		logx.Errorf("获取文章缓存失败: %v", err)
+		return "", err
+	}
+	return data, nil
+}
+
+// setArticleToCache 设置文章缓存
+func (l *ArticleLogic) setArticleToCache(ctx context.Context, articleID uint64, articleStr string) error {
+	key := l.getArticleCacheKey(articleID)
+	// 设置1小时过期
+	err := l.svcCtx.Rds.SetexCtx(ctx, key, articleStr, 3600)
+	if err != nil {
+		logx.Errorf("设置文章缓存失败: %v", err)
+		return err
+	}
+
+	logx.Infof("文章 %d 缓存设置成功", articleID)
+	return nil
+}
+
+// deleteArticleCache 删除文章缓存
+func (l *ArticleLogic) deleteArticleCache(ctx context.Context, articleID uint64) error {
+	key := l.getArticleCacheKey(articleID)
+
+	_, err := l.svcCtx.Rds.DelCtx(ctx, key)
+	if err != nil {
+		logx.Errorf("删除文章缓存失败: %v", err)
+		return err
+	}
+
+	logx.Infof("文章 %d 缓存删除成功", articleID)
+	return nil
 }
