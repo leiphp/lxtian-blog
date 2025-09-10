@@ -6,7 +6,6 @@ package handler
 import (
 	"net/http"
 
-	"lxtian-blog/common/pkg/security"
 	user "lxtian-blog/gateway/internal/handler/user"
 	web "lxtian-blog/gateway/internal/handler/web"
 	"lxtian-blog/gateway/internal/svc"
@@ -15,51 +14,39 @@ import (
 )
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
-	// 用户公开接口 - 使用用户限流配置
 	server.AddRoutes(
-		rest.WithMiddlewares(
-			[]rest.Middleware{
-				serverCtx.SecurityMiddleware.AntiSpamMiddleware(),
-				serverCtx.SecurityMiddleware.RateLimitMiddleware(security.GetUserRateLimit()),
+		[]rest.Route{
+			{
+				// 获取二维码
+				Method:  http.MethodGet,
+				Path:    "/getqr/:ws_user_id",
+				Handler: user.GetqrHandler(serverCtx),
 			},
-			[]rest.Route{
-				{
-					// 获取二维码
-					Method:  http.MethodGet,
-					Path:    "/getqr/:ws_user_id",
-					Handler: user.GetqrHandler(serverCtx),
-				},
-				{
-					// 用户登录
-					Method:  http.MethodPost,
-					Path:    "/login",
-					Handler: user.LoginHandler(serverCtx),
-				},
-				{
-					// 更新扫码状态
-					Method:  http.MethodPut,
-					Path:    "/qr/status",
-					Handler: user.QrStatusHandler(serverCtx),
-				},
-				{
-					// 用户注册
-					Method:  http.MethodPost,
-					Path:    "/register",
-					Handler: user.RegisterHandler(serverCtx),
-				},
-			}...,
-		),
+			{
+				// 用户登录
+				Method:  http.MethodPost,
+				Path:    "/login",
+				Handler: user.LoginHandler(serverCtx),
+			},
+			{
+				// 更新扫码状态
+				Method:  http.MethodPut,
+				Path:    "/qr/status",
+				Handler: user.QrStatusHandler(serverCtx),
+			},
+			{
+				// 用户注册
+				Method:  http.MethodPost,
+				Path:    "/register",
+				Handler: user.RegisterHandler(serverCtx),
+			},
+		},
 		rest.WithPrefix("/user"),
 	)
 
-	// 需要认证的用户接口 - 使用用户限流配置
 	server.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{
-				serverCtx.SecurityMiddleware.AntiSpamMiddleware(),
-				serverCtx.SecurityMiddleware.RateLimitMiddleware(security.GetUserRateLimit()),
-				serverCtx.JwtMiddleware,
-			},
+			[]rest.Middleware{serverCtx.JwtMiddleware},
 			[]rest.Route{
 				{
 					// 用户信息
@@ -78,114 +65,81 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		rest.WithPrefix("/user"),
 	)
 
-	// 文章相关接口 - 使用文章限流配置
 	server.AddRoutes(
-		rest.WithMiddlewares(
-			[]rest.Middleware{
-				serverCtx.SecurityMiddleware.AntiSpamMiddleware(),
-				serverCtx.SecurityMiddleware.RateLimitMiddleware(security.GetArticleRateLimit()),
+		[]rest.Route{
+			{
+				// 文章详情
+				Method:  http.MethodGet,
+				Path:    "/article/:id",
+				Handler: web.ArticleHandler(serverCtx),
 			},
-			[]rest.Route{
-				{
-					// 文章详情
-					Method:  http.MethodGet,
-					Path:    "/article/:id",
-					Handler: web.ArticleHandler(serverCtx),
-				},
-				{
-					// 文章喜欢
-					Method:  http.MethodGet,
-					Path:    "/article/like/:id",
-					Handler: web.ArticleLikeHandler(serverCtx),
-				},
-				{
-					// 文章列表
-					Method:  http.MethodGet,
-					Path:    "/article/list",
-					Handler: web.ArticleListHandler(serverCtx),
-				},
-			}...,
-		),
-		rest.WithPrefix("/web"),
-	)
-
-	// 分类相关接口 - 使用分类限流配置
-	server.AddRoutes(
-		rest.WithMiddlewares(
-			[]rest.Middleware{
-				serverCtx.SecurityMiddleware.AntiSpamMiddleware(),
-				serverCtx.SecurityMiddleware.RateLimitMiddleware(security.GetCategoryRateLimit()),
+			{
+				// 文章喜欢
+				Method:  http.MethodGet,
+				Path:    "/article/like/:id",
+				Handler: web.ArticleLikeHandler(serverCtx),
 			},
-			[]rest.Route{
-				{
-					// 分类列表
-					Method:  http.MethodGet,
-					Path:    "/category/list",
-					Handler: web.CategoryListHandler(serverCtx),
-				},
-				{
-					// 标签列表
-					Method:  http.MethodGet,
-					Path:    "/tag/list",
-					Handler: web.TagsListHandler(serverCtx),
-				},
-			}...,
-		),
-		rest.WithPrefix("/web"),
-	)
-
-	// 其他公开接口 - 使用默认限流配置
-	server.AddRoutes(
-		rest.WithMiddlewares(
-			[]rest.Middleware{
-				serverCtx.SecurityMiddleware.AntiSpamMiddleware(),
-				serverCtx.SecurityMiddleware.RateLimitMiddleware(security.GetDefaultRateLimit()),
+			{
+				// 文章列表
+				Method:  http.MethodGet,
+				Path:    "/article/list",
+				Handler: web.ArticleListHandler(serverCtx),
 			},
-			[]rest.Route{
-				{
-					// 书单详情
-					Method:  http.MethodGet,
-					Path:    "/book/:id",
-					Handler: web.BookHandler(serverCtx),
-				},
-				{
-					// 章节详情
-					Method:  http.MethodGet,
-					Path:    "/book/chapter/:id",
-					Handler: web.BookChapterHandler(serverCtx),
-				},
-				{
-					// 书单列表
-					Method:  http.MethodGet,
-					Path:    "/book/list",
-					Handler: web.BookListHandler(serverCtx),
-				},
-				{
-					// 说说列表
-					Method:  http.MethodGet,
-					Path:    "/chat/list",
-					Handler: web.ChatListHandler(serverCtx),
-				},
-				{
-					// 专栏列表
-					Method:  http.MethodGet,
-					Path:    "/column/list",
-					Handler: web.ColumnListHandler(serverCtx),
-				},
-				{
-					// 评论列表
-					Method:  http.MethodGet,
-					Path:    "/comment/list",
-					Handler: web.CommentListHandler(serverCtx),
-				},
-				{
-					// 订单列表
-					Method:  http.MethodGet,
-					Path:    "/order/list",
-					Handler: web.OrderListHandler(serverCtx),
-				},
-			}...,
-		),
+			{
+				// 书单详情
+				Method:  http.MethodGet,
+				Path:    "/book/:id",
+				Handler: web.BookHandler(serverCtx),
+			},
+			{
+				// 章节详情
+				Method:  http.MethodGet,
+				Path:    "/book/chapter/:id",
+				Handler: web.BookChapterHandler(serverCtx),
+			},
+			{
+				// 书单列表
+				Method:  http.MethodGet,
+				Path:    "/book/list",
+				Handler: web.BookListHandler(serverCtx),
+			},
+			{
+				// 分类列表
+				Method:  http.MethodGet,
+				Path:    "/category/list",
+				Handler: web.CategoryListHandler(serverCtx),
+			},
+			{
+				// 说说列表
+				Method:  http.MethodGet,
+				Path:    "/chat/list",
+				Handler: web.ChatListHandler(serverCtx),
+			},
+			{
+				// 专栏列表
+				Method:  http.MethodGet,
+				Path:    "/column/list",
+				Handler: web.ColumnListHandler(serverCtx),
+			},
+			{
+				// 评论列表
+				Method:  http.MethodGet,
+				Path:    "/comment/list",
+				Handler: web.CommentListHandler(serverCtx),
+			},
+			{
+				// 订单列表
+				Method:  http.MethodGet,
+				Path:    "/order/list",
+				Handler: web.OrderListHandler(serverCtx),
+			},
+			{
+				// 标签列表
+				Method:  http.MethodGet,
+				Path:    "/tag/list",
+				Handler: web.TagsListHandler(serverCtx),
+			},
+		},
 		rest.WithPrefix("/web"),
 	)
 }
