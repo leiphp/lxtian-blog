@@ -5,13 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/stores/redis"
 	model "lxtian-blog/common/pkg/model/mongo"
 	"lxtian-blog/common/pkg/model/mysql"
 	redisutil "lxtian-blog/common/pkg/redis"
 	"lxtian-blog/common/pkg/utils"
 	"lxtian-blog/rpc/web/internal/svc"
 	"lxtian-blog/rpc/web/web"
+
+	"github.com/zeromicro/go-zero/core/stores/redis"
 
 	"github.com/zeromicro/go-zero/core/logc"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -37,9 +38,11 @@ func (l *ArticleLogic) Article(in *web.ArticleReq) (*web.ArticleResp, error) {
 	// 记录浏览次数（如果有IP参数）
 	if in.ClientIp != "" {
 		go func() {
+			// 创建新的context，避免使用可能被取消的context
+			ctx := context.Background()
 			viewCountUtil := utils.NewViewCountUtil(l.svcCtx.DB, l.svcCtx.Rds)
-			if err := viewCountUtil.IncrementArticleView(l.ctx, in.Id, in.ClientIp); err != nil {
-				logc.Errorf(l.ctx, "记录文章浏览次数失败: %s", err)
+			if err := viewCountUtil.IncrementArticleView(ctx, in.Id, in.ClientIp); err != nil {
+				logc.Errorf(ctx, "记录文章浏览次数失败: %s", err)
 			}
 		}()
 	}
@@ -132,11 +135,13 @@ func (l *ArticleLogic) Article(in *web.ArticleReq) (*web.ArticleResp, error) {
 		return nil, err
 	}
 	// 异步写入缓存
-	err = l.setArticleToCache(l.ctx, articleID, string(jsonData))
-	if err != nil {
-		logx.Errorf("写入文章缓存失败: %v", err)
-		return nil, err
-	}
+	go func() {
+		ctx := context.Background()
+		err := l.setArticleToCache(ctx, articleID, string(jsonData))
+		if err != nil {
+			logx.Errorf("写入文章缓存失败: %v", err)
+		}
+	}()
 
 	return &web.ArticleResp{
 		Data: string(jsonData),
