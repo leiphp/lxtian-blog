@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"lxtian-blog/common/pkg/model/mysql"
-	"lxtian-blog/common/pkg/redis"
 
 	"lxtian-blog/rpc/web/internal/svc"
 	"lxtian-blog/rpc/web/web"
@@ -27,17 +26,6 @@ func NewCategoryListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cate
 }
 
 func (l *CategoryListLogic) CategoryList(in *web.CategoryListReq) (*web.CategoryListResp, error) {
-	// Redis key
-	cacheKey := redis.ReturnRedisKey(redis.ApiWebStringCategory, nil)
-
-	// 1. 查缓存
-	cacheStr, err := l.svcCtx.Rds.Get(cacheKey)
-	if err == nil && cacheStr != "" {
-		// 缓存命中，直接返回
-		return &web.CategoryListResp{
-			List: cacheStr,
-		}, nil
-	}
 	where := map[string]interface{}{}
 	where["status"] = 1
 	if in.Page == 0 {
@@ -48,7 +36,7 @@ func (l *CategoryListLogic) CategoryList(in *web.CategoryListReq) (*web.Category
 	}
 	offset := (in.Page - 1) * in.PageSize
 	var results []map[string]interface{}
-	err = l.svcCtx.DB.
+	err := l.svcCtx.DB.
 		Model(&mysql.TxyCategory{}).
 		Select("id,name,seoname,description,keywords,sort,status").
 		Where(where).
@@ -71,11 +59,6 @@ func (l *CategoryListLogic) CategoryList(in *web.CategoryListReq) (*web.Category
 		return nil, err
 	}
 
-	// 缓存分类
-	err = l.svcCtx.Rds.Set(redis.ReturnRedisKey(redis.ApiWebStringCategory, nil), string(jsonData))
-	if err != nil {
-		return nil, err
-	}
 	return &web.CategoryListResp{
 		Page:     in.Page,
 		PageSize: in.PageSize,
