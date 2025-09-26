@@ -16,12 +16,13 @@ import (
 )
 
 type ServiceContext struct {
-	Config             config.Config
-	Rds                *redis.Redis
-	WebRpc             web.Web
-	UserRpc            user.User
-	JwtMiddleware      rest.Middleware
-	SecurityMiddleware *middleware.SecurityMiddleware
+	Config              config.Config
+	Rds                 *redis.Redis
+	WebRpc              web.Web
+	UserRpc             user.User
+	JwtMiddleware       rest.Middleware
+	AntiSpamMiddleware  rest.Middleware
+	RateLimitMiddleware rest.Middleware
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -34,15 +35,14 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		// 使用默认配置继续运行
 	}
 
-	securityMiddleware := middleware.NewSecurityMiddleware(rds)
-
 	return &ServiceContext{
-		Config:             c,
-		Rds:                rds,
-		WebRpc:             web.NewWeb(zrpc.MustNewClient(c.WebRpc)),
-		UserRpc:            user.NewUser(zrpc.MustNewClient(c.UserRpc)),
-		JwtMiddleware:      middleware.NewJwtMiddleware(c.Auth.AccessSecret, c.Auth.AccessExpire).Handle,
-		SecurityMiddleware: securityMiddleware,
+		Config:              c,
+		Rds:                 rds,
+		WebRpc:              web.NewWeb(zrpc.MustNewClient(c.WebRpc)),
+		UserRpc:             user.NewUser(zrpc.MustNewClient(c.UserRpc)),
+		JwtMiddleware:       middleware.NewJwtMiddleware(c.Auth.AccessSecret, c.Auth.AccessExpire).Handle,
+		AntiSpamMiddleware:  middleware.NewAntiSpamMiddleware(rds).Handle,
+		RateLimitMiddleware: middleware.NewRateLimitMiddleware(rds).Handle,
 	}
 }
 

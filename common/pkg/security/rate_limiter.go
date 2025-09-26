@@ -30,37 +30,6 @@ type RateLimitConfig struct {
 	KeyPrefix   string        // Redis Key前缀
 }
 
-// 默认限流配置（向后兼容，建议使用配置管理器）
-var (
-	// 通用接口限流：每分钟最多60次请求
-	DefaultRateLimit = RateLimitConfig{
-		WindowSize:  time.Minute,
-		MaxRequests: 60,
-		KeyPrefix:   "rate_limit",
-	}
-
-	// 文章详情限流：每分钟最多30次请求
-	ArticleRateLimit = RateLimitConfig{
-		WindowSize:  time.Minute,
-		MaxRequests: 30,
-		KeyPrefix:   "article_rate",
-	}
-
-	// 分类列表限流：每分钟最多20次请求
-	CategoryRateLimit = RateLimitConfig{
-		WindowSize:  time.Minute,
-		MaxRequests: 20,
-		KeyPrefix:   "category_rate",
-	}
-)
-
-// 注意：以上硬编码配置仅用于向后兼容
-// 推荐使用配置管理器来获取动态配置：
-// - GetDefaultRateLimit() - 获取默认限流配置
-// - GetArticleRateLimit() - 获取文章限流配置
-// - GetCategoryRateLimit() - 获取分类限流配置
-// - GetUserRateLimit() - 获取用户限流配置
-
 // IsAllowed 检查是否允许访问
 func (rl *RateLimiter) IsAllowed(ctx context.Context, clientIP, endpoint string, config RateLimitConfig) (bool, error) {
 	// 生成限流Key

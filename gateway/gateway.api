@@ -4,10 +4,11 @@ syntax = "v1"
 import "/api/web.api"
 import "/api/user.api"
 
-// web服务
+// 文章相关接口 - 使用文章限流配置
 @server (
-	prefix: /web
-	group:  web
+	middleware: AntiSpamMiddleware,RateLimitMiddleware
+	prefix:     /web
+	group:      web
 )
 service gateway-api {
 	@doc "文章列表"
@@ -21,11 +22,31 @@ service gateway-api {
 	@doc "文章喜欢"
 	@handler ArticleLike
 	get /article/like/:id (ArticleLikeReq) returns (ArticleLikeResp)
+}
 
+// 分类相关接口 - 使用分类限流配置
+@server (
+	middleware: AntiSpamMiddleware,RateLimitMiddleware
+	prefix:     /web
+	group:      web
+)
+service gateway-api {
 	@doc "分类列表"
 	@handler CategoryList
 	get /category/list (CategoryListReq) returns (CategoryListResp)
 
+	@doc "标签列表"
+	@handler TagsList
+	get /tag/list returns (TagsListResp)
+}
+
+// 其他公开接口 - 使用默认限流配置
+@server (
+	middleware: AntiSpamMiddleware,RateLimitMiddleware
+	prefix:     /web
+	group:      web
+)
+service gateway-api {
 	@doc "说说列表"
 	@handler ChatList
 	get /chat/list (ChatListReq) returns (ChatListResp)
@@ -37,10 +58,6 @@ service gateway-api {
 	@doc "订单列表"
 	@handler OrderList
 	get /order/list (OrderListReq) returns (OrderListResp)
-
-	@doc "标签列表"
-	@handler TagsList
-	get /tag/list returns (TagsListResp)
 
 	@doc "专栏列表"
 	@handler ColumnList
@@ -59,10 +76,11 @@ service gateway-api {
 	get /book/chapter/:id (BookChapterReq) returns (BookChapterResp)
 }
 
-// web服务
+// 用户公开接口 - 使用用户限流配置
 @server (
-	prefix: /user
-	group:  user
+	middleware: AntiSpamMiddleware,RateLimitMiddleware
+	prefix:     /user
+	group:      user
 )
 service gateway-api {
 	@doc "获取二维码"
@@ -82,8 +100,9 @@ service gateway-api {
 	post /login (LoginReq) returns (LoginResp)
 }
 
+// 需要认证的用户接口 - 使用用户限流配置 + JWT认证
 @server (
-	middleware: JwtMiddleware
+	middleware: AntiSpamMiddleware,RateLimitMiddleware,JwtMiddleware
 	prefix:     /user
 	group:      user
 )

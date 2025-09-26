@@ -3,9 +3,6 @@ package utils
 import (
 	"context"
 	"fmt"
-	"net"
-	"net/http"
-	"strings"
 	"time"
 
 	redisutil "lxtian-blog/common/pkg/redis"
@@ -87,38 +84,4 @@ func getTomorrowMidnight() time.Duration {
 	tomorrow := now.AddDate(0, 0, 1)
 	tomorrowMidnight := time.Date(tomorrow.Year(), tomorrow.Month(), tomorrow.Day(), 0, 0, 0, 0, tomorrow.Location())
 	return tomorrowMidnight.Sub(now)
-}
-
-// GetClientIP 获取客户端真实IP
-func GetClientIP(r *http.Request) string {
-	// 检查 X-Forwarded-For 头
-	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-		// X-Forwarded-For 可能包含多个IP，取第一个
-		ips := strings.Split(xff, ",")
-		if len(ips) > 0 {
-			return strings.TrimSpace(ips[0])
-		}
-	}
-
-	// 检查 X-Real-IP 头
-	if xri := r.Header.Get("X-Real-IP"); xri != "" {
-		return strings.TrimSpace(xri)
-	}
-
-	// 检查 X-Forwarded-Proto 头
-	if xfp := r.Header.Get("X-Forwarded-Proto"); xfp != "" {
-		// 如果使用代理，可能IP在RemoteAddr中
-		ip, _, err := net.SplitHostPort(r.RemoteAddr)
-		if err == nil {
-			return ip
-		}
-	}
-
-	// 直接使用 RemoteAddr
-	ip, _, err := net.SplitHostPort(r.RemoteAddr)
-	if err != nil {
-		return r.RemoteAddr
-	}
-
-	return ip
 }

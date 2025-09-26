@@ -15,38 +15,41 @@ import (
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				// 获取二维码
-				Method:  http.MethodGet,
-				Path:    "/getqr/:ws_user_id",
-				Handler: user.GetqrHandler(serverCtx),
-			},
-			{
-				// 用户登录
-				Method:  http.MethodPost,
-				Path:    "/login",
-				Handler: user.LoginHandler(serverCtx),
-			},
-			{
-				// 更新扫码状态
-				Method:  http.MethodPut,
-				Path:    "/qr/status",
-				Handler: user.QrStatusHandler(serverCtx),
-			},
-			{
-				// 用户注册
-				Method:  http.MethodPost,
-				Path:    "/register",
-				Handler: user.RegisterHandler(serverCtx),
-			},
-		},
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AntiSpamMiddleware, serverCtx.RateLimitMiddleware},
+			[]rest.Route{
+				{
+					// 获取二维码
+					Method:  http.MethodGet,
+					Path:    "/getqr/:ws_user_id",
+					Handler: user.GetqrHandler(serverCtx),
+				},
+				{
+					// 用户登录
+					Method:  http.MethodPost,
+					Path:    "/login",
+					Handler: user.LoginHandler(serverCtx),
+				},
+				{
+					// 更新扫码状态
+					Method:  http.MethodPut,
+					Path:    "/qr/status",
+					Handler: user.QrStatusHandler(serverCtx),
+				},
+				{
+					// 用户注册
+					Method:  http.MethodPost,
+					Path:    "/register",
+					Handler: user.RegisterHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithPrefix("/user"),
 	)
 
 	server.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.JwtMiddleware},
+			[]rest.Middleware{serverCtx.AntiSpamMiddleware, serverCtx.RateLimitMiddleware, serverCtx.JwtMiddleware},
 			[]rest.Route{
 				{
 					// 用户信息
@@ -66,80 +69,101 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	)
 
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				// 文章详情
-				Method:  http.MethodGet,
-				Path:    "/article/:id",
-				Handler: web.ArticleHandler(serverCtx),
-			},
-			{
-				// 文章喜欢
-				Method:  http.MethodGet,
-				Path:    "/article/like/:id",
-				Handler: web.ArticleLikeHandler(serverCtx),
-			},
-			{
-				// 文章列表
-				Method:  http.MethodGet,
-				Path:    "/article/list",
-				Handler: web.ArticleListHandler(serverCtx),
-			},
-			{
-				// 书单详情
-				Method:  http.MethodGet,
-				Path:    "/book/:id",
-				Handler: web.BookHandler(serverCtx),
-			},
-			{
-				// 章节详情
-				Method:  http.MethodGet,
-				Path:    "/book/chapter/:id",
-				Handler: web.BookChapterHandler(serverCtx),
-			},
-			{
-				// 书单列表
-				Method:  http.MethodGet,
-				Path:    "/book/list",
-				Handler: web.BookListHandler(serverCtx),
-			},
-			{
-				// 分类列表
-				Method:  http.MethodGet,
-				Path:    "/category/list",
-				Handler: web.CategoryListHandler(serverCtx),
-			},
-			{
-				// 说说列表
-				Method:  http.MethodGet,
-				Path:    "/chat/list",
-				Handler: web.ChatListHandler(serverCtx),
-			},
-			{
-				// 专栏列表
-				Method:  http.MethodGet,
-				Path:    "/column/list",
-				Handler: web.ColumnListHandler(serverCtx),
-			},
-			{
-				// 评论列表
-				Method:  http.MethodGet,
-				Path:    "/comment/list",
-				Handler: web.CommentListHandler(serverCtx),
-			},
-			{
-				// 订单列表
-				Method:  http.MethodGet,
-				Path:    "/order/list",
-				Handler: web.OrderListHandler(serverCtx),
-			},
-			{
-				// 标签列表
-				Method:  http.MethodGet,
-				Path:    "/tag/list",
-				Handler: web.TagsListHandler(serverCtx),
-			},
-		},
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AntiSpamMiddleware, serverCtx.RateLimitMiddleware},
+			[]rest.Route{
+				{
+					// 文章详情
+					Method:  http.MethodGet,
+					Path:    "/article/:id",
+					Handler: web.ArticleHandler(serverCtx),
+				},
+				{
+					// 文章喜欢
+					Method:  http.MethodGet,
+					Path:    "/article/like/:id",
+					Handler: web.ArticleLikeHandler(serverCtx),
+				},
+				{
+					// 文章列表
+					Method:  http.MethodGet,
+					Path:    "/article/list",
+					Handler: web.ArticleListHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/web"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AntiSpamMiddleware, serverCtx.RateLimitMiddleware},
+			[]rest.Route{
+				{
+					// 分类列表
+					Method:  http.MethodGet,
+					Path:    "/category/list",
+					Handler: web.CategoryListHandler(serverCtx),
+				},
+				{
+					// 标签列表
+					Method:  http.MethodGet,
+					Path:    "/tag/list",
+					Handler: web.TagsListHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/web"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AntiSpamMiddleware, serverCtx.RateLimitMiddleware},
+			[]rest.Route{
+				{
+					// 书单详情
+					Method:  http.MethodGet,
+					Path:    "/book/:id",
+					Handler: web.BookHandler(serverCtx),
+				},
+				{
+					// 章节详情
+					Method:  http.MethodGet,
+					Path:    "/book/chapter/:id",
+					Handler: web.BookChapterHandler(serverCtx),
+				},
+				{
+					// 书单列表
+					Method:  http.MethodGet,
+					Path:    "/book/list",
+					Handler: web.BookListHandler(serverCtx),
+				},
+				{
+					// 说说列表
+					Method:  http.MethodGet,
+					Path:    "/chat/list",
+					Handler: web.ChatListHandler(serverCtx),
+				},
+				{
+					// 专栏列表
+					Method:  http.MethodGet,
+					Path:    "/column/list",
+					Handler: web.ColumnListHandler(serverCtx),
+				},
+				{
+					// 评论列表
+					Method:  http.MethodGet,
+					Path:    "/comment/list",
+					Handler: web.CommentListHandler(serverCtx),
+				},
+				{
+					// 订单列表
+					Method:  http.MethodGet,
+					Path:    "/order/list",
+					Handler: web.OrderListHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithPrefix("/web"),
 	)
 }
