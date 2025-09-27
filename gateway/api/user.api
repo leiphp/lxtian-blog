@@ -1,5 +1,13 @@
 syntax = "v1"
 
+info(
+    title: "用户相关模块"
+    desc: "用户相关模块"
+    author: "雷小天"
+    email: "1124378213@qq.com"
+    version: "v1.0.0"
+)
+
 type (
     GetqrReq {
         WsUserId   string `path:"ws_user_id"`
@@ -9,7 +17,9 @@ type (
         Uuid    string `json:"uuid"`
         QrImg   string `json:"qr_img"`
     }
+)
 
+type (
     QrStatusReq {
         Uuid   string `json:"uuid"`
         Status uint32 `json:"status"`
@@ -17,7 +27,9 @@ type (
     QrStatusResp {
         Data   uint32 `json:"data"`
     }
+)
 
+type (
     RegisterReq {
         Username string `json:"username"`
         Password string `json:"password"`
@@ -26,7 +38,9 @@ type (
     RegisterResp {
         Data       map[string]interface{} `json:"data"`
     }
+)
 
+type (
     LoginReq {
         LoginType int32 `json:"login_type,optional"`
         Username string `json:"username,optional"`
@@ -40,9 +54,15 @@ type (
         ExpiresIn   uint64 `json:"expires_in"`
         User        map[string]interface{} `json:"user"`
     }
+)
+
+type (
     InfoResp {
         Data        map[string]interface{} `json:"data"`
     }
+)
+
+type (
     UpdateInfoReq {
         Nickname string `json:"nickname,optional"`
         HeadImg string `json:"head_img,optional"`
@@ -50,5 +70,44 @@ type (
     UpdateInfoResp {
         Data       map[string]interface{} `json:"data"`
     }
-
 )
+
+// 用户公开接口 - 使用用户限流配置
+@server (
+    middleware: AntiSpamMiddleware,RateLimitMiddleware
+    prefix:     /user
+    group:      user
+)
+service gateway-api {
+    @doc "获取二维码"
+    @handler Getqr
+    get /getqr/:ws_user_id (GetqrReq) returns (GetqrResp)
+
+    @doc "更新扫码状态"
+    @handler QrStatus
+    put /qr/status (QrStatusReq) returns (QrStatusResp)
+
+    @doc "用户注册"
+    @handler Register
+    post /register (RegisterReq) returns (RegisterResp)
+
+    @doc "用户登录"
+    @handler Login
+    post /login (LoginReq) returns (LoginResp)
+}
+
+// 需要认证的用户接口 - 使用用户限流配置 + JWT认证
+@server (
+    middleware: AntiSpamMiddleware,RateLimitMiddleware,JwtMiddleware
+    prefix:     /user
+    group:      user
+)
+service gateway-api {
+    @doc "用户信息"
+    @handler Info
+    get /info returns (InfoResp)
+
+    @doc "修改用户信息"
+    @handler UpdateInfo
+    put /update/info (UpdateInfoReq) returns (UpdateInfoResp)
+}

@@ -1,5 +1,13 @@
 syntax = "v1"
 
+info(
+    title: "web相关模块"
+    desc: "web相关模块"
+    author: "雷小天"
+    email: "1124378213@qq.com"
+    version: "v1.0.0"
+)
+
 type (
     ArticleListReq {
         Cid      uint32 `form:"cid,optional"`
@@ -15,20 +23,26 @@ type (
         List       [] map[string]interface{} `json:"list"`
         Total      uint64 `json:"total"`
     }
+)
+type (
     ArticleReq {
         Id      uint32 `path:"id"`
     }
     ArticleResp {
         Data       map[string]interface{} `json:"data"`
     }
+)
 
+type (
     ArticleLikeReq {
         Id      uint32 `path:"id"`
     }
     ArticleLikeResp {
         Data       []map[string]interface{} `json:"data"`
     }
+)
 
+type (
     CategoryListReq {
         Page     uint32 `form:"page,optional"`
         PageSize uint32 `form:"page_size,optional"`
@@ -39,7 +53,9 @@ type (
         List       [] map[string]interface{} `json:"list"`
         Total      uint64 `json:"total"`
     }
+)
 
+type (
     ChatListReq {
         Cid      uint32 `form:"cid,optional"`
         Page     uint32 `form:"page"`
@@ -51,6 +67,9 @@ type (
         List       [] map[string]interface{} `json:"list"`
         Total      uint64 `json:"total"`
     }
+)
+
+type (
     CommentListReq {
         Page     uint32 `form:"page"`
         PageSize uint32 `form:"page_size"`
@@ -61,6 +80,9 @@ type (
         List       [] map[string]interface{} `json:"list"`
         Total      uint64 `json:"total"`
     }
+)
+
+type (
     OrderListReq {
         Page     uint32 `form:"page"`
         PageSize uint32 `form:"page_size"`
@@ -71,12 +93,21 @@ type (
         List       [] map[string]interface{} `json:"list"`
         Total      uint64 `json:"total"`
     }
+)
+
+type (
     TagsListResp {
         Data       [] map[string]interface{} `json:"list"`
     }
+)
+
+type (
     ColumnListResp {
         Data       [] map[string]interface{} `json:"list"`
     }
+)
+
+type (
     BookListReq {
         Page     uint32 `form:"page"`
         PageSize uint32 `form:"page_size"`
@@ -89,6 +120,9 @@ type (
         List       [] map[string]interface{} `json:"list"`
         Total      uint64 `json:"total"`
     }
+)
+
+type (
     BookReq {
         Id      uint32 `path:"id"`
     }
@@ -96,6 +130,9 @@ type (
         Data    map[string]interface{} `json:"data"`
     }
 
+)
+
+type (
     BookChapterReq {
         Id      uint32 `path:"id"`
     }
@@ -103,3 +140,75 @@ type (
         Data    map[string]interface{} `json:"data"`
     }
 )
+
+// 文章相关接口 - 使用文章限流配置
+@server (
+    middleware: AntiSpamMiddleware,RateLimitMiddleware
+    prefix:     /web
+    group:      web
+)
+service gateway-api {
+    @doc "文章列表"
+    @handler ArticleList
+    get /article/list (ArticleListReq) returns (ArticleListResp)
+
+    @doc "文章详情"
+    @handler Article
+    get /article/:id (ArticleReq) returns (ArticleResp)
+
+    @doc "文章喜欢"
+    @handler ArticleLike
+    get /article/like/:id (ArticleLikeReq) returns (ArticleLikeResp)
+}
+
+// 分类相关接口 - 使用分类限流配置
+@server (
+    middleware: AntiSpamMiddleware,RateLimitMiddleware
+    prefix:     /web
+    group:      web
+)
+service gateway-api {
+    @doc "分类列表"
+    @handler CategoryList
+    get /category/list (CategoryListReq) returns (CategoryListResp)
+
+    @doc "标签列表"
+    @handler TagsList
+    get /tag/list returns (TagsListResp)
+}
+
+// 其他公开接口 - 使用默认限流配置
+@server (
+    middleware: AntiSpamMiddleware,RateLimitMiddleware
+    prefix:     /web
+    group:      web
+)
+service gateway-api {
+    @doc "说说列表"
+    @handler ChatList
+    get /chat/list (ChatListReq) returns (ChatListResp)
+
+    @doc "评论列表"
+    @handler CommentList
+    get /comment/list (CommentListReq) returns (CommentListResp)
+
+    @doc "订单列表"
+    @handler OrderList
+    get /order/list (OrderListReq) returns (OrderListResp)
+
+    @doc "专栏列表"
+    @handler ColumnList
+    get /column/list returns (ColumnListResp)
+
+    @doc "书单列表"
+    @handler BookList
+    get /book/list (BookListReq) returns (BookListResp)
+
+    @doc "书单详情"
+    @handler Book
+    get /book/:id (BookReq) returns (BookResp)
+
+    @doc "章节详情"
+    @handler BookChapter
+    get /book/chapter/:id (BookChapterReq) returns (BookChapterResp)
+}
