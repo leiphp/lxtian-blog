@@ -5,6 +5,7 @@ import (
 	"lxtian-blog/common/pkg/security"
 	"lxtian-blog/gateway/internal/config"
 	"lxtian-blog/gateway/internal/middleware"
+	"lxtian-blog/rpc/payment/paymentclient"
 	"lxtian-blog/rpc/user/client/user"
 	"lxtian-blog/rpc/web/client/web"
 
@@ -20,6 +21,7 @@ type ServiceContext struct {
 	Rds                 *redis.Redis
 	WebRpc              web.Web
 	UserRpc             user.User
+	PaymentRpc          paymentclient.Payment
 	JwtMiddleware       rest.Middleware
 	AntiSpamMiddleware  rest.Middleware
 	RateLimitMiddleware rest.Middleware
@@ -40,6 +42,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Rds:                 rds,
 		WebRpc:              web.NewWeb(zrpc.MustNewClient(c.WebRpc)),
 		UserRpc:             user.NewUser(zrpc.MustNewClient(c.UserRpc)),
+		PaymentRpc:          paymentclient.NewPayment(zrpc.MustNewClient(c.PaymentRpc)),
 		JwtMiddleware:       middleware.NewJwtMiddleware(c.Auth.AccessSecret, c.Auth.AccessExpire).Handle,
 		AntiSpamMiddleware:  middleware.NewAntiSpamMiddleware(rds).Handle,
 		RateLimitMiddleware: middleware.NewRateLimitMiddleware(rds).Handle,

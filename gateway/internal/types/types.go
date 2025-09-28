@@ -106,6 +106,33 @@ type CommentListResp struct {
 	Total    uint64                   `json:"total"`
 }
 
+type CreatePaymentReq struct {
+	Amount      float64 `json:"amount"`                // 支付金额
+	Subject     string  `json:"subject"`               // 订单标题
+	Body        string  `json:"body,optional"`         // 订单描述
+	ReturnUrl   string  `json:"return_url,optional"`   // 支付成功跳转地址
+	NotifyUrl   string  `json:"notify_url,optional"`   // 支付结果异步通知地址
+	Timeout     string  `json:"timeout,optional"`      // 订单超时时间
+	UserId      uint64  `json:"user_id,optional"`      // 用户ID
+	ProductCode string  `json:"product_code,optional"` // 产品码，默认FAST_INSTANT_TRADE_PAY
+	PayType     int64   `json:"pay_type,optional"`     // 支付类型：1:捐赠2:购买模板3:直接消费
+	GoodsName   string  `json:"goods_name,optional"`   // 商品名称
+	Remark      string  `json:"remark,optional"`       // 备注
+	GoodsId     uint64  `json:"goods_id,optional"`     // 商品ID
+	Quantity    uint32  `json:"quantity,optional"`     // 商品数量
+}
+
+type CreatePaymentResp struct {
+	OrderId    string `json:"order_id"`     // 订单ID（自动生成）
+	PaymentId  string `json:"payment_id"`   // 支付ID
+	OutTradeNo string `json:"out_trade_no"` // 商户订单号
+	OrderSn    string `json:"order_sn"`     // 订单号
+	PayUrl     string `json:"pay_url"`      // 支付链接
+	QrCode     string `json:"qr_code"`      // 二维码内容
+	FormData   string `json:"form_data"`    // 表单数据（用于页面支付）
+	Message    string `json:"message"`      // 返回消息
+}
+
 type GetqrReq struct {
 	WsUserId string `path:"ws_user_id"`
 }
@@ -146,6 +173,34 @@ type OrderListResp struct {
 	Total    uint64                   `json:"total"`
 }
 
+type PaymentHistoryReq struct {
+	UserId        uint64 `form:"user_id,optional"`        // 用户ID
+	OrderId       string `form:"order_id,optional"`       // 订单ID
+	PaymentStatus string `form:"payment_status,optional"` // 支付状态
+	StartTime     string `form:"start_time,optional"`     // 开始时间
+	EndTime       string `form:"end_time,optional"`       // 结束时间
+	Page          uint32 `form:"page"`                    // 页码
+	PageSize      uint32 `form:"page_size"`               // 每页数量
+}
+
+type PaymentHistoryResp struct {
+	Page     uint32                   `json:"page"`      // 页码
+	PageSize uint32                   `json:"page_size"` // 每页数量
+	Total    uint64                   `json:"total"`     // 总数
+	List     []map[string]interface{} `json:"list"`      // 支付记录列表
+}
+
+type PaymentNotifyReq struct {
+	NotifyData string `json:"notify_data"` // 通知数据
+	Sign       string `json:"sign"`        // 签名
+	SignType   string `json:"sign_type"`   // 签名类型
+}
+
+type PaymentNotifyResp struct {
+	Success bool   `json:"success"` // 处理是否成功
+	Message string `json:"message"` // 返回消息
+}
+
 type QrStatusReq struct {
 	Uuid   string `json:"uuid"`
 	Status uint32 `json:"status"`
@@ -153,6 +208,46 @@ type QrStatusReq struct {
 
 type QrStatusResp struct {
 	Data uint32 `json:"data"`
+}
+
+type QueryPaymentReq struct {
+	PaymentId  string `json:"payment_id,optional"`   // 支付ID
+	OrderId    string `json:"order_id,optional"`     // 订单ID
+	OutTradeNo string `json:"out_trade_no,optional"` // 商户订单号
+}
+
+type QueryPaymentResp struct {
+	PaymentId     string  `json:"payment_id"`     // 支付ID
+	OrderId       string  `json:"order_id"`       // 订单ID
+	OutTradeNo    string  `json:"out_trade_no"`   // 商户订单号
+	TradeNo       string  `json:"trade_no"`       // 支付宝交易号
+	TradeStatus   string  `json:"trade_status"`   // 交易状态
+	TotalAmount   float64 `json:"total_amount"`   // 交易金额
+	ReceiptAmount float64 `json:"receipt_amount"` // 实收金额
+	BuyerUserId   string  `json:"buyer_user_id"`  // 买家支付宝用户ID
+	BuyerLogonId  string  `json:"buyer_logon_id"` // 买家支付宝账号
+	GmtPayment    string  `json:"gmt_payment"`    // 支付时间
+	GmtClose      string  `json:"gmt_close"`      // 交易关闭时间
+	Message       string  `json:"message"`        // 返回消息
+}
+
+type RefundPaymentReq struct {
+	PaymentId    string  `json:"payment_id"`              // 支付ID
+	OrderId      string  `json:"order_id"`                // 订单ID
+	OutTradeNo   string  `json:"out_trade_no"`            // 商户订单号
+	RefundAmount float64 `json:"refund_amount"`           // 退款金额
+	RefundReason string  `json:"refund_reason,optional"`  // 退款原因
+	OutRequestNo string  `json:"out_request_no,optional"` // 退款单号
+}
+
+type RefundPaymentResp struct {
+	RefundId     string  `json:"refund_id"`      // 退款ID
+	OutRequestNo string  `json:"out_request_no"` // 退款单号
+	RefundAmount float64 `json:"refund_amount"`  // 退款金额
+	RefundFee    float64 `json:"refund_fee"`     // 退款手续费
+	RefundStatus string  `json:"refund_status"`  // 退款状态
+	GmtRefund    string  `json:"gmt_refund"`     // 退款时间
+	Message      string  `json:"message"`        // 返回消息
 }
 
 type RegisterReq struct {

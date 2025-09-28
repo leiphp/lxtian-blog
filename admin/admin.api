@@ -2,6 +2,7 @@ syntax = "v1"
 
 import "/api/user.api"
 import "/api/content.api"
+import "/api/payment.api"
 
 service admin-api {
 	@doc "后台登录"

@@ -1,0 +1,216 @@
+syntax = "v1"
+
+type (
+    // 支付订单管理请求
+    PaymentOrdersReq {
+        UserId        uint64  `form:"user_id,optional"`  // 用户ID
+        OrderId       string  `form:"order_id,optional"` // 订单ID
+        PaymentStatus string  `form:"payment_status,optional"` // 支付状态
+        StartTime     string  `form:"start_time,optional"` // 开始时间
+        EndTime       string  `form:"end_time,optional"`   // 结束时间
+        Page          int     `form:"page,default=1"`     // 页码
+        PageSize      int     `form:"page_size,default=10"` // 每页数量
+    }
+    
+    // 支付订单管理响应
+    PaymentOrdersResp {
+        Page          int     `json:"page"`          // 页码
+        PageSize      int     `json:"page_size"`     // 每页数量
+        Total         int64   `json:"total"`         // 总数
+        List          []map[string]interface{} `json:"list"` // 支付订单列表
+    }
+)
+
+type (
+    // 支付订单详情请求
+    PaymentOrderReq {
+        PaymentId     string `path:"payment_id"`     // 支付ID
+    }
+    
+    // 支付订单详情响应
+    PaymentOrderResp {
+        Data          map[string]interface{} `json:"data"` // 支付订单详情
+    }
+)
+
+type (
+    // 退款记录管理请求
+    PaymentRefundsReq {
+        PaymentId     string `form:"payment_id,optional"` // 支付ID
+        OrderId       string `form:"order_id,optional"`   // 订单ID
+        RefundStatus  string `form:"refund_status,optional"` // 退款状态
+        StartTime     string `form:"start_time,optional"`   // 开始时间
+        EndTime       string `form:"end_time,optional"`     // 结束时间
+        Page          int    `form:"page,default=1"`        // 页码
+        PageSize      int    `form:"page_size,default=10"`  // 每页数量
+    }
+    
+    // 退款记录管理响应
+    PaymentRefundsResp {
+        Page          int     `json:"page"`          // 页码
+        PageSize      int     `json:"page_size"`     // 每页数量
+        Total         int64   `json:"total"`         // 总数
+        List          []map[string]interface{} `json:"list"` // 退款记录列表
+    }
+)
+
+type (
+    // 支付通知记录请求
+    PaymentNotifiesReq {
+        NotifyType    string `form:"notify_type,optional"` // 通知类型
+        VerifyStatus  string `form:"verify_status,optional"` // 验证状态
+        ProcessStatus string `form:"process_status,optional"` // 处理状态
+        StartTime     string `form:"start_time,optional"`     // 开始时间
+        EndTime       string `form:"end_time,optional"`       // 结束时间
+        Page          int    `form:"page,default=1"`          // 页码
+        PageSize      int    `form:"page_size,default=10"`    // 每页数量
+    }
+    
+    // 支付通知记录响应
+    PaymentNotifiesResp {
+        Page          int     `json:"page"`          // 页码
+        PageSize      int     `json:"page_size"`     // 每页数量
+        Total         int64   `json:"total"`         // 总数
+        List          []map[string]interface{} `json:"list"` // 通知记录列表
+    }
+)
+
+type (
+    // 支付配置管理请求
+    PaymentConfigsReq {
+        Page          int    `form:"page,default=1"`     // 页码
+        PageSize      int    `form:"page_size,default=10"` // 每页数量
+    }
+    
+    // 支付配置管理响应
+    PaymentConfigsResp {
+        Page          int     `json:"page"`          // 页码
+        PageSize      int     `json:"page_size"`     // 每页数量
+        Total         int64   `json:"total"`         // 总数
+        List          []map[string]interface{} `json:"list"` // 支付配置列表
+    }
+)
+
+type (
+    // 支付配置保存请求
+    PaymentConfigSaveReq {
+        Id            int64  `json:"id,optional"`        // 配置ID
+        AppId         string `json:"app_id"`             // 应用ID
+        AppName       string `json:"app_name"`           // 应用名称
+        AppPrivateKey string `json:"app_private_key"`    // 应用私钥
+        AlipayPublicKey string `json:"alipay_public_key"` // 支付宝公钥
+        GatewayUrl    string `json:"gateway_url"`        // 支付宝网关地址
+        IsProd        bool   `json:"is_prod"`            // 是否生产环境
+        IsEnabled     bool   `json:"is_enabled"`         // 是否启用
+        NotifyUrl     string `json:"notify_url,optional"` // 默认通知地址
+        ReturnUrl     string `json:"return_url,optional"` // 默认返回地址
+    }
+    
+    // 支付配置保存响应
+    PaymentConfigSaveResp {
+        Data          bool   `json:"data"`               // 保存结果
+    }
+)
+
+type (
+    // 支付统计请求
+    PaymentStatsReq {
+        StartTime     string `form:"start_time"`         // 开始时间
+        EndTime       string `form:"end_time"`           // 结束时间
+        GroupBy       string `form:"group_by,optional"`  // 分组方式：day/hour
+    }
+    
+    // 支付统计响应
+    PaymentStatsResp {
+        Data          []map[string]interface{} `json:"data"` // 统计数据
+    }
+)
+
+type (
+    // 手动退款请求
+    ManualRefundReq {
+        PaymentId     string  `json:"payment_id"`        // 支付ID
+        RefundAmount  float64 `json:"refund_amount"`     // 退款金额
+        RefundReason  string  `json:"refund_reason"`     // 退款原因
+    }
+    
+    // 手动退款响应
+    ManualRefundResp {
+        Data          bool    `json:"data"`              // 退款结果
+        Message       string  `json:"message"`           // 返回消息
+    }
+)
+
+type (
+    // 关闭支付订单请求
+    ClosePaymentReq {
+        PaymentId     string  `json:"payment_id"`        // 支付ID
+        Reason        string  `json:"reason,optional"`   // 关闭原因
+    }
+    
+    // 关闭支付订单响应
+    ClosePaymentResp {
+        Data          bool    `json:"data"`              // 关闭结果
+        Message       string  `json:"message"`           // 返回消息
+    }
+)
+
+type (
+    // 重发支付通知请求
+    ResendNotifyReq {
+        NotifyId      string  `json:"notify_id"`         // 通知ID
+    }
+    
+    // 重发支付通知响应
+    ResendNotifyResp {
+        Data          bool    `json:"data"`              // 重发结果
+        Message       string  `json:"message"`           // 返回消息
+    }
+)
+
+// 支付管理接口 - 需要管理员权限
+@server (
+    middleware: JwtMiddleware
+    prefix:     /admin/payment
+)
+service admin-api {
+    @doc "支付订单管理"
+    @handler PaymentOrders
+    get /orders (PaymentOrdersReq) returns (PaymentOrdersResp)
+    
+    @doc "支付订单详情"
+    @handler PaymentOrder
+    get /order/:payment_id (PaymentOrderReq) returns (PaymentOrderResp)
+    
+    @doc "退款记录管理"
+    @handler PaymentRefunds
+    get /refunds (PaymentRefundsReq) returns (PaymentRefundsResp)
+    
+    @doc "支付通知记录"
+    @handler PaymentNotifies
+    get /notifies (PaymentNotifiesReq) returns (PaymentNotifiesResp)
+    
+    @doc "支付配置管理"
+    @handler PaymentConfigs
+    get /configs (PaymentConfigsReq) returns (PaymentConfigsResp)
+    
+    @doc "支付配置保存"
+    @handler PaymentConfigSave
+    post /config/save (PaymentConfigSaveReq) returns (PaymentConfigSaveResp)
+    
+    @doc "支付统计"
+    @handler PaymentStats
+    get /stats (PaymentStatsReq) returns (PaymentStatsResp)
+    
+    @doc "手动退款"
+    @handler ManualRefund
+    post /manual-refund (ManualRefundReq) returns (ManualRefundResp)
+    
+    @doc "关闭支付订单"
+    @handler ClosePayment
+    post /close-payment (ClosePaymentReq) returns (ClosePaymentResp)
+    
+    @doc "重发支付通知"
+    @handler ResendNotify
+    post /resend-notify (ResendNotifyReq) returns (ResendNotifyResp)
+}

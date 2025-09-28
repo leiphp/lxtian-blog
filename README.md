@@ -142,6 +142,14 @@ cd ~/lxtian-blog/rpc/member
 $ goctl rpc protoc member.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m
 Done.
 ```
+### grpc单个多个服务生成命令
+```shell
+# 单个 rpc 服务生成示例指令
+$ goctl rpc protoc greet.proto --go_out=./pb --go-grpc_out=./pb --zrpc_out=. --client=true
+# 多个 rpc 服务生成示例指令
+$ goctl rpc protoc greet.proto --go_out=./pb --go-grpc_out=./pb --zrpc_out=. --client=true -m
+
+```
 
 #### mysql model代码生成
 ```shell

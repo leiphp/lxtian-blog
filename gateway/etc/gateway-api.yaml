@@ -26,6 +26,13 @@ UserRpc:
     Key: user.rpc
   Timeout: 10000
 
+PaymentRpc:
+  Etcd:
+    Hosts:
+      - ${ETCD_HOSTS}
+    Key: payment.rpc
+  Timeout: 10000
+
 Log:
   ServiceName: gateway_api
   Mode: file

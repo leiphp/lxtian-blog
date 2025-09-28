@@ -3,5 +3,6 @@ syntax = "v1"
 // 引入 web.api 文件
 import "/api/web.api"
 import "/api/user.api"
+import "/api/payment.api"
 
 // goctl api go -api gateway.api -dir .

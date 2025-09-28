@@ -6,6 +6,7 @@ package handler
 import (
 	"net/http"
 
+	payment "lxtian-blog/gateway/internal/handler/payment"
 	user "lxtian-blog/gateway/internal/handler/user"
 	web "lxtian-blog/gateway/internal/handler/web"
 	"lxtian-blog/gateway/internal/svc"
@@ -14,6 +15,57 @@ import (
 )
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.JwtMiddleware, serverCtx.AntiSpamMiddleware, serverCtx.RateLimitMiddleware},
+			[]rest.Route{
+				{
+					// 创建支付订单
+					Method:  http.MethodPost,
+					Path:    "/create",
+					Handler: payment.CreatePaymentHandler(serverCtx),
+				},
+				{
+					// 支付记录查询
+					Method:  http.MethodGet,
+					Path:    "/history",
+					Handler: payment.PaymentHistoryHandler(serverCtx),
+				},
+				{
+					// 查询支付结果
+					Method:  http.MethodGet,
+					Path:    "/query",
+					Handler: payment.QueryPaymentHandler(serverCtx),
+				},
+				{
+					// 申请退款
+					Method:  http.MethodPost,
+					Path:    "/refund",
+					Handler: payment.RefundPaymentHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/api/payment"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				// 支付结果异步通知
+				Method:  http.MethodPost,
+				Path:    "/notify",
+				Handler: payment.PaymentNotifyHandler(serverCtx),
+			},
+			{
+				// 支付成功页面跳转
+				Method:  http.MethodGet,
+				Path:    "/return",
+				Handler: payment.PaymentReturnHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/api/payment"),
+	)
+
 	server.AddRoutes(
 		rest.WithMiddlewares(
 			[]rest.Middleware{serverCtx.AntiSpamMiddleware, serverCtx.RateLimitMiddleware},

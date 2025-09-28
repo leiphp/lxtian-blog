@@ -1,0 +1,164 @@
+syntax = "proto3";
+
+package payment;
+option go_package="./payment";
+
+
+// 创建支付订单请求（一步完成：创建订单+支付）
+message CreatePaymentReq {
+  double amount = 1;             // 支付金额
+  string subject = 2;            // 订单标题
+  string body = 3;              // 订单描述
+  string return_url = 4;        // 支付成功跳转地址
+  string notify_url = 5;        // 支付结果异步通知地址
+  string timeout = 6;           // 订单超时时间
+  uint64 user_id = 7;           // 用户ID
+  string product_code = 8;      // 产品码，默认FAST_INSTANT_TRADE_PAY
+  string client_ip = 9;         // 客户端IP
+  int64 pay_type = 10;          // 支付类型：1:捐赠2:购买模板3:直接消费
+  string goods_name = 11;       // 商品名称
+  string remark = 12;           // 备注
+  uint64 goods_id = 13;         // 商品ID
+  uint32 quantity = 14;         // 商品数量
+}
+
+// 创建支付订单响应
+message CreatePaymentResp {
+  string order_id = 1;          // 订单ID（自动生成）
+  string payment_id = 2;        // 支付ID
+  string out_trade_no = 3;      // 商户订单号
+  string order_sn = 4;          // 订单号
+  string pay_url = 5;           // 支付链接
+  string qr_code = 6;           // 二维码内容
+  string form_data = 7;         // 表单数据（用于页面支付）
+  string message = 8;           // 返回消息
+}
+
+// 支付结果查询请求
+message QueryPaymentReq {
+  string payment_id = 1;        // 支付ID
+  string order_id = 2;          // 订单ID
+  string out_trade_no = 3;      // 商户订单号
+}
+
+// 支付结果查询响应
+message QueryPaymentResp {
+  string payment_id = 1;        // 支付ID
+  string order_id = 2;          // 订单ID
+  string out_trade_no = 3;      // 商户订单号
+  string trade_no = 4;          // 支付宝交易号
+  string trade_status = 5;      // 交易状态
+  double total_amount = 6;      // 交易金额
+  double receipt_amount = 7;    // 实收金额
+  string buyer_user_id = 8;     // 买家支付宝用户ID
+  string buyer_logon_id = 9;    // 买家支付宝账号
+  string gmt_payment = 10;      // 支付时间
+  string gmt_close = 11;        // 交易关闭时间
+  string message = 12;          // 返回消息
+}
+
+// 支付退款请求
+message RefundPaymentReq {
+  string payment_id = 1;        // 支付ID
+  string order_id = 2;          // 订单ID
+  string out_trade_no = 3;      // 商户订单号
+  double refund_amount = 4;     // 退款金额
+  string refund_reason = 5;     // 退款原因
+  string out_request_no = 6;    // 退款单号
+}
+
+// 支付退款响应
+message RefundPaymentResp {
+  string refund_id = 1;         // 退款ID
+  string out_request_no = 2;    // 退款单号
+  double refund_amount = 3;     // 退款金额
+  double refund_fee = 4;        // 退款手续费
+  string refund_status = 5;     // 退款状态
+  string gmt_refund = 6;        // 退款时间
+  string message = 7;           // 返回消息
+}
+
+// 支付记录查询请求
+message PaymentHistoryReq {
+  uint64 user_id = 1;           // 用户ID
+  string order_id = 2;          // 订单ID
+  string payment_status = 3;    // 支付状态
+  string start_time = 4;        // 开始时间
+  string end_time = 5;          // 结束时间
+  uint32 page = 6;              // 页码
+  uint32 page_size = 7;         // 每页数量
+}
+
+// 支付记录查询响应
+message PaymentHistoryResp {
+  uint32 page = 1;              // 页码
+  uint32 page_size = 2;         // 每页数量
+  uint64 total = 3;             // 总数
+  string list = 4;              // 支付记录列表（JSON字符串）
+}
+
+// 支付回调通知处理请求
+message PaymentNotifyReq {
+  string notify_data = 1;       // 通知数据
+  string sign = 2;              // 签名
+  string sign_type = 3;         // 签名类型
+  string client_ip = 4;         // 客户端IP
+}
+
+// 支付回调通知处理响应
+message PaymentNotifyResp {
+  bool success = 1;             // 处理是否成功
+  string message = 2;           // 返回消息
+}
+
+// 关闭支付订单请求
+message ClosePaymentReq {
+  string payment_id = 1;        // 支付ID
+  string order_id = 2;          // 订单ID
+  string out_trade_no = 3;      // 商户订单号
+}
+
+// 关闭支付订单响应
+message ClosePaymentResp {
+  bool success = 1;             // 是否成功
+  string message = 2;           // 返回消息
+}
+
+// 取消支付订单请求
+message CancelPaymentReq {
+  string payment_id = 1;        // 支付ID
+  string order_id = 2;          // 订单ID
+  string out_trade_no = 3;      // 商户订单号
+}
+
+// 取消支付订单响应
+message CancelPaymentResp {
+  bool success = 1;             // 是否成功
+  string message = 2;           // 返回消息
+}
+
+// 支付服务定义
+service Payment {
+  // 创建支付订单
+  rpc CreatePayment(CreatePaymentReq) returns(CreatePaymentResp);
+
+  // 查询支付结果
+  rpc QueryPayment(QueryPaymentReq) returns(QueryPaymentResp);
+
+  // 申请退款
+  rpc RefundPayment(RefundPaymentReq) returns(RefundPaymentResp);
+
+  // 支付记录查询
+  rpc PaymentHistory(PaymentHistoryReq) returns(PaymentHistoryResp);
+
+  // 支付回调通知处理
+  rpc PaymentNotify(PaymentNotifyReq) returns(PaymentNotifyResp);
+
+  // 关闭支付订单
+  rpc ClosePayment(ClosePaymentReq) returns(ClosePaymentResp);
+
+  // 取消支付订单
+  rpc CancelPayment(CancelPaymentReq) returns(CancelPaymentResp);
+}
+
+//goctl rpc protoc payment.proto --go_out=./pb --go-grpc_out=./pb --zrpc_out=. --client=true

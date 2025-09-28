@@ -17,9 +17,10 @@ type Config struct {
 		Pass string `json:",env=REDIS_PASS"`
 		Tls  bool   `json:",env=REDIS_TLS"`
 	}
-	WebRpc    zrpc.RpcClientConf
-	UserRpc   zrpc.RpcClientConf
-	WsService struct {
+	WebRpc     zrpc.RpcClientConf
+	UserRpc    zrpc.RpcClientConf
+	PaymentRpc zrpc.RpcClientConf
+	WsService  struct {
 		Host string `json:",env=WS_HOST"`
 		Port int
 	}
