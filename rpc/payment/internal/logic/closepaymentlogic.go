@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"fmt"
+	paymentSvc "lxtian-blog/common/repository/payment"
 
 	"lxtian-blog/common/pkg/alipay"
 	"lxtian-blog/common/pkg/model"
@@ -12,11 +13,13 @@ import (
 
 type ClosePaymentLogic struct {
 	*BaseLogic
+	paymentService paymentSvc.PaymentOrderRepository
 }
 
 func NewClosePaymentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ClosePaymentLogic {
 	return &ClosePaymentLogic{
-		BaseLogic: NewBaseLogic(ctx, svcCtx),
+		BaseLogic:      NewBaseLogic(ctx, svcCtx),
+		paymentService: paymentSvc.NewPaymentOrderRepository(svcCtx.DB),
 	}
 }
 
@@ -34,11 +37,11 @@ func (l *ClosePaymentLogic) ClosePayment(in *payment.ClosePaymentReq) (*payment.
 
 	// 根据提供的参数查找支付订单
 	if in.PaymentId != "" {
-		paymentOrder, err = l.svcCtx.PaymentModel.FindPaymentOrderByPaymentId(l.ctx, in.PaymentId)
+		paymentOrder, err = l.paymentService.GetByPaymentId(l.ctx, in.PaymentId)
 	} else if in.OrderId != "" {
-		paymentOrder, err = l.svcCtx.PaymentModel.FindPaymentOrderByOrderId(l.ctx, in.OrderId)
+		paymentOrder, err = l.paymentService.GetByOrderId(l.ctx, in.OrderId)
 	} else if in.OutTradeNo != "" {
-		paymentOrder, err = l.svcCtx.PaymentModel.FindPaymentOrderByOutTradeNo(l.ctx, in.OutTradeNo)
+		paymentOrder, err = l.paymentService.GetByOutTradeNo(l.ctx, in.OutTradeNo)
 	}
 
 	if err != nil {
@@ -73,7 +76,7 @@ func (l *ClosePaymentLogic) ClosePayment(in *payment.ClosePaymentReq) (*payment.
 	}
 
 	// 更新本地订单状态
-	err = l.svcCtx.PaymentModel.UpdatePaymentOrderStatus(l.ctx, paymentOrder.PaymentId, model.PaymentStatusClosed)
+	err = l.paymentService.UpdateStatus(l.ctx, paymentOrder.PaymentId, model.PaymentStatusClosed)
 	if err != nil {
 		l.Errorf("Failed to update payment status: %v", err)
 		// 即使本地更新失败，支付宝那边已经关闭了，所以仍然返回成功

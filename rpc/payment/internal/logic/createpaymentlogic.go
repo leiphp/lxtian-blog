@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"lxtian-blog/common/constant"
 	"lxtian-blog/common/pkg/model/mysql"
 	"lxtian-blog/rpc/payment/internal/svc"
 	"time"
 
+	"lxtian-blog/common/model"
 	"lxtian-blog/common/pkg/alipay"
-	"lxtian-blog/common/pkg/model"
 	"lxtian-blog/rpc/payment/pb/payment"
 )
 
@@ -101,24 +102,24 @@ func (l *CreatePaymentLogic) CreatePayment(in *payment.CreatePaymentReq) (*payme
 	// }
 
 	// 2. 创建支付订单记录（payment_orders表）
-	paymentOrder := &model.PaymentOrder{
-		PaymentId:   paymentId,
-		OrderId:     orderId,
-		OutTradeNo:  outTradeNo,
-		UserId:      in.UserId,
-		Amount:      in.Amount,
-		Subject:     in.Subject,
-		Body:        in.Body,
-		Status:      model.PaymentStatusPending,
-		ProductCode: in.ProductCode,
-		ReturnUrl:   in.ReturnUrl,
-		NotifyUrl:   in.NotifyUrl,
-		Timeout:     in.Timeout,
-		ClientIP:    in.ClientIp,
+	paymentOrder := &model.LxtPaymentOrders{
+		PaymentId:     paymentId,
+		OrderId:       orderId,
+		OutTradeNo:    outTradeNo,
+		UserId:        int64(in.UserId),
+		Amount:        in.Amount,
+		Subject:       in.Subject,
+		Body:          in.Body,
+		Status:        constant.PaymentStatusPending,
+		ProductCode:   in.ProductCode,
+		ReturnUrl:     in.ReturnUrl,
+		NotifyUrl:     in.NotifyUrl,
+		Timeout:       in.Timeout,
+		ReceiptAmount: "0.00", // 初始化为0.00，避免decimal字段错误
 	}
 
-	// 保存支付订单到数据库
-	_, err := l.svcCtx.PaymentModel.InsertPaymentOrder(l.ctx, paymentOrder)
+	// 使用GORM保存支付订单到数据库
+	err := l.svcCtx.DB.WithContext(l.ctx).Create(paymentOrder).Error
 	if err != nil {
 		l.Errorf("Failed to insert payment order: %v", err)
 		return &payment.CreatePaymentResp{
@@ -140,8 +141,10 @@ func (l *CreatePaymentLogic) CreatePayment(in *payment.CreatePaymentReq) (*payme
 	alipayResp, err := l.svcCtx.AlipayClient.CreatePayment(alipayReq)
 	if err != nil {
 		l.Errorf("Failed to create alipay payment: %v", err)
-		// 更新订单状态为失败
-		l.svcCtx.PaymentModel.UpdatePaymentOrderStatus(l.ctx, paymentId, "FAILED")
+		// 使用GORM更新订单状态为失败
+		l.svcCtx.DB.WithContext(l.ctx).Model(&model.LxtPaymentOrders{}).
+			Where("payment_id = ?", paymentId).
+			Update("status", constant.VerifyStatusFailed)
 		return &payment.CreatePaymentResp{
 			Message: "创建支付订单失败",
 		}, fmt.Errorf("failed to create alipay payment: %w", err)

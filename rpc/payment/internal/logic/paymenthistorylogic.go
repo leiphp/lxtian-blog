@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	paymentSvc "lxtian-blog/common/repository/payment"
 	"time"
 
 	"lxtian-blog/common/pkg/model"
@@ -13,11 +14,13 @@ import (
 
 type PaymentHistoryLogic struct {
 	*BaseLogic
+	paymentService paymentSvc.PaymentOrderRepository
 }
 
 func NewPaymentHistoryLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PaymentHistoryLogic {
 	return &PaymentHistoryLogic{
-		BaseLogic: NewBaseLogic(ctx, svcCtx),
+		BaseLogic:      NewBaseLogic(ctx, svcCtx),
+		paymentService: paymentSvc.NewPaymentOrderRepository(svcCtx.DB),
 	}
 }
 
@@ -36,44 +39,47 @@ func (l *PaymentHistoryLogic) PaymentHistory(in *payment.PaymentHistoryReq) (*pa
 	offset := (in.Page - 1) * in.PageSize
 
 	var paymentOrders []*model.PaymentOrder
+	var total int64
 	var err error
 
 	// 根据查询条件获取支付记录
 	if in.UserId > 0 {
 		// 按用户ID查询
-		paymentOrders, err = l.svcCtx.PaymentModel.FindPaymentOrdersByUserId(l.ctx, in.UserId, int(offset), int(in.PageSize))
+		paymentOrders, total, err = l.paymentService.GetByUserId(l.ctx, in.UserId, int(offset), int(in.PageSize))
 		if err != nil {
 			l.Errorf("Failed to find payment orders by user_id: %v", err)
 			return nil, fmt.Errorf("failed to find payment orders by user_id: %w", err)
 		}
-		_, err = l.svcCtx.PaymentModel.CountPaymentOrdersByUserId(l.ctx, in.UserId)
+		_, err = l.paymentService.GetCountByUserId(l.ctx, in.UserId)
 		if err != nil {
 			l.Errorf("Failed to count payment orders by user_id: %v", err)
 		}
 	} else if in.PaymentStatus != "" {
 		// 按支付状态查询
-		paymentOrders, err = l.svcCtx.PaymentModel.FindPaymentOrdersByStatus(l.ctx, in.PaymentStatus, int(offset), int(in.PageSize))
+		paymentOrders, total, err = l.paymentService.GetByStatus(l.ctx, in.PaymentStatus, int(offset), int(in.PageSize))
 		if err != nil {
 			l.Errorf("Failed to find payment orders by status: %v", err)
 			return nil, fmt.Errorf("failed to find payment orders by status: %w", err)
 		}
-		_, err = l.svcCtx.PaymentModel.CountPaymentOrdersByStatus(l.ctx, in.PaymentStatus)
+		_, err = l.paymentService.GetCountByStatus(l.ctx, in.PaymentStatus)
 		if err != nil {
 			l.Errorf("Failed to count payment orders by status: %v", err)
 		}
 	} else {
 		// 查询所有记录
-		paymentOrders, err = l.svcCtx.PaymentModel.FindPaymentOrdersByStatus(l.ctx, "", int(offset), int(in.PageSize))
+		paymentOrders, total, err = l.paymentService.GetByStatus(l.ctx, "", int(offset), int(in.PageSize))
 		if err != nil {
 			l.Errorf("Failed to find all payment orders: %v", err)
 			return nil, fmt.Errorf("failed to find all payment orders: %w", err)
 		}
 		// 这里应该有一个查询所有记录总数的方法，暂时使用状态查询
-		_, err = l.svcCtx.PaymentModel.CountPaymentOrdersByStatus(l.ctx, "")
+		_, err = l.paymentService.GetCountByStatus(l.ctx, "")
 		if err != nil {
 			l.Errorf("Failed to count all payment orders: %v", err)
 		}
 	}
+
+	fmt.Println(total)
 
 	// 时间过滤
 	if in.StartTime != "" || in.EndTime != "" {

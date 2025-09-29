@@ -2,20 +2,17 @@ package svc
 
 import (
 	"fmt"
+	"github.com/zeromicro/go-zero/core/stores/redis"
+	"gorm.io/gorm"
 	"lxtian-blog/common/pkg/alipay"
 	"lxtian-blog/common/pkg/initdb"
 	"lxtian-blog/rpc/payment/internal/config"
-	"lxtian-blog/rpc/payment/internal/model"
-
-	"github.com/zeromicro/go-zero/core/stores/redis"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type ServiceContext struct {
 	Config       config.Config
-	DB           sqlx.SqlConn
+	DB           *gorm.DB
 	Rds          *redis.Redis
-	PaymentModel model.PaymentModel
 	AlipayClient *alipay.AlipayClient
 }
 
@@ -28,12 +25,11 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		c.Mysql.PORT,
 		c.Mysql.DATABASE,
 	)
-	db := sqlx.NewMysql(dataSource)
+	// 初始化GORM数据库
+	mysqlDb := initdb.InitDB(dataSource)
+
 	// 初始化Redis
 	rds := initdb.InitRedis(c.RedisConfig.Host, c.RedisConfig.Type, c.RedisConfig.Pass, c.RedisConfig.Tls)
-
-	// 初始化支付模型
-	paymentModel := model.NewPaymentModel(db)
 
 	// 初始化支付宝客户端
 	alipayConfig := &alipay.AlipayConfig{
@@ -58,9 +54,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 	return &ServiceContext{
 		Config:       c,
-		DB:           db,
+		DB:           mysqlDb,
 		Rds:          rds,
-		PaymentModel: paymentModel,
 		AlipayClient: alipayClient,
 	}
 }

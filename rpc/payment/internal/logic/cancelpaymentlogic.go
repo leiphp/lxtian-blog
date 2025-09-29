@@ -6,6 +6,7 @@ import (
 
 	"lxtian-blog/common/pkg/alipay"
 	"lxtian-blog/common/pkg/model"
+	paymentSvc "lxtian-blog/common/repository/payment"
 	"lxtian-blog/rpc/payment/internal/svc"
 	"lxtian-blog/rpc/payment/pb/payment"
 )
@@ -31,14 +32,14 @@ func (l *CancelPaymentLogic) CancelPayment(in *payment.CancelPaymentReq) (*payme
 
 	var paymentOrder *model.PaymentOrder
 	var err error
-
+	paymentService := paymentSvc.NewPaymentOrderRepository(l.svcCtx.DB)
 	// 根据提供的参数查找支付订单
 	if in.PaymentId != "" {
-		paymentOrder, err = l.svcCtx.PaymentModel.FindPaymentOrderByPaymentId(l.ctx, in.PaymentId)
+		paymentOrder, err = paymentService.GetByPaymentId(l.ctx, in.PaymentId)
 	} else if in.OrderId != "" {
-		paymentOrder, err = l.svcCtx.PaymentModel.FindPaymentOrderByOrderId(l.ctx, in.OrderId)
+		paymentOrder, err = paymentService.GetByOrderId(l.ctx, in.OrderId)
 	} else if in.OutTradeNo != "" {
-		paymentOrder, err = l.svcCtx.PaymentModel.FindPaymentOrderByOutTradeNo(l.ctx, in.OutTradeNo)
+		paymentOrder, err = paymentService.GetByOutTradeNo(l.ctx, in.OutTradeNo)
 	}
 
 	if err != nil {
@@ -73,7 +74,7 @@ func (l *CancelPaymentLogic) CancelPayment(in *payment.CancelPaymentReq) (*payme
 	}
 
 	// 更新本地订单状态
-	err = l.svcCtx.PaymentModel.UpdatePaymentOrderStatus(l.ctx, paymentOrder.PaymentId, model.PaymentStatusCancelled)
+	err = paymentService.UpdateStatus(l.ctx, paymentOrder.PaymentId, model.PaymentStatusCancelled)
 	if err != nil {
 		l.Errorf("Failed to update payment status: %v", err)
 		// 即使本地更新失败，支付宝那边已经取消了，所以仍然返回成功
