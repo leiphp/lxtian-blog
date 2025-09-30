@@ -22,13 +22,13 @@ RedisConfig:
 
 # 支付宝配置
 Alipay:
-  AppId: "your_app_id"
-  AppPrivateKey: "your_app_private_key"
-  AlipayPublicKey: "your_alipay_public_key"
-  GatewayUrl: "https://openapi.alipaydev.com/gateway.do"
-  NotifyUrl: "http://your-domain.com/api/payment/notify"
-  ReturnUrl: "http://your-domain.com/api/payment/return"
-  IsProd: false
+  AppId: ${AlipayAppId}
+  AppPrivateKey: ${AlipayAppPrivateKey}
+  AlipayPublicKey: ${AlipayAlipayPublicKey}
+  GatewayUrl: "https://openapi.alipay.com/gateway.do"
+  NotifyUrl: "https://www.100txy.com/api/payment/notify"
+  ReturnUrl: "https://www.100txy.com/api/payment/return"
+  IsProd: true
   SignType: "RSA2"
   Charset: "utf-8"
   Format: "JSON"
