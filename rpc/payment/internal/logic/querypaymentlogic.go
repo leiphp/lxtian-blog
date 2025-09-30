@@ -3,21 +3,26 @@ package logic
 import (
 	"context"
 	"fmt"
+	"lxtian-blog/common/constant"
+	paymentSvc "lxtian-blog/common/repository/payment"
+	"strconv"
 	"time"
 
+	"lxtian-blog/common/model"
 	"lxtian-blog/common/pkg/alipay"
-	"lxtian-blog/common/pkg/model"
 	"lxtian-blog/rpc/payment/internal/svc"
 	"lxtian-blog/rpc/payment/pb/payment"
 )
 
 type QueryPaymentLogic struct {
 	*BaseLogic
+	paymentService paymentSvc.PaymentOrderRepository
 }
 
 func NewQueryPaymentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *QueryPaymentLogic {
 	return &QueryPaymentLogic{
-		BaseLogic: NewBaseLogic(ctx, svcCtx),
+		BaseLogic:      NewBaseLogic(ctx, svcCtx),
+		paymentService: paymentSvc.NewPaymentOrderRepository(svcCtx.DB),
 	}
 }
 
@@ -29,16 +34,16 @@ func (l *QueryPaymentLogic) QueryPayment(in *payment.QueryPaymentReq) (*payment.
 		}, fmt.Errorf("at least one of payment_id, order_id, out_trade_no is required")
 	}
 
-	var paymentOrder *model.PaymentOrder
+	var paymentOrder *model.LxtPaymentOrders
 	var err error
 
 	// 根据提供的参数查找支付订单
 	if in.PaymentId != "" {
-		paymentOrder, err = l.svcCtx.PaymentModel.FindPaymentOrderByPaymentId(l.ctx, in.PaymentId)
+		paymentOrder, err = l.paymentService.GetByPaymentId(l.ctx, in.PaymentId)
 	} else if in.OrderId != "" {
-		paymentOrder, err = l.svcCtx.PaymentModel.FindPaymentOrderByOrderId(l.ctx, in.OrderId)
+		paymentOrder, err = l.paymentService.GetByOrderId(l.ctx, in.OrderId)
 	} else if in.OutTradeNo != "" {
-		paymentOrder, err = l.svcCtx.PaymentModel.FindPaymentOrderByOutTradeNo(l.ctx, in.OutTradeNo)
+		paymentOrder, err = l.paymentService.FindPaymentOrderByOutTradeNo(l.ctx, in.OutTradeNo)
 	}
 
 	if err != nil {
@@ -49,9 +54,9 @@ func (l *QueryPaymentLogic) QueryPayment(in *payment.QueryPaymentReq) (*payment.
 	}
 
 	// 如果订单状态已经是最终状态，直接返回
-	if paymentOrder.Status == model.PaymentStatusPaid ||
-		paymentOrder.Status == model.PaymentStatusClosed ||
-		paymentOrder.Status == model.PaymentStatusCancelled {
+	if paymentOrder.Status == constant.PaymentStatusPaid ||
+		paymentOrder.Status == constant.PaymentStatusClosed ||
+		paymentOrder.Status == constant.PaymentStatusCancelled {
 		return l.buildQueryResponse(paymentOrder), nil
 	}
 
@@ -75,7 +80,7 @@ func (l *QueryPaymentLogic) QueryPayment(in *payment.QueryPaymentReq) (*payment.
 	}
 
 	// 重新查询更新后的订单信息
-	updatedOrder, err := l.svcCtx.PaymentModel.FindPaymentOrderByPaymentId(l.ctx, paymentOrder.PaymentId)
+	updatedOrder, err := l.paymentService.GetByPaymentId(l.ctx, paymentOrder.PaymentId)
 	if err != nil {
 		// 如果查询失败，使用原始数据
 		updatedOrder = paymentOrder
@@ -85,12 +90,12 @@ func (l *QueryPaymentLogic) QueryPayment(in *payment.QueryPaymentReq) (*payment.
 }
 
 // 更新支付状态
-func (l *QueryPaymentLogic) updatePaymentStatus(paymentOrder *model.PaymentOrder, alipayResp *alipay.TradeQueryResponse) error {
+func (l *QueryPaymentLogic) updatePaymentStatus(paymentOrder *model.LxtPaymentOrders, alipayResp *alipay.TradeQueryResponse) error {
 	// 根据支付宝返回的交易状态更新本地订单状态
 	switch alipayResp.TradeStatus {
 	case "TRADE_SUCCESS", "TRADE_FINISHED":
 		// 支付成功
-		if paymentOrder.Status != model.PaymentStatusPaid {
+		if paymentOrder.Status != constant.PaymentStatusPaid {
 			// 解析支付时间
 			var gmtPayment *time.Time
 			if alipayResp.GmtPayment != "" {
@@ -99,7 +104,7 @@ func (l *QueryPaymentLogic) updatePaymentStatus(paymentOrder *model.PaymentOrder
 				}
 			}
 
-			err := l.svcCtx.PaymentModel.UpdatePaymentOrderTradeInfo(
+			err := l.paymentService.UpdatePaymentOrderTradeInfo(
 				l.ctx,
 				paymentOrder.PaymentId,
 				alipayResp.TradeNo,
@@ -115,8 +120,8 @@ func (l *QueryPaymentLogic) updatePaymentStatus(paymentOrder *model.PaymentOrder
 		}
 	case "TRADE_CLOSED":
 		// 交易关闭
-		if paymentOrder.Status != model.PaymentStatusClosed {
-			err := l.svcCtx.PaymentModel.UpdatePaymentOrderStatus(l.ctx, paymentOrder.PaymentId, model.PaymentStatusClosed)
+		if paymentOrder.Status != constant.PaymentStatusClosed {
+			err := l.paymentService.UpdatePaymentOrderStatus(l.ctx, paymentOrder.PaymentId, constant.PaymentStatusClosed)
 			if err != nil {
 				return err
 			}
@@ -130,28 +135,34 @@ func (l *QueryPaymentLogic) updatePaymentStatus(paymentOrder *model.PaymentOrder
 }
 
 // 构建查询响应
-func (l *QueryPaymentLogic) buildQueryResponse(paymentOrder *model.PaymentOrder) *payment.QueryPaymentResp {
+func (l *QueryPaymentLogic) buildQueryResponse(paymentOrder *model.LxtPaymentOrders) *payment.QueryPaymentResp {
 	resp := &payment.QueryPaymentResp{
-		PaymentId:     paymentOrder.PaymentId,
-		OrderId:       paymentOrder.OrderId,
-		OutTradeNo:    paymentOrder.OutTradeNo,
-		TradeNo:       paymentOrder.TradeNo,
-		TradeStatus:   paymentOrder.TradeStatus,
-		TotalAmount:   paymentOrder.Amount,
-		ReceiptAmount: paymentOrder.ReceiptAmount,
-		BuyerUserId:   paymentOrder.BuyerUserId,
-		BuyerLogonId:  paymentOrder.BuyerLogonId,
-		Message:       "查询成功",
+		PaymentId:    paymentOrder.PaymentId,
+		OrderId:      paymentOrder.OrderId,
+		OutTradeNo:   paymentOrder.OutTradeNo,
+		TradeNo:      paymentOrder.TradeNo,
+		TradeStatus:  paymentOrder.TradeStatus,
+		TotalAmount:  paymentOrder.Amount,
+		BuyerUserId:  paymentOrder.BuyerUserId,
+		BuyerLogonId: paymentOrder.BuyerLogonId,
+		Message:      "查询成功",
+	}
+
+	// 转换 ReceiptAmount 从 string 到 float64
+	if paymentOrder.ReceiptAmount != "" {
+		if amount, err := strconv.ParseFloat(paymentOrder.ReceiptAmount, 64); err == nil {
+			resp.ReceiptAmount = amount
+		}
 	}
 
 	// 设置支付时间
-	if paymentOrder.GmtPayment != nil {
-		resp.GmtPayment = paymentOrder.GmtPayment.Format("2006-01-02 15:04:05")
+	if paymentOrder.GmtPayment.Valid {
+		resp.GmtPayment = paymentOrder.GmtPayment.Time.Format("2006-01-02 15:04:05")
 	}
 
 	// 设置关闭时间
-	if paymentOrder.GmtClose != nil {
-		resp.GmtClose = paymentOrder.GmtClose.Format("2006-01-02 15:04:05")
+	if paymentOrder.GmtClose.Valid {
+		resp.GmtClose = paymentOrder.GmtClose.Time.Format("2006-01-02 15:04:05")
 	}
 
 	return resp

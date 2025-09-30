@@ -3,9 +3,10 @@ package logic
 import (
 	"context"
 	"fmt"
+	"lxtian-blog/common/constant"
 
+	"lxtian-blog/common/model"
 	"lxtian-blog/common/pkg/alipay"
-	"lxtian-blog/common/pkg/model"
 	paymentSvc "lxtian-blog/common/repository/payment"
 	"lxtian-blog/rpc/payment/internal/svc"
 	"lxtian-blog/rpc/payment/pb/payment"
@@ -30,7 +31,7 @@ func (l *CancelPaymentLogic) CancelPayment(in *payment.CancelPaymentReq) (*payme
 		}, fmt.Errorf("at least one of payment_id, order_id, out_trade_no is required")
 	}
 
-	var paymentOrder *model.PaymentOrder
+	var paymentOrder *model.LxtPaymentOrders
 	var err error
 	paymentService := paymentSvc.NewPaymentOrderRepository(l.svcCtx.DB)
 	// 根据提供的参数查找支付订单
@@ -51,7 +52,7 @@ func (l *CancelPaymentLogic) CancelPayment(in *payment.CancelPaymentReq) (*payme
 	}
 
 	// 检查订单状态是否允许取消
-	if paymentOrder.Status != model.PaymentStatusPending {
+	if paymentOrder.Status != constant.PaymentStatusPending {
 		return &payment.CancelPaymentResp{
 			Success: false,
 			Message: "订单状态不允许取消",
@@ -74,7 +75,7 @@ func (l *CancelPaymentLogic) CancelPayment(in *payment.CancelPaymentReq) (*payme
 	}
 
 	// 更新本地订单状态
-	err = paymentService.UpdateStatus(l.ctx, paymentOrder.PaymentId, model.PaymentStatusCancelled)
+	err = paymentService.UpdateStatus(l.ctx, paymentOrder.PaymentId, constant.PaymentStatusCancelled)
 	if err != nil {
 		l.Errorf("Failed to update payment status: %v", err)
 		// 即使本地更新失败，支付宝那边已经取消了，所以仍然返回成功

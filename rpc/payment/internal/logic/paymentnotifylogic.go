@@ -2,22 +2,27 @@ package logic
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
+	"lxtian-blog/common/constant"
+	"lxtian-blog/common/model"
+	paymentSvc "lxtian-blog/common/repository/payment"
 	"strings"
 	"time"
 
-	"lxtian-blog/common/pkg/model"
 	"lxtian-blog/rpc/payment/internal/svc"
 	"lxtian-blog/rpc/payment/pb/payment"
 )
 
 type PaymentNotifyLogic struct {
 	*BaseLogic
+	paymentService paymentSvc.PaymentOrderRepository
 }
 
 func NewPaymentNotifyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PaymentNotifyLogic {
 	return &PaymentNotifyLogic{
-		BaseLogic: NewBaseLogic(ctx, svcCtx),
+		BaseLogic:      NewBaseLogic(ctx, svcCtx),
+		paymentService: paymentSvc.NewPaymentOrderRepository(svcCtx.DB),
 	}
 }
 
@@ -34,19 +39,18 @@ func (l *PaymentNotifyLogic) PaymentNotify(in *payment.PaymentNotifyReq) (*payme
 	notifyId := l.generateNotifyId()
 
 	// 创建通知记录
-	paymentNotify := &model.PaymentNotify{
+	paymentNotify := &model.LxtPaymentNotifies{
 		NotifyId:      notifyId,
-		NotifyType:    model.NotifyTypePayment,
+		NotifyType:    constant.NotifyTypePayment,
 		NotifyData:    in.NotifyData,
-		Sign:          in.Sign,
-		SignType:      in.SignType,
-		VerifyStatus:  model.VerifyStatusPending,
-		ProcessStatus: model.ProcessStatusPending,
-		ClientIP:      in.ClientIp,
+		Sign:          sql.NullString{String: in.Sign, Valid: in.Sign != ""},
+		SignType:      sql.NullString{String: in.SignType, Valid: in.SignType != ""},
+		VerifyStatus:  constant.VerifyStatusPending,
+		ProcessStatus: constant.ProcessStatusPending,
 	}
 
 	// 保存通知记录
-	_, err := l.svcCtx.PaymentModel.InsertPaymentNotify(l.ctx, paymentNotify)
+	err := l.svcCtx.DB.WithContext(l.ctx).Create(paymentNotify).Error
 	if err != nil {
 		l.Errorf("Failed to insert payment notify: %v", err)
 		return &payment.PaymentNotifyResp{
@@ -59,7 +63,7 @@ func (l *PaymentNotifyLogic) PaymentNotify(in *payment.PaymentNotifyReq) (*payme
 	err = l.verifySign(in.NotifyData, in.Sign)
 	if err != nil {
 		l.Errorf("Failed to verify sign: %v", err)
-		l.svcCtx.PaymentModel.UpdatePaymentNotifyVerifyStatus(l.ctx, notifyId, model.VerifyStatusFailed)
+		l.paymentService.UpdatePaymentNotifyVerifyStatus(l.ctx, notifyId, constant.VerifyStatusFailed)
 		return &payment.PaymentNotifyResp{
 			Success: false,
 			Message: "签名验证失败",
@@ -67,7 +71,7 @@ func (l *PaymentNotifyLogic) PaymentNotify(in *payment.PaymentNotifyReq) (*payme
 	}
 
 	// 更新验证状态为成功
-	err = l.svcCtx.PaymentModel.UpdatePaymentNotifyVerifyStatus(l.ctx, notifyId, model.VerifyStatusSuccess)
+	err = l.paymentService.UpdatePaymentNotifyVerifyStatus(l.ctx, notifyId, constant.VerifyStatusSuccess)
 	if err != nil {
 		l.Errorf("Failed to update verify status: %v", err)
 	}
@@ -76,7 +80,7 @@ func (l *PaymentNotifyLogic) PaymentNotify(in *payment.PaymentNotifyReq) (*payme
 	notifyData, err := l.parseNotifyData(in.NotifyData)
 	if err != nil {
 		l.Errorf("Failed to parse notify data: %v", err)
-		l.svcCtx.PaymentModel.UpdatePaymentNotifyProcessStatus(l.ctx, notifyId, model.ProcessStatusFailed, "解析通知数据失败")
+		l.paymentService.UpdatePaymentNotifyProcessStatus(l.ctx, notifyId, constant.ProcessStatusFailed, "解析通知数据失败")
 		return &payment.PaymentNotifyResp{
 			Success: false,
 			Message: "解析通知数据失败",
@@ -87,7 +91,7 @@ func (l *PaymentNotifyLogic) PaymentNotify(in *payment.PaymentNotifyReq) (*payme
 	err = l.processNotify(notifyData, notifyId)
 	if err != nil {
 		l.Errorf("Failed to process notify: %v", err)
-		l.svcCtx.PaymentModel.UpdatePaymentNotifyProcessStatus(l.ctx, notifyId, model.ProcessStatusFailed, err.Error())
+		l.paymentService.UpdatePaymentNotifyProcessStatus(l.ctx, notifyId, constant.ProcessStatusFailed, err.Error())
 		return &payment.PaymentNotifyResp{
 			Success: false,
 			Message: "处理通知失败",
@@ -95,7 +99,7 @@ func (l *PaymentNotifyLogic) PaymentNotify(in *payment.PaymentNotifyReq) (*payme
 	}
 
 	// 更新处理状态为成功
-	err = l.svcCtx.PaymentModel.UpdatePaymentNotifyProcessStatus(l.ctx, notifyId, model.ProcessStatusSuccess, "")
+	err = l.paymentService.UpdatePaymentNotifyProcessStatus(l.ctx, notifyId, constant.ProcessStatusSuccess, "")
 	if err != nil {
 		l.Errorf("Failed to update process status: %v", err)
 	}
@@ -149,23 +153,23 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 	tradeStatus := notifyData["trade_status"]
 
 	// 查找支付订单
-	paymentOrder, err := l.svcCtx.PaymentModel.FindPaymentOrderByOutTradeNo(l.ctx, outTradeNo)
+	paymentOrder, err := l.paymentService.FindPaymentOrderByOutTradeNo(l.ctx, outTradeNo)
 	if err != nil {
 		return fmt.Errorf("payment order not found: %w", err)
 	}
 
 	// 更新通知记录的支付ID
-	notify, err := l.svcCtx.PaymentModel.FindPaymentNotifyByNotifyId(l.ctx, notifyId)
+	notify, err := l.paymentService.FindPaymentNotifyByNotifyId(l.ctx, notifyId)
 	if err == nil {
 		notify.PaymentId = paymentOrder.PaymentId
-		l.svcCtx.PaymentModel.UpdatePaymentNotify(l.ctx, notify)
+		l.paymentService.UpdatePaymentNotify(l.ctx, notify)
 	}
 
 	// 根据交易状态处理
 	switch tradeStatus {
 	case "TRADE_SUCCESS", "TRADE_FINISHED":
 		// 支付成功
-		if paymentOrder.Status == model.PaymentStatusPaid {
+		if paymentOrder.Status == constant.PaymentStatusPaid {
 			// 已经处理过，直接返回成功
 			return nil
 		}
@@ -187,7 +191,7 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 		}
 
 		// 更新订单信息
-		err = l.svcCtx.PaymentModel.UpdatePaymentOrderTradeInfo(
+		err = l.paymentService.UpdatePaymentOrderTradeInfo(
 			l.ctx,
 			paymentOrder.PaymentId,
 			notifyData["trade_no"],
@@ -207,8 +211,8 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 
 	case "TRADE_CLOSED":
 		// 交易关闭
-		if paymentOrder.Status != model.PaymentStatusClosed {
-			err = l.svcCtx.PaymentModel.UpdatePaymentOrderStatus(l.ctx, paymentOrder.PaymentId, model.PaymentStatusClosed)
+		if paymentOrder.Status != constant.PaymentStatusClosed {
+			err = l.paymentService.UpdatePaymentOrderStatus(l.ctx, paymentOrder.PaymentId, constant.PaymentStatusClosed)
 			if err != nil {
 				return fmt.Errorf("failed to update status to closed: %w", err)
 			}
@@ -226,7 +230,7 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 }
 
 // 处理支付成功后的业务逻辑
-func (l *PaymentNotifyLogic) handlePaymentSuccess(paymentOrder *model.PaymentOrder, notifyData map[string]string) {
+func (l *PaymentNotifyLogic) handlePaymentSuccess(paymentOrder *model.LxtPaymentOrders, notifyData map[string]string) {
 	// 这里可以添加具体的业务逻辑
 	// 例如：
 	// 1. 发送支付成功通知给用户

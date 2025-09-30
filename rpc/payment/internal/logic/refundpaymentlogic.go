@@ -2,22 +2,27 @@ package logic
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
+	"lxtian-blog/common/constant"
+	paymentSvc "lxtian-blog/common/repository/payment"
 	"time"
 
+	"lxtian-blog/common/model"
 	"lxtian-blog/common/pkg/alipay"
-	"lxtian-blog/common/pkg/model"
 	"lxtian-blog/rpc/payment/internal/svc"
 	"lxtian-blog/rpc/payment/pb/payment"
 )
 
 type RefundPaymentLogic struct {
 	*BaseLogic
+	repo paymentSvc.LxtPaymentRefundsRepo
 }
 
 func NewRefundPaymentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *RefundPaymentLogic {
 	return &RefundPaymentLogic{
 		BaseLogic: NewBaseLogic(ctx, svcCtx),
+		repo:      paymentSvc.NewLxtPaymentRefundsRepo(svcCtx.DB),
 	}
 }
 
@@ -35,16 +40,16 @@ func (l *RefundPaymentLogic) RefundPayment(in *payment.RefundPaymentReq) (*payme
 		}, fmt.Errorf("refund_amount must be greater than 0")
 	}
 
-	var paymentOrder *model.PaymentOrder
+	var paymentOrder *model.LxtPaymentOrders
 	var err error
 
 	// 根据提供的参数查找支付订单
 	if in.PaymentId != "" {
-		paymentOrder, err = l.svcCtx.PaymentModel.FindPaymentOrderByPaymentId(l.ctx, in.PaymentId)
+		paymentOrder, err = l.repo.FindPaymentOrderByPaymentId(l.ctx, in.PaymentId)
 	} else if in.OrderId != "" {
-		paymentOrder, err = l.svcCtx.PaymentModel.FindPaymentOrderByOrderId(l.ctx, in.OrderId)
+		paymentOrder, err = l.repo.FindPaymentOrderByOrderId(l.ctx, in.OrderId)
 	} else if in.OutTradeNo != "" {
-		paymentOrder, err = l.svcCtx.PaymentModel.FindPaymentOrderByOutTradeNo(l.ctx, in.OutTradeNo)
+		paymentOrder, err = l.repo.FindPaymentOrderByOutTradeNo(l.ctx, in.OutTradeNo)
 	}
 
 	if err != nil {
@@ -55,7 +60,7 @@ func (l *RefundPaymentLogic) RefundPayment(in *payment.RefundPaymentReq) (*payme
 	}
 
 	// 检查订单状态是否允许退款
-	if paymentOrder.Status != model.PaymentStatusPaid {
+	if paymentOrder.Status != constant.PaymentStatusPaid {
 		return &payment.RefundPaymentResp{
 			Message: "订单状态不允许退款",
 		}, fmt.Errorf("order status does not allow refund")
@@ -76,7 +81,7 @@ func (l *RefundPaymentLogic) RefundPayment(in *payment.RefundPaymentReq) (*payme
 	}
 
 	// 检查是否已有相同的退款单号
-	existingRefund, err := l.svcCtx.PaymentModel.FindPaymentRefundByOutRequestNo(l.ctx, outRequestNo)
+	existingRefund, err := l.repo.FindPaymentRefundByOutRequestNo(l.ctx, outRequestNo)
 	if err == nil && existingRefund != nil {
 		return &payment.RefundPaymentResp{
 			Message: "退款单号已存在",
@@ -84,7 +89,7 @@ func (l *RefundPaymentLogic) RefundPayment(in *payment.RefundPaymentReq) (*payme
 	}
 
 	// 创建退款记录
-	paymentRefund := &model.PaymentRefund{
+	paymentRefund := &model.LxtPaymentRefunds{
 		RefundId:     refundId,
 		PaymentId:    paymentOrder.PaymentId,
 		OrderId:      paymentOrder.OrderId,
@@ -92,13 +97,13 @@ func (l *RefundPaymentLogic) RefundPayment(in *payment.RefundPaymentReq) (*payme
 		OutRequestNo: outRequestNo,
 		UserId:       paymentOrder.UserId,
 		RefundAmount: in.RefundAmount,
-		RefundReason: in.RefundReason,
-		Status:       model.RefundStatusPending,
-		RefundStatus: "",
+		RefundReason: sql.NullString{String: in.RefundReason, Valid: in.RefundReason != ""},
+		Status:       constant.RefundStatusPending,
+		RefundStatus: sql.NullString{String: "", Valid: false},
 	}
 
 	// 保存退款记录到数据库
-	_, err = l.svcCtx.PaymentModel.InsertPaymentRefund(l.ctx, paymentRefund)
+	_, err = l.repo.InsertPaymentRefund(l.ctx, paymentRefund)
 	if err != nil {
 		l.Errorf("Failed to insert payment refund: %v", err)
 		return &payment.RefundPaymentResp{
@@ -119,47 +124,47 @@ func (l *RefundPaymentLogic) RefundPayment(in *payment.RefundPaymentReq) (*payme
 	if err != nil {
 		l.Errorf("Failed to refund alipay payment: %v", err)
 		// 更新退款状态为失败
-		l.svcCtx.PaymentModel.UpdatePaymentRefundStatus(l.ctx, refundId, model.RefundStatusFailed)
+		l.repo.UpdatePaymentRefundStatus(l.ctx, refundId, constant.RefundStatusFailed)
 		return &payment.RefundPaymentResp{
 			Message: "申请退款失败",
 		}, fmt.Errorf("failed to refund alipay payment: %w", err)
 	}
 
 	// 更新退款记录
-	paymentRefund.RefundStatus = alipayResp.RefundStatus
-	paymentRefund.RefundFee = alipayResp.RefundFee
+	paymentRefund.RefundStatus = sql.NullString{String: alipayResp.RefundStatus, Valid: alipayResp.RefundStatus != ""}
+	paymentRefund.RefundFee = sql.NullFloat64{Float64: alipayResp.RefundFee, Valid: alipayResp.RefundFee > 0}
 
 	// 解析退款时间
 	if alipayResp.GmtRefund != "" {
 		if t, err := time.Parse("2006-01-02 15:04:05", alipayResp.GmtRefund); err == nil {
-			paymentRefund.GmtRefund = &t
+			paymentRefund.GmtRefund = sql.NullTime{Time: t, Valid: true}
 		}
 	}
 
 	// 根据支付宝返回的状态更新本地状态
 	switch alipayResp.RefundStatus {
 	case "REFUND_SUCCESS":
-		paymentRefund.Status = model.RefundStatusSuccess
+		paymentRefund.Status = constant.RefundStatusSuccess
 	case "REFUND_CLOSED":
-		paymentRefund.Status = model.RefundStatusClosed
+		paymentRefund.Status = constant.RefundStatusClosed
 	default:
-		paymentRefund.Status = model.RefundStatusFailed
+		paymentRefund.Status = constant.RefundStatusFailed
 	}
 
 	// 更新退款记录
-	err = l.svcCtx.PaymentModel.UpdatePaymentRefund(l.ctx, paymentRefund)
+	err = l.repo.UpdatePaymentRefund(l.ctx, paymentRefund)
 	if err != nil {
 		l.Errorf("Failed to update payment refund: %v", err)
 	}
 
 	// 如果退款成功，更新支付订单状态
-	if paymentRefund.Status == model.RefundStatusSuccess {
+	if paymentRefund.Status == constant.RefundStatusSuccess {
 		if in.RefundAmount >= paymentOrder.Amount {
 			// 全额退款
-			l.svcCtx.PaymentModel.UpdatePaymentOrderStatus(l.ctx, paymentOrder.PaymentId, model.PaymentStatusRefunded)
+			l.repo.UpdatePaymentOrderStatus(l.ctx, paymentOrder.PaymentId, constant.PaymentStatusRefunded)
 		} else {
 			// 部分退款
-			l.svcCtx.PaymentModel.UpdatePaymentOrderStatus(l.ctx, paymentOrder.PaymentId, model.PaymentStatusPartialRefunded)
+			l.repo.UpdatePaymentOrderStatus(l.ctx, paymentOrder.PaymentId, constant.PaymentStatusPartialRefunded)
 		}
 	}
 
@@ -171,14 +176,22 @@ func (l *RefundPaymentLogic) RefundPayment(in *payment.RefundPaymentReq) (*payme
 		RefundId:     refundId,
 		OutRequestNo: outRequestNo,
 		RefundAmount: in.RefundAmount,
-		RefundFee:    paymentRefund.RefundFee,
-		RefundStatus: paymentRefund.RefundStatus,
 		Message:      "退款申请成功",
 	}
 
+	// 设置退款手续费
+	if paymentRefund.RefundFee.Valid {
+		resp.RefundFee = paymentRefund.RefundFee.Float64
+	}
+
+	// 设置退款状态
+	if paymentRefund.RefundStatus.Valid {
+		resp.RefundStatus = paymentRefund.RefundStatus.String
+	}
+
 	// 设置退款时间
-	if paymentRefund.GmtRefund != nil {
-		resp.GmtRefund = paymentRefund.GmtRefund.Format("2006-01-02 15:04:05")
+	if paymentRefund.GmtRefund.Valid {
+		resp.GmtRefund = paymentRefund.GmtRefund.Time.Format("2006-01-02 15:04:05")
 	}
 
 	return resp, nil

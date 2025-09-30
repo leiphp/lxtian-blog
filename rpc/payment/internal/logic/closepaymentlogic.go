@@ -3,10 +3,11 @@ package logic
 import (
 	"context"
 	"fmt"
+	"lxtian-blog/common/constant"
 	paymentSvc "lxtian-blog/common/repository/payment"
 
+	"lxtian-blog/common/model"
 	"lxtian-blog/common/pkg/alipay"
-	"lxtian-blog/common/pkg/model"
 	"lxtian-blog/rpc/payment/internal/svc"
 	"lxtian-blog/rpc/payment/pb/payment"
 )
@@ -32,7 +33,7 @@ func (l *ClosePaymentLogic) ClosePayment(in *payment.ClosePaymentReq) (*payment.
 		}, fmt.Errorf("at least one of payment_id, order_id, out_trade_no is required")
 	}
 
-	var paymentOrder *model.PaymentOrder
+	var paymentOrder *model.LxtPaymentOrders
 	var err error
 
 	// 根据提供的参数查找支付订单
@@ -53,7 +54,7 @@ func (l *ClosePaymentLogic) ClosePayment(in *payment.ClosePaymentReq) (*payment.
 	}
 
 	// 检查订单状态是否允许关闭
-	if paymentOrder.Status != model.PaymentStatusPending {
+	if paymentOrder.Status != constant.PaymentStatusPending {
 		return &payment.ClosePaymentResp{
 			Success: false,
 			Message: "订单状态不允许关闭",
@@ -76,7 +77,7 @@ func (l *ClosePaymentLogic) ClosePayment(in *payment.ClosePaymentReq) (*payment.
 	}
 
 	// 更新本地订单状态
-	err = l.paymentService.UpdateStatus(l.ctx, paymentOrder.PaymentId, model.PaymentStatusClosed)
+	err = l.paymentService.UpdateStatus(l.ctx, paymentOrder.PaymentId, constant.PaymentStatusClosed)
 	if err != nil {
 		l.Errorf("Failed to update payment status: %v", err)
 		// 即使本地更新失败，支付宝那边已经关闭了，所以仍然返回成功

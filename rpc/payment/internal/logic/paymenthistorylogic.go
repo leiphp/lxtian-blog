@@ -7,7 +7,7 @@ import (
 	paymentSvc "lxtian-blog/common/repository/payment"
 	"time"
 
-	"lxtian-blog/common/pkg/model"
+	"lxtian-blog/common/model"
 	"lxtian-blog/rpc/payment/internal/svc"
 	"lxtian-blog/rpc/payment/pb/payment"
 )
@@ -38,7 +38,7 @@ func (l *PaymentHistoryLogic) PaymentHistory(in *payment.PaymentHistoryReq) (*pa
 
 	offset := (in.Page - 1) * in.PageSize
 
-	var paymentOrders []*model.PaymentOrder
+	var paymentOrders []*model.LxtPaymentOrders
 	var total int64
 	var err error
 
@@ -114,8 +114,8 @@ func (l *PaymentHistoryLogic) PaymentHistory(in *payment.PaymentHistoryReq) (*pa
 }
 
 // 按时间范围过滤
-func (l *PaymentHistoryLogic) filterByTimeRange(orders []*model.PaymentOrder, startTime, endTime string) []*model.PaymentOrder {
-	var filtered []*model.PaymentOrder
+func (l *PaymentHistoryLogic) filterByTimeRange(orders []*model.LxtPaymentOrders, startTime, endTime string) []*model.LxtPaymentOrders {
+	var filtered []*model.LxtPaymentOrders
 
 	var start, end time.Time
 	var err error
@@ -153,8 +153,8 @@ func (l *PaymentHistoryLogic) filterByTimeRange(orders []*model.PaymentOrder, st
 }
 
 // 按订单ID过滤
-func (l *PaymentHistoryLogic) filterByOrderId(orders []*model.PaymentOrder, orderId string) []*model.PaymentOrder {
-	var filtered []*model.PaymentOrder
+func (l *PaymentHistoryLogic) filterByOrderId(orders []*model.LxtPaymentOrders, orderId string) []*model.LxtPaymentOrders {
+	var filtered []*model.LxtPaymentOrders
 
 	for _, order := range orders {
 		if order.OrderId == orderId {
@@ -166,9 +166,9 @@ func (l *PaymentHistoryLogic) filterByOrderId(orders []*model.PaymentOrder, orde
 }
 
 // 构建支付订单项
-func (l *PaymentHistoryLogic) buildPaymentOrderItem(order *model.PaymentOrder) map[string]interface{} {
+func (l *PaymentHistoryLogic) buildPaymentOrderItem(order *model.LxtPaymentOrders) map[string]interface{} {
 	item := map[string]interface{}{
-		"id":           order.ID,
+		"id":           order.Id,
 		"payment_id":   order.PaymentId,
 		"order_id":     order.OrderId,
 		"out_trade_no": order.OutTradeNo,
@@ -183,7 +183,6 @@ func (l *PaymentHistoryLogic) buildPaymentOrderItem(order *model.PaymentOrder) m
 		"return_url":   order.ReturnUrl,
 		"notify_url":   order.NotifyUrl,
 		"timeout":      order.Timeout,
-		"client_ip":    order.ClientIP,
 		"created_at":   order.CreatedAt.Format("2006-01-02 15:04:05"),
 		"updated_at":   order.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
@@ -194,14 +193,14 @@ func (l *PaymentHistoryLogic) buildPaymentOrderItem(order *model.PaymentOrder) m
 	if order.BuyerLogonId != "" {
 		item["buyer_logon_id"] = order.BuyerLogonId
 	}
-	if order.ReceiptAmount > 0 {
+	if order.ReceiptAmount != "" && order.ReceiptAmount != "0" {
 		item["receipt_amount"] = order.ReceiptAmount
 	}
-	if order.GmtPayment != nil {
-		item["gmt_payment"] = order.GmtPayment.Format("2006-01-02 15:04:05")
+	if order.GmtPayment.Valid {
+		item["gmt_payment"] = order.GmtPayment.Time.Format("2006-01-02 15:04:05")
 	}
-	if order.GmtClose != nil {
-		item["gmt_close"] = order.GmtClose.Format("2006-01-02 15:04:05")
+	if order.GmtClose.Valid {
+		item["gmt_close"] = order.GmtClose.Time.Format("2006-01-02 15:04:05")
 	}
 
 	return item
