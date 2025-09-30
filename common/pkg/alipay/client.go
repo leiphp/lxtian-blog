@@ -49,6 +49,7 @@ type BaseRequest struct {
 	Timestamp  string `json:"timestamp"`
 	Version    string `json:"version"`
 	NotifyUrl  string `json:"notify_url,omitempty"`
+	ReturnUrl  string `json:"return_url,omitempty"`
 	BizContent string `json:"biz_content"`
 }
 
@@ -64,13 +65,13 @@ type BaseResponse struct {
 
 // TradeCreateRequest 创建支付订单请求
 type TradeCreateRequest struct {
-	OutTradeNo  string  `json:"out_trade_no"`              // 商户订单号
-	TotalAmount float64 `json:"total_amount"`              // 订单总金额
-	Subject     string  `json:"subject"`                   // 订单标题
-	Body        string  `json:"body,omitempty"`            // 订单描述
-	ProductCode string  `json:"product_code"`              // 产品码
-	Timeout     string  `json:"timeout_express,omitempty"` // 订单超时时间
-	ReturnUrl   string  `json:"return_url,omitempty"`      // 支付成功跳转地址
+	OutTradeNo  string `json:"out_trade_no"`              // 商户订单号
+	TotalAmount string `json:"total_amount"`              // 订单总金额（字符串格式，如"88.88"）
+	Subject     string `json:"subject"`                   // 订单标题
+	Body        string `json:"body,omitempty"`            // 订单描述
+	ProductCode string `json:"product_code"`              // 产品码（固定值FAST_INSTANT_TRADE_PAY）
+	Timeout     string `json:"timeout_express,omitempty"` // 订单超时时间
+	ReturnUrl   string `json:"return_url,omitempty"`      // 支付成功跳转地址
 }
 
 // TradeCreateResponse 创建支付订单响应
@@ -139,13 +140,82 @@ type TradeCancelResponse struct {
 	OutTradeNo string `json:"out_trade_no"` // 商户订单号
 }
 
-// CreatePayment 创建支付订单
+// CreatePayment 创建支付订单（电脑网站支付）
 func (c *AlipayClient) CreatePayment(req *TradeCreateRequest) (*TradeCreateResponse, error) {
 	bizContent, err := json.Marshal(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal biz_content: %w", err)
 	}
 
+	bizContentStr := string(bizContent)
+
+	// 构建请求参数（除了biz_content，其他参数都放URL中）
+	params := url.Values{}
+	params.Set("app_id", c.config.AppId)
+	params.Set("method", "alipay.trade.page.pay")
+	params.Set("format", c.config.Format)
+	params.Set("charset", c.config.Charset)
+	params.Set("sign_type", c.config.SignType)
+	params.Set("timestamp", time.Now().Format("2006-01-02 15:04:05"))
+	params.Set("version", c.config.Version)
+	params.Set("biz_content", bizContentStr) // 先加入用于签名
+
+	if c.config.NotifyUrl != "" {
+		params.Set("notify_url", c.config.NotifyUrl)
+	}
+
+	if req.ReturnUrl != "" {
+		params.Set("return_url", req.ReturnUrl)
+	}
+
+	// 签名（包含biz_content）
+	sign, err := c.signParams(params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to sign request: %w", err)
+	}
+	params.Set("sign", sign)
+
+	// 移除biz_content，它将放在表单中
+	params.Del("biz_content")
+
+	// 构建action URL（不含biz_content）
+	actionUrl := c.config.GatewayUrl + "?" + params.Encode()
+
+	// HTML转义biz_content的双引号
+	bizContentEscaped := strings.ReplaceAll(bizContentStr, `"`, `&quot;`)
+
+	// 构建HTML表单
+	var formBuilder strings.Builder
+	formBuilder.WriteString("<form name=\"punchout_form\" method=\"post\" action=\"")
+	formBuilder.WriteString(actionUrl)
+	formBuilder.WriteString("\">\n")
+	formBuilder.WriteString("<input type=\"hidden\" name=\"biz_content\" value=\"")
+	formBuilder.WriteString(bizContentEscaped)
+	formBuilder.WriteString("\">\n")
+	formBuilder.WriteString("<input type=\"submit\" value=\"立即支付\" style=\"display:none\">\n")
+	formBuilder.WriteString("</form>\n")
+	formBuilder.WriteString("<script>document.forms[0].submit();</script>")
+
+	formHtml := formBuilder.String()
+
+	fmt.Println("=== 生成的HTML表单 ===")
+	fmt.Println(formHtml)
+	fmt.Println("======================")
+
+	return &TradeCreateResponse{
+		OutTradeNo: req.OutTradeNo,
+		QrCode:     formHtml, // 返回HTML表单
+	}, nil
+}
+
+// CreatePaymentQrCode 创建支付订单（当面付-二维码）
+func (c *AlipayClient) CreatePaymentQrCode(req *TradeCreateRequest) (*TradeCreateResponse, error) {
+	bizContent, err := json.Marshal(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal biz_content: %w", err)
+	}
+
+	// 使用当面付接口
 	response, err := c.call("alipay.trade.precreate", string(bizContent))
 	if err != nil {
 		return nil, err
@@ -291,47 +361,68 @@ func (c *AlipayClient) call(method, bizContent string) (json.RawMessage, error) 
 		return nil, fmt.Errorf("failed to read response: %w", err)
 	}
 
-	// 解析响应
+	// 打印原始响应用于调试
+	fmt.Printf("Alipay Response Status: %d\n", resp.StatusCode)
+	fmt.Printf("Alipay Response Body: %s\n", string(body))
+
+	// 支付宝响应格式：{"alipay_xxx_response": {...}, "sign": "..."}
+	// 需要先解析外层结构
+	var rawResp map[string]json.RawMessage
+	if err := json.Unmarshal(body, &rawResp); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal response: %w, body: %s", err, string(body))
+	}
+
+	// 查找响应节点（通常是 method_response 格式）
+	var responseData json.RawMessage
+	for key, value := range rawResp {
+		if strings.HasSuffix(key, "_response") {
+			responseData = value
+			break
+		}
+	}
+
+	if responseData == nil {
+		return nil, fmt.Errorf("no response node found in: %s", string(body))
+	}
+
+	// 解析响应数据
 	var baseResp BaseResponse
-	if err := json.Unmarshal(body, &baseResp); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
+	if err := json.Unmarshal(responseData, &baseResp); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal response data: %w, data: %s", err, string(responseData))
 	}
 
 	// 检查响应状态
 	if baseResp.Code != "10000" {
-		return nil, fmt.Errorf("alipay error: code=%s, msg=%s, sub_code=%s, sub_msg=%s",
+		// 详细的错误提示
+		errMsg := fmt.Sprintf("支付宝错误: code=%s, msg=%s, sub_code=%s, sub_msg=%s",
 			baseResp.Code, baseResp.Msg, baseResp.SubCode, baseResp.SubMsg)
+
+		// 针对常见错误提供解决建议
+		if baseResp.SubCode == "ACQ.ACCESS_FORBIDDEN" {
+			errMsg += "\n【原因】应用没有权限调用此接口"
+			errMsg += "\n【解决】1. 登录 https://open.alipay.com 检查应用状态"
+			errMsg += "\n       2. 确认已签约'当面付'产品且状态为'已生效'"
+			errMsg += "\n       3. 检查应用是否已上线且审核通过"
+		}
+
+		return nil, fmt.Errorf(errMsg)
 	}
 
-	return baseResp.Data, nil
+	return responseData, nil
 }
 
-// sign 对请求进行签名
-func (c *AlipayClient) sign(req *BaseRequest) (string, error) {
-	// 构建待签名字符串
-	params := map[string]string{
-		"app_id":      req.AppId,
-		"method":      req.Method,
-		"format":      req.Format,
-		"charset":     req.Charset,
-		"sign_type":   req.SignType,
-		"timestamp":   req.Timestamp,
-		"version":     req.Version,
-		"biz_content": req.BizContent,
-	}
-
-	if req.NotifyUrl != "" {
-		params["notify_url"] = req.NotifyUrl
-	}
-
-	// 排序参数
-	var keys []string
+// signParams 对 url.Values 参数进行签名
+func (c *AlipayClient) signParams(params url.Values) (string, error) {
+	// 排序参数key
+	keys := make([]string, 0, len(params))
 	for k := range params {
-		keys = append(keys, k)
+		if k != "sign" { // 排除sign参数本身
+			keys = append(keys, k)
+		}
 	}
 	sort.Strings(keys)
 
-	// 构建签名字符串
+	// 构建待签名字符串 key1=value1&key2=value2
 	var signStr strings.Builder
 	for i, k := range keys {
 		if i > 0 {
@@ -339,11 +430,16 @@ func (c *AlipayClient) sign(req *BaseRequest) (string, error) {
 		}
 		signStr.WriteString(k)
 		signStr.WriteString("=")
-		signStr.WriteString(params[k])
+		signStr.WriteString(params.Get(k))
 	}
 
+	signString := signStr.String()
+	fmt.Println("Sign String:", signString)
+
 	// RSA2签名
-	block, _ := pem.Decode([]byte(c.config.AppPrivateKey))
+	privateKeyPEM := c.formatPrivateKey(c.config.AppPrivateKey)
+
+	block, _ := pem.Decode([]byte(privateKeyPEM))
 	if block == nil {
 		return "", fmt.Errorf("failed to decode private key")
 	}
@@ -353,7 +449,7 @@ func (c *AlipayClient) sign(req *BaseRequest) (string, error) {
 		return "", fmt.Errorf("failed to parse private key: %w", err)
 	}
 
-	hashed := sha256.Sum256([]byte(signStr.String()))
+	hashed := sha256.Sum256([]byte(signString))
 	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hashed[:])
 	if err != nil {
 		return "", fmt.Errorf("failed to sign: %w", err)
@@ -362,10 +458,68 @@ func (c *AlipayClient) sign(req *BaseRequest) (string, error) {
 	return base64.StdEncoding.EncodeToString(signature), nil
 }
 
+// sign 对请求进行签名（兼容旧方法）
+func (c *AlipayClient) sign(req *BaseRequest) (string, error) {
+	// 构建参数
+	params := url.Values{}
+	params.Set("app_id", req.AppId)
+	params.Set("method", req.Method)
+	params.Set("format", req.Format)
+	params.Set("charset", req.Charset)
+	params.Set("sign_type", req.SignType)
+	params.Set("timestamp", req.Timestamp)
+	params.Set("version", req.Version)
+	params.Set("biz_content", req.BizContent)
+
+	if req.NotifyUrl != "" {
+		params.Set("notify_url", req.NotifyUrl)
+	}
+
+	if req.ReturnUrl != "" {
+		params.Set("return_url", req.ReturnUrl)
+	}
+
+	return c.signParams(params)
+}
+
+// formatPrivateKey 格式化私钥，自动添加 PEM 头尾
+func (c *AlipayClient) formatPrivateKey(key string) string {
+	key = strings.TrimSpace(key)
+
+	// 如果已经有 PEM 头尾，直接返回
+	if strings.HasPrefix(key, "-----BEGIN") {
+		return key
+	}
+
+	// 移除所有空格和换行符
+	key = strings.ReplaceAll(key, " ", "")
+	key = strings.ReplaceAll(key, "\n", "")
+	key = strings.ReplaceAll(key, "\r", "")
+
+	// 添加 PEM 头尾，并每64个字符换行
+	var formatted strings.Builder
+	formatted.WriteString("-----BEGIN RSA PRIVATE KEY-----\n")
+
+	for i := 0; i < len(key); i += 64 {
+		end := i + 64
+		if end > len(key) {
+			end = len(key)
+		}
+		formatted.WriteString(key[i:end])
+		formatted.WriteString("\n")
+	}
+
+	formatted.WriteString("-----END RSA PRIVATE KEY-----")
+	return formatted.String()
+}
+
 // VerifySign 验证签名
 func (c *AlipayClient) VerifySign(data, sign string) error {
+	// 格式化公钥（自动添加 PEM 头尾，如果没有的话）
+	publicKeyPEM := c.formatPublicKey(c.config.AlipayPublicKey)
+
 	// 解析支付宝公钥
-	block, _ := pem.Decode([]byte(c.config.AlipayPublicKey))
+	block, _ := pem.Decode([]byte(publicKeyPEM))
 	if block == nil {
 		return fmt.Errorf("failed to decode alipay public key")
 	}
@@ -389,4 +543,35 @@ func (c *AlipayClient) VerifySign(data, sign string) error {
 	// 验证签名
 	hashed := sha256.Sum256([]byte(data))
 	return rsa.VerifyPKCS1v15(rsaPublicKey, crypto.SHA256, hashed[:], signature)
+}
+
+// formatPublicKey 格式化公钥，自动添加 PEM 头尾
+func (c *AlipayClient) formatPublicKey(key string) string {
+	key = strings.TrimSpace(key)
+
+	// 如果已经有 PEM 头尾，直接返回
+	if strings.HasPrefix(key, "-----BEGIN") {
+		return key
+	}
+
+	// 移除所有空格和换行符
+	key = strings.ReplaceAll(key, " ", "")
+	key = strings.ReplaceAll(key, "\n", "")
+	key = strings.ReplaceAll(key, "\r", "")
+
+	// 添加 PEM 头尾，并每64个字符换行
+	var formatted strings.Builder
+	formatted.WriteString("-----BEGIN PUBLIC KEY-----\n")
+
+	for i := 0; i < len(key); i += 64 {
+		end := i + 64
+		if end > len(key) {
+			end = len(key)
+		}
+		formatted.WriteString(key[i:end])
+		formatted.WriteString("\n")
+	}
+
+	formatted.WriteString("-----END PUBLIC KEY-----")
+	return formatted.String()
 }

@@ -7,6 +7,7 @@ import (
 	"lxtian-blog/common/constant"
 	"lxtian-blog/common/pkg/model/mysql"
 	"lxtian-blog/rpc/payment/internal/svc"
+	"strconv"
 	"time"
 
 	"lxtian-blog/common/model"
@@ -128,17 +129,33 @@ func (l *CreatePaymentLogic) CreatePayment(in *payment.CreatePaymentReq) (*payme
 	}
 
 	// 3. 调用支付宝API创建支付订单
+	// 金额转换为字符串，保留2位小数
+	amountStr := strconv.FormatFloat(in.Amount, 'f', 2, 64)
+
+	// 产品码：电脑网站支付固定使用 FAST_INSTANT_TRADE_PAY
+	productCode := in.ProductCode
+	if productCode == "" || productCode == "Lorem" {
+		productCode = "FAST_INSTANT_TRADE_PAY"
+	}
+
+	// 超时时间格式：30m, 1h, 1d 等，默认30m
+	timeout := in.Timeout
+	if timeout == "" || !isValidTimeout(timeout) {
+		timeout = "30m"
+	}
+
 	alipayReq := &alipay.TradeCreateRequest{
 		OutTradeNo:  outTradeNo,
-		TotalAmount: in.Amount,
+		TotalAmount: amountStr,
 		Subject:     in.Subject,
 		Body:        in.Body,
-		ProductCode: in.ProductCode,
-		Timeout:     in.Timeout,
+		ProductCode: productCode,
+		Timeout:     timeout,
 		ReturnUrl:   in.ReturnUrl,
 	}
 
 	alipayResp, err := l.svcCtx.AlipayClient.CreatePayment(alipayReq)
+	fmt.Println("alipayResp:", alipayResp)
 	if err != nil {
 		l.Errorf("Failed to create alipay payment: %v", err)
 		// 使用GORM更新订单状态为失败
@@ -173,7 +190,7 @@ func (l *CreatePaymentLogic) CreatePayment(in *payment.CreatePaymentReq) (*payme
 func (l *CreatePaymentLogic) buildPaymentUrl(req *alipay.TradeCreateRequest) string {
 	// 这里可以构建跳转到支付宝的URL
 	// 实际实现中需要根据支付宝的文档来构建
-	return fmt.Sprintf("https://openapi.alipay.com/gateway.do?out_trade_no=%s&total_amount=%.2f&subject=%s",
+	return fmt.Sprintf("https://openapi.alipay.com/gateway.do?out_trade_no=%s&total_amount=%s&subject=%s",
 		req.OutTradeNo, req.TotalAmount, req.Subject)
 }
 
@@ -200,4 +217,24 @@ func (l *CreatePaymentLogic) buildFormData(req *alipay.TradeCreateRequest) strin
 // 生成订单ID
 func (l *CreatePaymentLogic) generateOrderId() string {
 	return fmt.Sprintf("ORDER_%d_%d", time.Now().Unix(), time.Now().UnixNano()%100000)
+}
+
+// 验证超时时间格式是否有效
+func isValidTimeout(timeout string) bool {
+	// 支持的格式：30m, 1h, 1d, 1c（c表示天）
+	if len(timeout) < 2 {
+		return false
+	}
+
+	// 检查是否以数字开头，以 m/h/d/c 结尾
+	lastChar := timeout[len(timeout)-1]
+	return (lastChar == 'm' || lastChar == 'h' || lastChar == 'd' || lastChar == 'c') &&
+		timeout[:len(timeout)-1] != "" &&
+		isNumeric(timeout[:len(timeout)-1])
+}
+
+// 检查字符串是否为数字
+func isNumeric(s string) bool {
+	_, err := strconv.Atoi(s)
+	return err == nil
 }
