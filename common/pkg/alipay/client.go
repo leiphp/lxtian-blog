@@ -141,15 +141,14 @@ type TradeCancelResponse struct {
 }
 
 // CreatePayment 创建支付订单（电脑网站支付）
-func (c *AlipayClient) CreatePayment(req *TradeCreateRequest) (*TradeCreateResponse, error) {
+// 返回支付URL，可直接用于重定向或在浏览器中打开
+func (c *AlipayClient) CreatePayment(req *TradeCreateRequest) (string, error) {
 	bizContent, err := json.Marshal(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal biz_content: %w", err)
+		return "", fmt.Errorf("failed to marshal biz_content: %w", err)
 	}
 
-	bizContentStr := string(bizContent)
-
-	// 构建请求参数（除了biz_content，其他参数都放URL中）
+	// 构建请求参数
 	params := url.Values{}
 	params.Set("app_id", c.config.AppId)
 	params.Set("method", "alipay.trade.page.pay")
@@ -158,7 +157,7 @@ func (c *AlipayClient) CreatePayment(req *TradeCreateRequest) (*TradeCreateRespo
 	params.Set("sign_type", c.config.SignType)
 	params.Set("timestamp", time.Now().Format("2006-01-02 15:04:05"))
 	params.Set("version", c.config.Version)
-	params.Set("biz_content", bizContentStr) // 先加入用于签名
+	params.Set("biz_content", string(bizContent))
 
 	if c.config.NotifyUrl != "" {
 		params.Set("notify_url", c.config.NotifyUrl)
@@ -168,44 +167,17 @@ func (c *AlipayClient) CreatePayment(req *TradeCreateRequest) (*TradeCreateRespo
 		params.Set("return_url", req.ReturnUrl)
 	}
 
-	// 签名（包含biz_content）
+	// 签名
 	sign, err := c.signParams(params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to sign request: %w", err)
+		return "", fmt.Errorf("failed to sign request: %w", err)
 	}
 	params.Set("sign", sign)
 
-	// 移除biz_content，它将放在表单中
-	params.Del("biz_content")
+	// 构建完整的支付URL
+	payURL := c.config.GatewayUrl + "?" + params.Encode()
 
-	// 构建action URL（不含biz_content）
-	actionUrl := c.config.GatewayUrl + "?" + params.Encode()
-
-	// HTML转义biz_content的双引号
-	bizContentEscaped := strings.ReplaceAll(bizContentStr, `"`, `&quot;`)
-
-	// 构建HTML表单
-	var formBuilder strings.Builder
-	formBuilder.WriteString("<form name=\"punchout_form\" method=\"post\" action=\"")
-	formBuilder.WriteString(actionUrl)
-	formBuilder.WriteString("\">\n")
-	formBuilder.WriteString("<input type=\"hidden\" name=\"biz_content\" value=\"")
-	formBuilder.WriteString(bizContentEscaped)
-	formBuilder.WriteString("\">\n")
-	formBuilder.WriteString("<input type=\"submit\" value=\"立即支付\" style=\"display:none\">\n")
-	formBuilder.WriteString("</form>\n")
-	formBuilder.WriteString("<script>document.forms[0].submit();</script>")
-
-	formHtml := formBuilder.String()
-
-	fmt.Println("=== 生成的HTML表单 ===")
-	fmt.Println(formHtml)
-	fmt.Println("======================")
-
-	return &TradeCreateResponse{
-		OutTradeNo: req.OutTradeNo,
-		QrCode:     formHtml, // 返回HTML表单
-	}, nil
+	return payURL, nil
 }
 
 // CreatePaymentQrCode 创建支付订单（当面付-二维码）

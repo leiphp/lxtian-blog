@@ -238,8 +238,8 @@ func (l *PaymentNotifyLogic) handlePaymentSuccess(paymentOrder *model.LxtPayment
 	// 3. 发放积分或优惠券
 	// 4. 记录支付日志
 
-	l.Infof("Payment success: paymentId=%s, orderId=%s, amount=%.2f",
-		paymentOrder.PaymentId, paymentOrder.OrderId, paymentOrder.Amount)
+	l.Infof("Payment success: paymentId=%s, orderSn=%s, amount=%.2f",
+		paymentOrder.PaymentId, paymentOrder.OrderSn, paymentOrder.Amount)
 }
 
 // 简单的浮点数解析

@@ -153,11 +153,11 @@ func (l *PaymentHistoryLogic) filterByTimeRange(orders []*model.LxtPaymentOrders
 }
 
 // 按订单ID过滤
-func (l *PaymentHistoryLogic) filterByOrderId(orders []*model.LxtPaymentOrders, orderId string) []*model.LxtPaymentOrders {
+func (l *PaymentHistoryLogic) filterByOrderId(orders []*model.LxtPaymentOrders, orderSn string) []*model.LxtPaymentOrders {
 	var filtered []*model.LxtPaymentOrders
 
 	for _, order := range orders {
-		if order.OrderId == orderId {
+		if order.OrderSn == orderSn {
 			filtered = append(filtered, order)
 		}
 	}
@@ -170,7 +170,7 @@ func (l *PaymentHistoryLogic) buildPaymentOrderItem(order *model.LxtPaymentOrder
 	item := map[string]interface{}{
 		"id":           order.Id,
 		"payment_id":   order.PaymentId,
-		"order_id":     order.OrderId,
+		"order_sn":     order.OrderSn,
 		"out_trade_no": order.OutTradeNo,
 		"user_id":      order.UserId,
 		"amount":       order.Amount,
@@ -193,14 +193,14 @@ func (l *PaymentHistoryLogic) buildPaymentOrderItem(order *model.LxtPaymentOrder
 	if order.BuyerLogonId != "" {
 		item["buyer_logon_id"] = order.BuyerLogonId
 	}
-	if order.ReceiptAmount != "" && order.ReceiptAmount != "0" {
+	if order.ReceiptAmount != 0 {
 		item["receipt_amount"] = order.ReceiptAmount
 	}
-	if order.GmtPayment.Valid {
-		item["gmt_payment"] = order.GmtPayment.Time.Format("2006-01-02 15:04:05")
+	if order.PayTime.Valid {
+		item["pay_time"] = order.PayTime.Time.Format("2006-01-02 15:04:05")
 	}
-	if order.GmtClose.Valid {
-		item["gmt_close"] = order.GmtClose.Time.Format("2006-01-02 15:04:05")
+	if order.CloseTime.Valid {
+		item["close_time"] = order.CloseTime.Time.Format("2006-01-02 15:04:05")
 	}
 
 	return item

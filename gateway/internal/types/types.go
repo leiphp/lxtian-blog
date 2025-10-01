@@ -107,30 +107,25 @@ type CommentListResp struct {
 }
 
 type CreatePaymentReq struct {
+	GoodsId     uint64  `json:"goods_id,optional"`     // 商品ID
+	Quantity    uint32  `json:"quantity,optional"`     // 商品数量
 	Amount      float64 `json:"amount"`                // 支付金额
 	Subject     string  `json:"subject"`               // 订单标题
 	Body        string  `json:"body,optional"`         // 订单描述
 	ReturnUrl   string  `json:"return_url,optional"`   // 支付成功跳转地址
 	NotifyUrl   string  `json:"notify_url,optional"`   // 支付结果异步通知地址
 	Timeout     string  `json:"timeout,optional"`      // 订单超时时间
-	UserId      uint64  `json:"user_id,optional"`      // 用户ID
 	ProductCode string  `json:"product_code,optional"` // 产品码，默认FAST_INSTANT_TRADE_PAY
-	PayType     int64   `json:"pay_type,optional"`     // 支付类型：1:捐赠2:购买模板3:直接消费
-	GoodsName   string  `json:"goods_name,optional"`   // 商品名称
+	PayType     int     `json:"pay_type,optional"`     // 支付类型：1:支付宝2:微信3:银行卡
+	BuyType     int     `json:"pay_type,optional"`     // 购买类型：1:捐赠2:购买会员3:商品消费
 	Remark      string  `json:"remark,optional"`       // 备注
-	GoodsId     uint64  `json:"goods_id,optional"`     // 商品ID
-	Quantity    uint32  `json:"quantity,optional"`     // 商品数量
 }
 
 type CreatePaymentResp struct {
-	OrderId    string `json:"order_id"`     // 订单ID（自动生成）
 	PaymentId  string `json:"payment_id"`   // 支付ID
 	OutTradeNo string `json:"out_trade_no"` // 商户订单号
 	OrderSn    string `json:"order_sn"`     // 订单号
 	PayUrl     string `json:"pay_url"`      // 支付链接
-	QrCode     string `json:"qr_code"`      // 二维码内容
-	FormData   string `json:"form_data"`    // 表单数据（用于页面支付）
-	Message    string `json:"message"`      // 返回消息
 }
 
 type GetqrReq struct {

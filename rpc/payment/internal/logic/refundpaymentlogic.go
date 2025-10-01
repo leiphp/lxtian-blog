@@ -92,7 +92,7 @@ func (l *RefundPaymentLogic) RefundPayment(in *payment.RefundPaymentReq) (*payme
 	paymentRefund := &model.LxtPaymentRefunds{
 		RefundId:     refundId,
 		PaymentId:    paymentOrder.PaymentId,
-		OrderId:      paymentOrder.OrderId,
+		OrderSn:      paymentOrder.OrderSn,
 		OutTradeNo:   paymentOrder.OutTradeNo,
 		OutRequestNo: outRequestNo,
 		UserId:       paymentOrder.UserId,

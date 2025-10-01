@@ -84,8 +84,8 @@ func (l *ClosePaymentLogic) ClosePayment(in *payment.ClosePaymentReq) (*payment.
 	}
 
 	// 记录日志
-	l.Infof("Closed payment order: paymentId=%s, orderId=%s, outTradeNo=%s",
-		paymentOrder.PaymentId, paymentOrder.OrderId, alipayResp.OutTradeNo)
+	l.Infof("Closed payment order: paymentId=%s, orderSn=%s, outTradeNo=%s",
+		paymentOrder.PaymentId, paymentOrder.OrderSn, alipayResp.OutTradeNo)
 
 	return &payment.ClosePaymentResp{
 		Success: true,

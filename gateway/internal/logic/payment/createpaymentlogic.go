@@ -2,6 +2,9 @@ package payment
 
 import (
 	"context"
+	"errors"
+	"lxtian-blog/common/pkg/utils"
+	"net/http"
 
 	"lxtian-blog/gateway/internal/svc"
 	"lxtian-blog/gateway/internal/types"
@@ -25,19 +28,30 @@ func NewCreatePaymentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cre
 	}
 }
 
-func (l *CreatePaymentLogic) CreatePayment(req *types.CreatePaymentReq) (resp *types.CreatePaymentResp, err error) {
+func (l *CreatePaymentLogic) CreatePayment(req *types.CreatePaymentReq, r *http.Request) (resp *types.CreatePaymentResp, err error) {
+	//从中间件获取用户信息
+	userId, ok := l.ctx.Value("user_id").(uint)
+	if !ok {
+		return nil, errors.New("user_id not found in context")
+	}
 	res, err := l.svcCtx.PaymentRpc.CreatePayment(l.ctx, &payment.CreatePaymentReq{
-		GoodsId: req.GoodsId,
-		UserId:  req.UserId,
-		Amount:  req.Amount,
-		Subject: req.Subject,
+		GoodsId:  int64(req.GoodsId),
+		UserId:   uint64(userId),
+		Amount:   req.Amount,
+		Subject:  req.Subject,
+		ClientIp: utils.GetClientIp(r),
+		PayType:  int64(req.PayType),
+		BuyType:  int64(req.BuyType),
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.CreatePaymentResp{
-		PaymentId: res.PaymentId,
+		PaymentId:  res.PaymentId,
+		PayUrl:     res.PayUrl,
+		OutTradeNo: res.OutTradeNo,
+		OrderSn:    res.OrderSn,
 	}, nil
 
 	//return

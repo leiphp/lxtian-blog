@@ -42,7 +42,7 @@ type (
 		Id           uint64          `db:"id"`             // 主键ID
 		RefundId     string          `db:"refund_id"`      // 退款ID
 		PaymentId    string          `db:"payment_id"`     // 支付ID
-		OrderId      string          `db:"order_id"`       // 订单ID
+		OrderSn      string          `db:"order_sn"`       // 订单编号
 		OutTradeNo   string          `db:"out_trade_no"`   // 商户订单号
 		OutRequestNo string          `db:"out_request_no"` // 退款单号
 		UserId       int64           `db:"user_id"`        // 用户ID
@@ -115,13 +115,13 @@ func (m *defaultLxtPaymentRefundsModel) FindOneByRefundId(ctx context.Context, r
 
 func (m *defaultLxtPaymentRefundsModel) Insert(ctx context.Context, data *LxtPaymentRefunds) (sql.Result, error) {
 	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, lxtPaymentRefundsRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.RefundId, data.PaymentId, data.OrderId, data.OutTradeNo, data.OutRequestNo, data.UserId, data.RefundAmount, data.RefundFee, data.RefundReason, data.Status, data.RefundStatus, data.GmtRefund, data.DeletedAt)
+	ret, err := m.conn.ExecCtx(ctx, query, data.RefundId, data.PaymentId, data.OrderSn, data.OutTradeNo, data.OutRequestNo, data.UserId, data.RefundAmount, data.RefundFee, data.RefundReason, data.Status, data.RefundStatus, data.GmtRefund, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultLxtPaymentRefundsModel) Update(ctx context.Context, newData *LxtPaymentRefunds) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, lxtPaymentRefundsRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.RefundId, newData.PaymentId, newData.OrderId, newData.OutTradeNo, newData.OutRequestNo, newData.UserId, newData.RefundAmount, newData.RefundFee, newData.RefundReason, newData.Status, newData.RefundStatus, newData.GmtRefund, newData.DeletedAt, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.RefundId, newData.PaymentId, newData.OrderSn, newData.OutTradeNo, newData.OutRequestNo, newData.UserId, newData.RefundAmount, newData.RefundFee, newData.RefundReason, newData.Status, newData.RefundStatus, newData.GmtRefund, newData.DeletedAt, newData.Id)
 	return err
 }
 

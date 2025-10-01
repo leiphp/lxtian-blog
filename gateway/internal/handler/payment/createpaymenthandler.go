@@ -23,7 +23,7 @@ func CreatePaymentHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		l := payment.NewCreatePaymentLogic(r.Context(), svcCtx)
-		resp, err := l.CreatePayment(&req)
+		resp, err := l.CreatePayment(&req, r)
 		response.Response(r, w, resp, err)
 	}
 }

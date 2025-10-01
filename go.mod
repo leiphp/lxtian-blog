@@ -11,6 +11,8 @@ require (
 	github.com/leiphp/unit-go-sdk v1.0.4
 	github.com/leiphp/wechat v1.0.5
 	github.com/prometheus/client_golang v1.20.5
+	github.com/shopspring/decimal v1.4.0
+	github.com/sony/sonyflake v1.2.1
 	github.com/zeromicro/go-zero v1.7.2
 	go.mongodb.org/mongo-driver v1.16.1
 	google.golang.org/grpc v1.71.1

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"lxtian-blog/common/pkg/define"
 	"math/rand"
 	"net/http"
@@ -352,4 +353,18 @@ func BuildTreeMap(data []map[string]interface{}, parentId int64) []map[string]in
 	}
 
 	return tree
+}
+
+// Int64ToString 将分转成字符串表示（保留整数分）
+func Int64ToString(fen int64) string {
+	return decimal.NewFromInt(fen).String()
+}
+
+// StringToInt64 将字符串的分转成int64
+func StringToInt64(s string) (int64, error) {
+	d, err := decimal.NewFromString(s)
+	if err != nil {
+		return 0, err
+	}
+	return d.IntPart(), nil
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"lxtian-blog/common/constant"
 	paymentSvc "lxtian-blog/common/repository/payment"
-	"strconv"
 	"time"
 
 	"lxtian-blog/common/model"
@@ -138,7 +137,7 @@ func (l *QueryPaymentLogic) updatePaymentStatus(paymentOrder *model.LxtPaymentOr
 func (l *QueryPaymentLogic) buildQueryResponse(paymentOrder *model.LxtPaymentOrders) *payment.QueryPaymentResp {
 	resp := &payment.QueryPaymentResp{
 		PaymentId:    paymentOrder.PaymentId,
-		OrderId:      paymentOrder.OrderId,
+		OrderId:      paymentOrder.OrderSn,
 		OutTradeNo:   paymentOrder.OutTradeNo,
 		TradeNo:      paymentOrder.TradeNo,
 		TradeStatus:  paymentOrder.TradeStatus,
@@ -148,21 +147,14 @@ func (l *QueryPaymentLogic) buildQueryResponse(paymentOrder *model.LxtPaymentOrd
 		Message:      "查询成功",
 	}
 
-	// 转换 ReceiptAmount 从 string 到 float64
-	if paymentOrder.ReceiptAmount != "" {
-		if amount, err := strconv.ParseFloat(paymentOrder.ReceiptAmount, 64); err == nil {
-			resp.ReceiptAmount = amount
-		}
-	}
-
 	// 设置支付时间
-	if paymentOrder.GmtPayment.Valid {
-		resp.GmtPayment = paymentOrder.GmtPayment.Time.Format("2006-01-02 15:04:05")
+	if paymentOrder.PayTime.Valid {
+		resp.GmtPayment = paymentOrder.PayTime.Time.Format("2006-01-02 15:04:05")
 	}
 
 	// 设置关闭时间
-	if paymentOrder.GmtClose.Valid {
-		resp.GmtClose = paymentOrder.GmtClose.Time.Format("2006-01-02 15:04:05")
+	if paymentOrder.CloseTime.Valid {
+		resp.GmtClose = paymentOrder.CloseTime.Time.Format("2006-01-02 15:04:05")
 	}
 
 	return resp

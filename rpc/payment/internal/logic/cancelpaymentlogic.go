@@ -82,8 +82,8 @@ func (l *CancelPaymentLogic) CancelPayment(in *payment.CancelPaymentReq) (*payme
 	}
 
 	// 记录日志
-	l.Infof("Cancelled payment order: paymentId=%s, orderId=%s, outTradeNo=%s",
-		paymentOrder.PaymentId, paymentOrder.OrderId, alipayResp.OutTradeNo)
+	l.Infof("Cancelled payment order: paymentId=%s, orderSn=%s, outTradeNo=%s",
+		paymentOrder.PaymentId, paymentOrder.OrderSn, alipayResp.OutTradeNo)
 
 	return &payment.CancelPaymentResp{
 		Success: true,
