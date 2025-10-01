@@ -39,7 +39,7 @@ func (l *CreatePaymentLogic) CreatePayment(in *payment.CreatePaymentReq) (*payme
 
 	// 生成订单ID、支付ID和商户订单号
 	paymentId := l.generatePaymentId()
-	outTradeNo := fmt.Sprintf("NO_%d", utils.Snowflake())
+	outTradeNo := fmt.Sprintf("NO%d", utils.Snowflake())
 	orderSn := fmt.Sprintf("%d", utils.Snowflake())
 
 	// 产品码：电脑网站支付固定使用 FAST_INSTANT_TRADE_PAY
@@ -64,6 +64,7 @@ func (l *CreatePaymentLogic) CreatePayment(in *payment.CreatePaymentReq) (*payme
 
 	// 2. 创建支付订单记录（lxt_payment_orders表）
 	paymentOrder := &model.LxtPaymentOrders{
+		GoodsId:     in.GoodsId,
 		PaymentId:   paymentId,
 		OrderSn:     orderSn,
 		OutTradeNo:  outTradeNo,

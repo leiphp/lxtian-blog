@@ -35,13 +35,19 @@ func (l *CreatePaymentLogic) CreatePayment(req *types.CreatePaymentReq, r *http.
 		return nil, errors.New("user_id not found in context")
 	}
 	res, err := l.svcCtx.PaymentRpc.CreatePayment(l.ctx, &payment.CreatePaymentReq{
-		GoodsId:  int64(req.GoodsId),
-		UserId:   uint64(userId),
-		Amount:   req.Amount,
-		Subject:  req.Subject,
-		ClientIp: utils.GetClientIp(r),
-		PayType:  int64(req.PayType),
-		BuyType:  int64(req.BuyType),
+		GoodsId:   int64(req.GoodsId),
+		Quantity:  req.Quantity,
+		UserId:    uint64(userId),
+		Amount:    req.Amount,
+		Subject:   req.Subject,
+		ClientIp:  utils.GetClientIp(r),
+		PayType:   int64(req.PayType),
+		BuyType:   int64(req.BuyType),
+		Body:      req.Body,
+		NotifyUrl: req.NotifyUrl,
+		ReturnUrl: req.ReturnUrl,
+		Remark:    req.Remark,
+		Timeout:   req.Timeout,
 	})
 	if err != nil {
 		return nil, err
