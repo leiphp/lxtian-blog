@@ -89,7 +89,7 @@ func (r *baseRepository[T]) GetList(ctx context.Context, condition map[string]in
 		query = query.Offset(offset).Limit(pageSize)
 	}
 
-	if err := query.Find(&entities).Error; err != nil {
+	if err := query.Order("id desc").Find(&entities).Error; err != nil {
 		return nil, 0, fmt.Errorf("failed to get entities list: %w", err)
 	}
 

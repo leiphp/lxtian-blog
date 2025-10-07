@@ -43,7 +43,7 @@ func (m *JwtMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 		claims, err := jwts.ParseToken(parts[1], m.accessSecret, m.accessExpire)
 		if err != nil {
 			logc.Errorf(r.Context(), "JwtMiddleware error: %s", err)
-			response.Response(r, w, nil, errors.New("token验证错误"))
+			response.Response(r, w, nil, response.ErrTokenInvalid)
 			return
 		}
 		isExpire := claims.ExpiresAt.Before(time.Now())

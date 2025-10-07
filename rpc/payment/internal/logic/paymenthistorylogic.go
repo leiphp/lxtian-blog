@@ -36,8 +36,6 @@ func (l *PaymentHistoryLogic) PaymentHistory(in *payment.PaymentHistoryReq) (*pa
 		in.PageSize = 100 // 限制最大每页数量
 	}
 
-	offset := (in.Page - 1) * in.PageSize
-
 	var paymentOrders []*model.LxtPaymentOrders
 	var total int64
 	var err error
@@ -45,7 +43,7 @@ func (l *PaymentHistoryLogic) PaymentHistory(in *payment.PaymentHistoryReq) (*pa
 	// 根据查询条件获取支付记录
 	if in.UserId > 0 {
 		// 按用户ID查询
-		paymentOrders, total, err = l.paymentService.GetByUserId(l.ctx, in.UserId, int(offset), int(in.PageSize))
+		paymentOrders, total, err = l.paymentService.GetByUserId(l.ctx, in.UserId, int(in.Page), int(in.PageSize))
 		if err != nil {
 			l.Errorf("Failed to find payment orders by user_id: %v", err)
 			return nil, fmt.Errorf("failed to find payment orders by user_id: %w", err)
@@ -56,7 +54,7 @@ func (l *PaymentHistoryLogic) PaymentHistory(in *payment.PaymentHistoryReq) (*pa
 		}
 	} else if in.PaymentStatus != "" {
 		// 按支付状态查询
-		paymentOrders, total, err = l.paymentService.GetByStatus(l.ctx, in.PaymentStatus, int(offset), int(in.PageSize))
+		paymentOrders, total, err = l.paymentService.GetByStatus(l.ctx, in.PaymentStatus, int(in.Page), int(in.PageSize))
 		if err != nil {
 			l.Errorf("Failed to find payment orders by status: %v", err)
 			return nil, fmt.Errorf("failed to find payment orders by status: %w", err)
@@ -67,7 +65,7 @@ func (l *PaymentHistoryLogic) PaymentHistory(in *payment.PaymentHistoryReq) (*pa
 		}
 	} else {
 		// 查询所有记录
-		paymentOrders, total, err = l.paymentService.GetByStatus(l.ctx, "", int(offset), int(in.PageSize))
+		paymentOrders, total, err = l.paymentService.GetByStatus(l.ctx, "", int(in.Page), int(in.PageSize))
 		if err != nil {
 			l.Errorf("Failed to find all payment orders: %v", err)
 			return nil, fmt.Errorf("failed to find all payment orders: %w", err)
