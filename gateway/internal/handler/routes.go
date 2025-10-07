@@ -43,6 +43,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/refund",
 					Handler: payment.RefundPaymentHandler(serverCtx),
 				},
+				{
+					// 重新支付订单
+					Method:  http.MethodPost,
+					Path:    "/repay",
+					Handler: payment.RepayOrderHandler(serverCtx),
+				},
 			}...,
 		),
 		rest.WithPrefix("/api/payment"),

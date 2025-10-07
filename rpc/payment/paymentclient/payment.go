@@ -28,10 +28,14 @@ type (
 	QueryPaymentResp   = payment.QueryPaymentResp
 	RefundPaymentReq   = payment.RefundPaymentReq
 	RefundPaymentResp  = payment.RefundPaymentResp
+	RepayOrderReq      = payment.RepayOrderReq
+	RepayOrderResp     = payment.RepayOrderResp
 
 	Payment interface {
 		// 创建支付订单
 		CreatePayment(ctx context.Context, in *CreatePaymentReq, opts ...grpc.CallOption) (*CreatePaymentResp, error)
+		// 重新支付订单
+		RepayOrder(ctx context.Context, in *RepayOrderReq, opts ...grpc.CallOption) (*RepayOrderResp, error)
 		// 查询支付结果
 		QueryPayment(ctx context.Context, in *QueryPaymentReq, opts ...grpc.CallOption) (*QueryPaymentResp, error)
 		// 申请退款
@@ -61,6 +65,12 @@ func NewPayment(cli zrpc.Client) Payment {
 func (m *defaultPayment) CreatePayment(ctx context.Context, in *CreatePaymentReq, opts ...grpc.CallOption) (*CreatePaymentResp, error) {
 	client := payment.NewPaymentClient(m.cli.Conn())
 	return client.CreatePayment(ctx, in, opts...)
+}
+
+// 重新支付订单
+func (m *defaultPayment) RepayOrder(ctx context.Context, in *RepayOrderReq, opts ...grpc.CallOption) (*RepayOrderResp, error) {
+	client := payment.NewPaymentClient(m.cli.Conn())
+	return client.RepayOrder(ctx, in, opts...)
 }
 
 // 查询支付结果

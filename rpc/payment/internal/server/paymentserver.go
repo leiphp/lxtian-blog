@@ -29,6 +29,12 @@ func (s *PaymentServer) CreatePayment(ctx context.Context, in *payment.CreatePay
 	return l.CreatePayment(in)
 }
 
+// 重新支付订单
+func (s *PaymentServer) RepayOrder(ctx context.Context, in *payment.RepayOrderReq) (*payment.RepayOrderResp, error) {
+	l := logic.NewRepayOrderLogic(ctx, s.svcCtx)
+	return l.RepayOrder(in)
+}
+
 // 查询支付结果
 func (s *PaymentServer) QueryPayment(ctx context.Context, in *payment.QueryPaymentReq) (*payment.QueryPaymentResp, error) {
 	l := logic.NewQueryPaymentLogic(ctx, s.svcCtx)

@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Payment_CreatePayment_FullMethodName  = "/payment.Payment/CreatePayment"
+	Payment_RepayOrder_FullMethodName     = "/payment.Payment/RepayOrder"
 	Payment_QueryPayment_FullMethodName   = "/payment.Payment/QueryPayment"
 	Payment_RefundPayment_FullMethodName  = "/payment.Payment/RefundPayment"
 	Payment_PaymentHistory_FullMethodName = "/payment.Payment/PaymentHistory"
@@ -34,6 +35,8 @@ const (
 type PaymentClient interface {
 	// 创建支付订单
 	CreatePayment(ctx context.Context, in *CreatePaymentReq, opts ...grpc.CallOption) (*CreatePaymentResp, error)
+	// 重新支付订单
+	RepayOrder(ctx context.Context, in *RepayOrderReq, opts ...grpc.CallOption) (*RepayOrderResp, error)
 	// 查询支付结果
 	QueryPayment(ctx context.Context, in *QueryPaymentReq, opts ...grpc.CallOption) (*QueryPaymentResp, error)
 	// 申请退款
@@ -59,6 +62,15 @@ func NewPaymentClient(cc grpc.ClientConnInterface) PaymentClient {
 func (c *paymentClient) CreatePayment(ctx context.Context, in *CreatePaymentReq, opts ...grpc.CallOption) (*CreatePaymentResp, error) {
 	out := new(CreatePaymentResp)
 	err := c.cc.Invoke(ctx, Payment_CreatePayment_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *paymentClient) RepayOrder(ctx context.Context, in *RepayOrderReq, opts ...grpc.CallOption) (*RepayOrderResp, error) {
+	out := new(RepayOrderResp)
+	err := c.cc.Invoke(ctx, Payment_RepayOrder_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -125,6 +137,8 @@ func (c *paymentClient) CancelPayment(ctx context.Context, in *CancelPaymentReq,
 type PaymentServer interface {
 	// 创建支付订单
 	CreatePayment(context.Context, *CreatePaymentReq) (*CreatePaymentResp, error)
+	// 重新支付订单
+	RepayOrder(context.Context, *RepayOrderReq) (*RepayOrderResp, error)
 	// 查询支付结果
 	QueryPayment(context.Context, *QueryPaymentReq) (*QueryPaymentResp, error)
 	// 申请退款
@@ -146,6 +160,9 @@ type UnimplementedPaymentServer struct {
 
 func (UnimplementedPaymentServer) CreatePayment(context.Context, *CreatePaymentReq) (*CreatePaymentResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePayment not implemented")
+}
+func (UnimplementedPaymentServer) RepayOrder(context.Context, *RepayOrderReq) (*RepayOrderResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RepayOrder not implemented")
 }
 func (UnimplementedPaymentServer) QueryPayment(context.Context, *QueryPaymentReq) (*QueryPaymentResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryPayment not implemented")
@@ -192,6 +209,24 @@ func _Payment_CreatePayment_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(PaymentServer).CreatePayment(ctx, req.(*CreatePaymentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Payment_RepayOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RepayOrderReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PaymentServer).RepayOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Payment_RepayOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PaymentServer).RepayOrder(ctx, req.(*RepayOrderReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -314,6 +349,10 @@ var Payment_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreatePayment",
 			Handler:    _Payment_CreatePayment_Handler,
+		},
+		{
+			MethodName: "RepayOrder",
+			Handler:    _Payment_RepayOrder_Handler,
 		},
 		{
 			MethodName: "QueryPayment",

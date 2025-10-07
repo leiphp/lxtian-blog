@@ -255,6 +255,20 @@ type RegisterResp struct {
 	Data map[string]interface{} `json:"data"`
 }
 
+type RepayOrderReq struct {
+	OrderId    string `json:"order_id,optional"`     // 订单ID
+	OutTradeNo string `json:"out_trade_no,optional"` // 商户订单号
+	ReturnUrl  string `json:"return_url,optional"`   // 支付成功跳转地址
+	NotifyUrl  string `json:"notify_url,optional"`   // 支付结果异步通知地址
+}
+
+type RepayOrderResp struct {
+	PaymentId  string `json:"payment_id"`   // 支付ID
+	OutTradeNo string `json:"out_trade_no"` // 商户订单号
+	OrderSn    string `json:"order_sn"`     // 订单号
+	PayUrl     string `json:"pay_url"`      // 支付链接
+}
+
 type TagsListResp struct {
 	Data []map[string]interface{} `json:"list"`
 }

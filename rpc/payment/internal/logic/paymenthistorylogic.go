@@ -36,57 +36,36 @@ func (l *PaymentHistoryLogic) PaymentHistory(in *payment.PaymentHistoryReq) (*pa
 		in.PageSize = 100 // 限制最大每页数量
 	}
 
-	var paymentOrders []*model.LxtPaymentOrders
-	var total int64
-	var err error
+	// 构建查询条件
+	condition := make(map[string]interface{})
 
-	// 根据查询条件获取支付记录
 	if in.UserId > 0 {
-		// 按用户ID查询
-		paymentOrders, total, err = l.paymentService.GetByUserId(l.ctx, in.UserId, int(in.Page), int(in.PageSize))
-		if err != nil {
-			l.Errorf("Failed to find payment orders by user_id: %v", err)
-			return nil, fmt.Errorf("failed to find payment orders by user_id: %w", err)
-		}
-		_, err = l.paymentService.GetCountByUserId(l.ctx, in.UserId)
-		if err != nil {
-			l.Errorf("Failed to count payment orders by user_id: %v", err)
-		}
-	} else if in.PaymentStatus != "" {
-		// 按支付状态查询
-		paymentOrders, total, err = l.paymentService.GetByStatus(l.ctx, in.PaymentStatus, int(in.Page), int(in.PageSize))
-		if err != nil {
-			l.Errorf("Failed to find payment orders by status: %v", err)
-			return nil, fmt.Errorf("failed to find payment orders by status: %w", err)
-		}
-		_, err = l.paymentService.GetCountByStatus(l.ctx, in.PaymentStatus)
-		if err != nil {
-			l.Errorf("Failed to count payment orders by status: %v", err)
-		}
-	} else {
-		// 查询所有记录
-		paymentOrders, total, err = l.paymentService.GetByStatus(l.ctx, "", int(in.Page), int(in.PageSize))
-		if err != nil {
-			l.Errorf("Failed to find all payment orders: %v", err)
-			return nil, fmt.Errorf("failed to find all payment orders: %w", err)
-		}
-		// 这里应该有一个查询所有记录总数的方法，暂时使用状态查询
-		_, err = l.paymentService.GetCountByStatus(l.ctx, "")
-		if err != nil {
-			l.Errorf("Failed to count all payment orders: %v", err)
-		}
+		condition["user_id"] = in.UserId
 	}
 
-	fmt.Println(total)
-
-	// 时间过滤
-	if in.StartTime != "" || in.EndTime != "" {
-		paymentOrders = l.filterByTimeRange(paymentOrders, in.StartTime, in.EndTime)
+	if in.PaymentStatus != "" {
+		condition["status"] = in.PaymentStatus
 	}
 
-	// 订单ID过滤
 	if in.OrderId != "" {
-		paymentOrders = l.filterByOrderId(paymentOrders, in.OrderId)
+		condition["order_sn"] = in.OrderId
+	}
+
+	// 使用基础仓储的 GetList 方法（已修复总数查询问题）
+	paymentOrders, total, err := l.paymentService.GetList(l.ctx, condition, int(in.Page), int(in.PageSize))
+	if err != nil {
+		l.Errorf("Failed to get payment orders: %v", err)
+		return nil, fmt.Errorf("failed to get payment orders: %w", err)
+	}
+
+	// 如果需要时间范围过滤，应该在数据库层面处理
+	// 注意：内存过滤会导致分页不准确，建议在 repository 层添加时间范围查询方法
+	if in.StartTime != "" || in.EndTime != "" {
+		// TODO: 应该在数据库层面添加时间范围查询
+		l.Infof("Time range filter is applied in memory, pagination may be inaccurate")
+		paymentOrders = l.filterByTimeRange(paymentOrders, in.StartTime, in.EndTime)
+		// 注意：这里过滤后 total 不准确，需要重新设计
+		total = int64(len(paymentOrders))
 	}
 
 	// 构建响应数据
@@ -106,7 +85,7 @@ func (l *PaymentHistoryLogic) PaymentHistory(in *payment.PaymentHistoryReq) (*pa
 	return &payment.PaymentHistoryResp{
 		Page:     in.Page,
 		PageSize: in.PageSize,
-		Total:    uint64(len(listData)), // 使用过滤后的数量
+		Total:    uint64(total), // 使用数据库查询的真实总数
 		List:     string(listJson),
 	}, nil
 }
@@ -145,19 +124,6 @@ func (l *PaymentHistoryLogic) filterByTimeRange(orders []*model.LxtPaymentOrders
 			continue
 		}
 		filtered = append(filtered, order)
-	}
-
-	return filtered
-}
-
-// 按订单ID过滤
-func (l *PaymentHistoryLogic) filterByOrderId(orders []*model.LxtPaymentOrders, orderSn string) []*model.LxtPaymentOrders {
-	var filtered []*model.LxtPaymentOrders
-
-	for _, order := range orders {
-		if order.OrderSn == orderSn {
-			filtered = append(filtered, order)
-		}
 	}
 
 	return filtered
