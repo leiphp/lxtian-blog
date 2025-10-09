@@ -14,22 +14,24 @@ import (
 )
 
 type (
-	CancelPaymentReq   = payment.CancelPaymentReq
-	CancelPaymentResp  = payment.CancelPaymentResp
-	ClosePaymentReq    = payment.ClosePaymentReq
-	ClosePaymentResp   = payment.ClosePaymentResp
-	CreatePaymentReq   = payment.CreatePaymentReq
-	CreatePaymentResp  = payment.CreatePaymentResp
-	PaymentHistoryReq  = payment.PaymentHistoryReq
-	PaymentHistoryResp = payment.PaymentHistoryResp
-	PaymentNotifyReq   = payment.PaymentNotifyReq
-	PaymentNotifyResp  = payment.PaymentNotifyResp
-	QueryPaymentReq    = payment.QueryPaymentReq
-	QueryPaymentResp   = payment.QueryPaymentResp
-	RefundPaymentReq   = payment.RefundPaymentReq
-	RefundPaymentResp  = payment.RefundPaymentResp
-	RepayOrderReq      = payment.RepayOrderReq
-	RepayOrderResp     = payment.RepayOrderResp
+	CancelPaymentReq     = payment.CancelPaymentReq
+	CancelPaymentResp    = payment.CancelPaymentResp
+	ClosePaymentReq      = payment.ClosePaymentReq
+	ClosePaymentResp     = payment.ClosePaymentResp
+	CreatePaymentReq     = payment.CreatePaymentReq
+	CreatePaymentResp    = payment.CreatePaymentResp
+	OrdersStatisticsReq  = payment.OrdersStatisticsReq
+	OrdersStatisticsResp = payment.OrdersStatisticsResp
+	PaymentHistoryReq    = payment.PaymentHistoryReq
+	PaymentHistoryResp   = payment.PaymentHistoryResp
+	PaymentNotifyReq     = payment.PaymentNotifyReq
+	PaymentNotifyResp    = payment.PaymentNotifyResp
+	QueryPaymentReq      = payment.QueryPaymentReq
+	QueryPaymentResp     = payment.QueryPaymentResp
+	RefundPaymentReq     = payment.RefundPaymentReq
+	RefundPaymentResp    = payment.RefundPaymentResp
+	RepayOrderReq        = payment.RepayOrderReq
+	RepayOrderResp       = payment.RepayOrderResp
 
 	Payment interface {
 		// 创建支付订单
@@ -42,6 +44,8 @@ type (
 		RefundPayment(ctx context.Context, in *RefundPaymentReq, opts ...grpc.CallOption) (*RefundPaymentResp, error)
 		// 支付记录查询
 		PaymentHistory(ctx context.Context, in *PaymentHistoryReq, opts ...grpc.CallOption) (*PaymentHistoryResp, error)
+		// 支付订单统计
+		OrdersStatistics(ctx context.Context, in *OrdersStatisticsReq, opts ...grpc.CallOption) (*OrdersStatisticsResp, error)
 		// 支付回调通知处理
 		PaymentNotify(ctx context.Context, in *PaymentNotifyReq, opts ...grpc.CallOption) (*PaymentNotifyResp, error)
 		// 关闭支付订单
@@ -89,6 +93,12 @@ func (m *defaultPayment) RefundPayment(ctx context.Context, in *RefundPaymentReq
 func (m *defaultPayment) PaymentHistory(ctx context.Context, in *PaymentHistoryReq, opts ...grpc.CallOption) (*PaymentHistoryResp, error) {
 	client := payment.NewPaymentClient(m.cli.Conn())
 	return client.PaymentHistory(ctx, in, opts...)
+}
+
+// 支付订单统计
+func (m *defaultPayment) OrdersStatistics(ctx context.Context, in *OrdersStatisticsReq, opts ...grpc.CallOption) (*OrdersStatisticsResp, error) {
+	client := payment.NewPaymentClient(m.cli.Conn())
+	return client.OrdersStatistics(ctx, in, opts...)
 }
 
 // 支付回调通知处理

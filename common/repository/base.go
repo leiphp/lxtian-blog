@@ -67,15 +67,20 @@ func (r *baseRepository[T]) GetByCondition(ctx context.Context, condition map[st
 }
 
 // GetList 根据条件获取列表（支持分页）
-func (r *baseRepository[T]) GetList(ctx context.Context, condition map[string]interface{}, page, pageSize int) ([]*T, int64, error) {
+func (r *baseRepository[T]) GetList(ctx context.Context, condition map[string]interface{}, page, pageSize int, keywords string) ([]*T, int64, error) {
 	var entities []*T
 	var total int64
 
-	query := r.db.WithContext(ctx)
+	query := r.db.WithContext(ctx).Debug()
 
 	// 构建查询条件
 	for key, value := range condition {
 		query = query.Where(key, value)
+	}
+
+	if keywords != "" {
+		kw := "%" + keywords + "%"
+		query = query.Where("out_trade_no LIKE ? OR subject LIKE ?", kw, kw)
 	}
 
 	// 获取总数

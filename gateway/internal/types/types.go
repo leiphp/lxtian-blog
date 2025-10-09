@@ -168,14 +168,18 @@ type OrderListResp struct {
 	Total    uint64                   `json:"total"`
 }
 
+type OrdersStatisticsResp struct {
+	Total     int64   `json:"total"`      // 总数
+	Finish    int64   `json:"finish"`     // 已完成
+	Pending   int64   `json:"pending"`    // 待支付
+	PayAmount float64 `json:"pay_amount"` // 支付总金额
+}
+
 type PaymentHistoryReq struct {
-	UserId        uint64 `form:"user_id,optional"`        // 用户ID
-	OrderId       string `form:"order_id,optional"`       // 订单ID
-	PaymentStatus string `form:"payment_status,optional"` // 支付状态
-	StartTime     string `form:"start_time,optional"`     // 开始时间
-	EndTime       string `form:"end_time,optional"`       // 结束时间
-	Page          uint32 `form:"page"`                    // 页码
-	PageSize      uint32 `form:"page_size"`               // 每页数量
+	Status   string `form:"status,optional"`   // 支付状态
+	Keywords string `form:"keywords,optional"` // 订单号或商品名称
+	Page     uint32 `form:"page"`              // 页码
+	PageSize uint32 `form:"page_size"`         // 每页数量
 }
 
 type PaymentHistoryResp struct {

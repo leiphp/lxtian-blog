@@ -11,7 +11,7 @@ type BaseRepository[T any] interface {
 	CreateBatch(ctx context.Context, entities []*T) error
 	GetByID(ctx context.Context, id uint64) (*T, error)
 	GetByCondition(ctx context.Context, condition map[string]interface{}) (*T, error)
-	GetList(ctx context.Context, condition map[string]interface{}, page, pageSize int) ([]*T, int64, error)
+	GetList(ctx context.Context, condition map[string]interface{}, page, pageSize int, keywords string) ([]*T, int64, error)
 	Update(ctx context.Context, entity *T) error
 	UpdateByCondition(ctx context.Context, condition map[string]interface{}, updates map[string]interface{}) error
 	Delete(ctx context.Context, id uint64) error

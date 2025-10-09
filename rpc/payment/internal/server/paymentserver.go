@@ -53,6 +53,12 @@ func (s *PaymentServer) PaymentHistory(ctx context.Context, in *payment.PaymentH
 	return l.PaymentHistory(in)
 }
 
+// 支付订单统计
+func (s *PaymentServer) OrdersStatistics(ctx context.Context, in *payment.OrdersStatisticsReq) (*payment.OrdersStatisticsResp, error) {
+	l := logic.NewOrdersStatisticsLogic(ctx, s.svcCtx)
+	return l.OrdersStatistics(in)
+}
+
 // 支付回调通知处理
 func (s *PaymentServer) PaymentNotify(ctx context.Context, in *payment.PaymentNotifyReq) (*payment.PaymentNotifyResp, error) {
 	l := logic.NewPaymentNotifyLogic(ctx, s.svcCtx)

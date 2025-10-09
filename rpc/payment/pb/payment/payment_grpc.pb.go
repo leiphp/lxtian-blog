@@ -19,14 +19,15 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Payment_CreatePayment_FullMethodName  = "/payment.Payment/CreatePayment"
-	Payment_RepayOrder_FullMethodName     = "/payment.Payment/RepayOrder"
-	Payment_QueryPayment_FullMethodName   = "/payment.Payment/QueryPayment"
-	Payment_RefundPayment_FullMethodName  = "/payment.Payment/RefundPayment"
-	Payment_PaymentHistory_FullMethodName = "/payment.Payment/PaymentHistory"
-	Payment_PaymentNotify_FullMethodName  = "/payment.Payment/PaymentNotify"
-	Payment_ClosePayment_FullMethodName   = "/payment.Payment/ClosePayment"
-	Payment_CancelPayment_FullMethodName  = "/payment.Payment/CancelPayment"
+	Payment_CreatePayment_FullMethodName    = "/payment.Payment/CreatePayment"
+	Payment_RepayOrder_FullMethodName       = "/payment.Payment/RepayOrder"
+	Payment_QueryPayment_FullMethodName     = "/payment.Payment/QueryPayment"
+	Payment_RefundPayment_FullMethodName    = "/payment.Payment/RefundPayment"
+	Payment_PaymentHistory_FullMethodName   = "/payment.Payment/PaymentHistory"
+	Payment_OrdersStatistics_FullMethodName = "/payment.Payment/OrdersStatistics"
+	Payment_PaymentNotify_FullMethodName    = "/payment.Payment/PaymentNotify"
+	Payment_ClosePayment_FullMethodName     = "/payment.Payment/ClosePayment"
+	Payment_CancelPayment_FullMethodName    = "/payment.Payment/CancelPayment"
 )
 
 // PaymentClient is the client API for Payment service.
@@ -43,6 +44,8 @@ type PaymentClient interface {
 	RefundPayment(ctx context.Context, in *RefundPaymentReq, opts ...grpc.CallOption) (*RefundPaymentResp, error)
 	// 支付记录查询
 	PaymentHistory(ctx context.Context, in *PaymentHistoryReq, opts ...grpc.CallOption) (*PaymentHistoryResp, error)
+	// 支付订单统计
+	OrdersStatistics(ctx context.Context, in *OrdersStatisticsReq, opts ...grpc.CallOption) (*OrdersStatisticsResp, error)
 	// 支付回调通知处理
 	PaymentNotify(ctx context.Context, in *PaymentNotifyReq, opts ...grpc.CallOption) (*PaymentNotifyResp, error)
 	// 关闭支付订单
@@ -104,6 +107,15 @@ func (c *paymentClient) PaymentHistory(ctx context.Context, in *PaymentHistoryRe
 	return out, nil
 }
 
+func (c *paymentClient) OrdersStatistics(ctx context.Context, in *OrdersStatisticsReq, opts ...grpc.CallOption) (*OrdersStatisticsResp, error) {
+	out := new(OrdersStatisticsResp)
+	err := c.cc.Invoke(ctx, Payment_OrdersStatistics_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *paymentClient) PaymentNotify(ctx context.Context, in *PaymentNotifyReq, opts ...grpc.CallOption) (*PaymentNotifyResp, error) {
 	out := new(PaymentNotifyResp)
 	err := c.cc.Invoke(ctx, Payment_PaymentNotify_FullMethodName, in, out, opts...)
@@ -145,6 +157,8 @@ type PaymentServer interface {
 	RefundPayment(context.Context, *RefundPaymentReq) (*RefundPaymentResp, error)
 	// 支付记录查询
 	PaymentHistory(context.Context, *PaymentHistoryReq) (*PaymentHistoryResp, error)
+	// 支付订单统计
+	OrdersStatistics(context.Context, *OrdersStatisticsReq) (*OrdersStatisticsResp, error)
 	// 支付回调通知处理
 	PaymentNotify(context.Context, *PaymentNotifyReq) (*PaymentNotifyResp, error)
 	// 关闭支付订单
@@ -172,6 +186,9 @@ func (UnimplementedPaymentServer) RefundPayment(context.Context, *RefundPaymentR
 }
 func (UnimplementedPaymentServer) PaymentHistory(context.Context, *PaymentHistoryReq) (*PaymentHistoryResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PaymentHistory not implemented")
+}
+func (UnimplementedPaymentServer) OrdersStatistics(context.Context, *OrdersStatisticsReq) (*OrdersStatisticsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OrdersStatistics not implemented")
 }
 func (UnimplementedPaymentServer) PaymentNotify(context.Context, *PaymentNotifyReq) (*PaymentNotifyResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PaymentNotify not implemented")
@@ -285,6 +302,24 @@ func _Payment_PaymentHistory_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Payment_OrdersStatistics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OrdersStatisticsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PaymentServer).OrdersStatistics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Payment_OrdersStatistics_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PaymentServer).OrdersStatistics(ctx, req.(*OrdersStatisticsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Payment_PaymentNotify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PaymentNotifyReq)
 	if err := dec(in); err != nil {
@@ -365,6 +400,10 @@ var Payment_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PaymentHistory",
 			Handler:    _Payment_PaymentHistory_Handler,
+		},
+		{
+			MethodName: "OrdersStatistics",
+			Handler:    _Payment_OrdersStatistics_Handler,
 		},
 		{
 			MethodName: "PaymentNotify",

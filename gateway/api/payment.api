@@ -103,11 +103,8 @@ type (
 type (
     // 支付记录查询请求
     PaymentHistoryReq {
-        UserId        uint64  `form:"user_id,optional"`  // 用户ID
-        OrderId       string  `form:"order_id,optional"` // 订单ID
-        PaymentStatus string  `form:"payment_status,optional"` // 支付状态
-        StartTime     string  `form:"start_time,optional"` // 开始时间
-        EndTime       string  `form:"end_time,optional"`   // 结束时间
+        Status        string  `form:"status,optional"` // 支付状态
+        Keywords      string  `form:"keywords,optional"` // 订单号或商品名称
         Page          uint32  `form:"page"`              // 页码
         PageSize      uint32  `form:"page_size"`         // 每页数量
     }
@@ -118,6 +115,16 @@ type (
         PageSize      uint32                    `json:"page_size"`     // 每页数量
         Total         uint64                    `json:"total"`         // 总数
         List          []map[string]interface{} `json:"list"`          // 支付记录列表
+    }
+)
+
+type (
+    // 订单统计响应
+    OrdersStatisticsResp {
+        Total         int64                    `json:"total"`         // 总数
+        Finish        int64                    `json:"finish"`        // 已完成
+        Pending       int64                    `json:"pending"`       // 待支付
+        PayAmount     float64                  `json:"pay_amount"`    // 支付总金额
     }
 )
 
@@ -162,6 +169,10 @@ service gateway-api {
     @doc "支付记录查询"
     @handler PaymentHistory
     get /history (PaymentHistoryReq) returns (PaymentHistoryResp)
+
+    @doc "支付订单统计"
+    @handler OrdersStatistics
+    get /orders/statistics returns (OrdersStatisticsResp)
 }
 
 // 支付回调接口 - 公开接口，支付宝回调使用
@@ -173,8 +184,4 @@ service gateway-api {
     @doc "支付结果异步通知"
     @handler PaymentNotify
     post /notify (PaymentNotifyReq) returns (PaymentNotifyResp)
-    
-    @doc "支付成功页面跳转"
-    @handler PaymentReturn
-    get /return (PaymentNotifyReq) returns (PaymentNotifyResp)
 }

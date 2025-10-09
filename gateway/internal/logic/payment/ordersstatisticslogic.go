@@ -9,22 +9,22 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type PaymentReturnLogic struct {
+type OrdersStatisticsLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-// 支付成功页面跳转
-func NewPaymentReturnLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PaymentReturnLogic {
-	return &PaymentReturnLogic{
+// 支付订单统计
+func NewOrdersStatisticsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OrdersStatisticsLogic {
+	return &OrdersStatisticsLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *PaymentReturnLogic) PaymentReturn(req *types.PaymentNotifyReq) (resp *types.PaymentNotifyResp, err error) {
+func (l *OrdersStatisticsLogic) OrdersStatistics() (resp *types.OrdersStatisticsResp, err error) {
 	// todo: add your logic here and delete this line
 
 	return

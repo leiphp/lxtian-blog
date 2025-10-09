@@ -18,8 +18,8 @@ type PaymentOrderRepository interface {
 	GetByPaymentId(ctx context.Context, paymentId string) (*model.LxtPaymentOrders, error)
 	GetByOrderId(ctx context.Context, orderId string) (*model.LxtPaymentOrders, error)
 	GetByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentOrders, error)
-	GetByUserId(ctx context.Context, userId uint64, page, pageSize int) ([]*model.LxtPaymentOrders, int64, error)
-	GetByStatus(ctx context.Context, status string, page, pageSize int) ([]*model.LxtPaymentOrders, int64, error)
+	GetByUserId(ctx context.Context, userId uint64, page, pageSize int, keywords string) ([]*model.LxtPaymentOrders, int64, error)
+	GetByStatus(ctx context.Context, status string, page, pageSize int, keywords string) ([]*model.LxtPaymentOrders, int64, error)
 	GetByTradeNo(ctx context.Context, tradeNo string) (*model.LxtPaymentOrders, error)
 
 	// 更新方法
@@ -83,17 +83,17 @@ func (r *paymentOrderRepository) GetByOutTradeNo(ctx context.Context, outTradeNo
 }
 
 // GetByUserId 根据用户ID获取支付订单列表
-func (r *paymentOrderRepository) GetByUserId(ctx context.Context, userId uint64, page, pageSize int) ([]*model.LxtPaymentOrders, int64, error) {
+func (r *paymentOrderRepository) GetByUserId(ctx context.Context, userId uint64, page, pageSize int, keywords string) ([]*model.LxtPaymentOrders, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"user_id": userId,
-	}, page, pageSize)
+	}, page, pageSize, keywords)
 }
 
 // GetByStatus 根据状态获取支付订单列表
-func (r *paymentOrderRepository) GetByStatus(ctx context.Context, status string, page, pageSize int) ([]*model.LxtPaymentOrders, int64, error) {
+func (r *paymentOrderRepository) GetByStatus(ctx context.Context, status string, page, pageSize int, keywords string) ([]*model.LxtPaymentOrders, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"status": status,
-	}, page, pageSize)
+	}, page, pageSize, keywords)
 }
 
 // GetByTradeNo 根据支付宝交易号获取支付订单

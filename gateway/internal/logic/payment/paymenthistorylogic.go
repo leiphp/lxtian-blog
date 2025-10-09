@@ -38,6 +38,8 @@ func (l *PaymentHistoryLogic) PaymentHistory(req *types.PaymentHistoryReq) (resp
 		Page:     req.Page,
 		PageSize: req.PageSize,
 		UserId:   uint64(userId),
+		Status:   req.Status,
+		Keywords: req.Keywords,
 	})
 	if err != nil {
 		return nil, err

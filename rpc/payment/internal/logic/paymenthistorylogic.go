@@ -43,29 +43,15 @@ func (l *PaymentHistoryLogic) PaymentHistory(in *payment.PaymentHistoryReq) (*pa
 		condition["user_id"] = in.UserId
 	}
 
-	if in.PaymentStatus != "" {
-		condition["status"] = in.PaymentStatus
-	}
-
-	if in.OrderId != "" {
-		condition["order_sn"] = in.OrderId
+	if in.Status != "" {
+		condition["status"] = in.Status
 	}
 
 	// 使用基础仓储的 GetList 方法（已修复总数查询问题）
-	paymentOrders, total, err := l.paymentService.GetList(l.ctx, condition, int(in.Page), int(in.PageSize))
+	paymentOrders, total, err := l.paymentService.GetList(l.ctx, condition, int(in.Page), int(in.PageSize), in.Keywords)
 	if err != nil {
 		l.Errorf("Failed to get payment orders: %v", err)
 		return nil, fmt.Errorf("failed to get payment orders: %w", err)
-	}
-
-	// 如果需要时间范围过滤，应该在数据库层面处理
-	// 注意：内存过滤会导致分页不准确，建议在 repository 层添加时间范围查询方法
-	if in.StartTime != "" || in.EndTime != "" {
-		// TODO: 应该在数据库层面添加时间范围查询
-		l.Infof("Time range filter is applied in memory, pagination may be inaccurate")
-		paymentOrders = l.filterByTimeRange(paymentOrders, in.StartTime, in.EndTime)
-		// 注意：这里过滤后 total 不准确，需要重新设计
-		total = int64(len(paymentOrders))
 	}
 
 	// 构建响应数据

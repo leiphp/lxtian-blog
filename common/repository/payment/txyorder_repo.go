@@ -16,9 +16,9 @@ type TxyOrderRepository interface {
 	// 业务订单特有方法
 	GetByOrderSn(ctx context.Context, orderSn string) (*mysql.TxyOrder, error)
 	GetByOutTradeNo(ctx context.Context, outTradeNo string) (*mysql.TxyOrder, error)
-	GetByUserId(ctx context.Context, userId uint64, page, pageSize int) ([]*mysql.TxyOrder, int64, error)
-	GetByPayType(ctx context.Context, payType int64, page, pageSize int) ([]*mysql.TxyOrder, int64, error)
-	GetByStatus(ctx context.Context, status int64, page, pageSize int) ([]*mysql.TxyOrder, int64, error)
+	GetByUserId(ctx context.Context, userId uint64, page, pageSize int, keywords string) ([]*mysql.TxyOrder, int64, error)
+	GetByPayType(ctx context.Context, payType int64, page, pageSize int, keywords string) ([]*mysql.TxyOrder, int64, error)
+	GetByStatus(ctx context.Context, status int64, page, pageSize int, keywords string) ([]*mysql.TxyOrder, int64, error)
 	GetOrdersByTimeRange(ctx context.Context, startTime, endTime int64, page, pageSize int) ([]*mysql.TxyOrder, int64, error)
 
 	// 更新方法
@@ -66,24 +66,24 @@ func (r *txyOrderRepository) GetByOutTradeNo(ctx context.Context, outTradeNo str
 }
 
 // GetByUserId 根据用户ID获取订单列表
-func (r *txyOrderRepository) GetByUserId(ctx context.Context, userId uint64, page, pageSize int) ([]*mysql.TxyOrder, int64, error) {
+func (r *txyOrderRepository) GetByUserId(ctx context.Context, userId uint64, page, pageSize int, keywords string) ([]*mysql.TxyOrder, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"user_id": userId,
-	}, page, pageSize)
+	}, page, pageSize, keywords)
 }
 
 // GetByPayType 根据支付类型获取订单列表
-func (r *txyOrderRepository) GetByPayType(ctx context.Context, payType int64, page, pageSize int) ([]*mysql.TxyOrder, int64, error) {
+func (r *txyOrderRepository) GetByPayType(ctx context.Context, payType int64, page, pageSize int, keywords string) ([]*mysql.TxyOrder, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"pay_type": payType,
-	}, page, pageSize)
+	}, page, pageSize, keywords)
 }
 
 // GetByStatus 根据状态获取订单列表
-func (r *txyOrderRepository) GetByStatus(ctx context.Context, status int64, page, pageSize int) ([]*mysql.TxyOrder, int64, error) {
+func (r *txyOrderRepository) GetByStatus(ctx context.Context, status int64, page, pageSize int, keywords string) ([]*mysql.TxyOrder, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"status": status,
-	}, page, pageSize)
+	}, page, pageSize, keywords)
 }
 
 // GetOrdersByTimeRange 根据时间范围获取订单列表

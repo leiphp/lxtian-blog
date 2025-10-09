@@ -32,6 +32,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: payment.PaymentHistoryHandler(serverCtx),
 				},
 				{
+					// 支付订单统计
+					Method:  http.MethodGet,
+					Path:    "/orders/statistics",
+					Handler: payment.OrdersStatisticsHandler(serverCtx),
+				},
+				{
 					// 查询支付结果
 					Method:  http.MethodGet,
 					Path:    "/query",
@@ -61,12 +67,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/notify",
 				Handler: payment.PaymentNotifyHandler(serverCtx),
-			},
-			{
-				// 支付成功页面跳转
-				Method:  http.MethodGet,
-				Path:    "/return",
-				Handler: payment.PaymentReturnHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/api/payment"),
