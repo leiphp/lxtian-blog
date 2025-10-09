@@ -2,6 +2,8 @@ package payment
 
 import (
 	"context"
+	"errors"
+	"lxtian-blog/rpc/payment/pb/payment"
 
 	"lxtian-blog/gateway/internal/svc"
 	"lxtian-blog/gateway/internal/types"
@@ -25,7 +27,22 @@ func NewOrdersStatisticsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *OrdersStatisticsLogic) OrdersStatistics() (resp *types.OrdersStatisticsResp, err error) {
-	// todo: add your logic here and delete this line
+	//从中间件获取用户信息
+	userId, ok := l.ctx.Value("user_id").(uint)
+	if !ok {
+		return nil, errors.New("user_id not found in context")
+	}
+	res, err := l.svcCtx.PaymentRpc.OrdersStatistics(l.ctx, &payment.OrdersStatisticsReq{
+		UserId: int64(userId),
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	return
+	return &types.OrdersStatisticsResp{
+		Total:     res.Total,
+		Finish:    res.Finish,
+		Pending:   res.Pending,
+		PayAmount: float64(res.PayAmount),
+	}, nil
 }
