@@ -82,6 +82,38 @@ services:
       - local
     restart: always
 
+  payment-rpc:
+    image: ${DOCKER_REGISTRY:-localhost:5000}/${DOCKER_ENV:?请设置docker环境}.payment-rpc:latest
+    build:
+      context: .
+      dockerfile: ./rpc/payment/Dockerfile
+    environment:
+      - ETCD_HOSTS=etcd:2379  # 设置 etcd 地址
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_TYPE=${REDIS_TYPE}
+      - REDIS_PASS=${REDIS_PASS}
+      - REDIS_TLS=${REDIS_TLS}
+      - MONGODB_HOST=${MONGODB_HOST}
+      - MONGODB_PORT=${MONGODB_PORT}
+      - MONGODB_DATABASE=${MONGODB_DATABASE}
+      - MONGODB_USERNAME=${MONGODB_USERNAME}
+      - MONGODB_PASSWORD=${MONGODB_PASSWORD}
+      - AccessKey=${AccessKey}
+      - SecretKey=${SecretKey}
+      - Bucket=${Bucket}
+      - Domain=${Domain}
+      - Region=${Region}
+    volumes:
+      - ${PWD}/rpc/payment/logs:/app/logs:cached
+    networks:
+      - local
+    restart: always
+
   gateway-api:
     image: ${DOCKER_REGISTRY:-localhost:5000}/${DOCKER_ENV:?请设置docker环境}.gateway-api:latest
     build:
@@ -98,7 +130,7 @@ services:
       - ACCESS_SECRET=${ACCESS_SECRET}
       - WS_HOST=${WS_HOST}
     volumes:
-      - ${PWD}/logs:/app/logs:cached
+      - ${PWD}/gateway/logs:/app/logs:cached
     networks:
       - local
     restart: always
