@@ -365,19 +365,13 @@ func (c *AlipayClient) call(method, bizContent string) (json.RawMessage, error) 
 
 	// 检查响应状态
 	if baseResp.Code != "10000" {
-		// 详细的错误提示
-		errMsg := fmt.Sprintf("支付宝错误: code=%s, msg=%s, sub_code=%s, sub_msg=%s",
-			baseResp.Code, baseResp.Msg, baseResp.SubCode, baseResp.SubMsg)
-
 		// 针对常见错误提供解决建议
 		if baseResp.SubCode == "ACQ.ACCESS_FORBIDDEN" {
-			errMsg += "\n【原因】应用没有权限调用此接口"
-			errMsg += "\n【解决】1. 登录 https://open.alipay.com 检查应用状态"
-			errMsg += "\n       2. 确认已签约'当面付'产品且状态为'已生效'"
-			errMsg += "\n       3. 检查应用是否已上线且审核通过"
+			return nil, fmt.Errorf("支付宝错误: code=%s, msg=%s, sub_code=%s, sub_msg=%s\n【原因】应用没有权限调用此接口\n【解决】1. 登录 https://open.alipay.com 检查应用状态\n       2. 确认已签约'当面付'产品且状态为'已生效'\n       3. 检查应用是否已上线且审核通过",
+				baseResp.Code, baseResp.Msg, baseResp.SubCode, baseResp.SubMsg)
 		}
-
-		return nil, fmt.Errorf(errMsg)
+		return nil, fmt.Errorf("支付宝错误: code=%s, msg=%s, sub_code=%s, sub_msg=%s",
+			baseResp.Code, baseResp.Msg, baseResp.SubCode, baseResp.SubMsg)
 	}
 
 	return responseData, nil
@@ -458,14 +452,19 @@ func (c *AlipayClient) sign(req *BaseRequest) (string, error) {
 func (c *AlipayClient) formatPrivateKey(key string) string {
 	key = strings.TrimSpace(key)
 
-	// 如果已经有 PEM 头尾，直接返回
+	// 如果已经有 PEM 头尾，检查是否需要替换字面量的\n为真实换行符
 	if strings.HasPrefix(key, "-----BEGIN") {
+		// 处理环境变量中的字面量 \n
+		if strings.Contains(key, "\\n") {
+			key = strings.ReplaceAll(key, "\\n", "\n")
+		}
 		return key
 	}
 
-	// 移除所有空格和换行符
+	// 移除所有空格和换行符（包括字面量的\n）
 	key = strings.ReplaceAll(key, " ", "")
-	key = strings.ReplaceAll(key, "\n", "")
+	key = strings.ReplaceAll(key, "\\n", "") // 移除字面量的\n
+	key = strings.ReplaceAll(key, "\n", "")  // 移除真实换行符
 	key = strings.ReplaceAll(key, "\r", "")
 
 	// 添加 PEM 头尾，并每64个字符换行
@@ -521,14 +520,19 @@ func (c *AlipayClient) VerifySign(data, sign string) error {
 func (c *AlipayClient) formatPublicKey(key string) string {
 	key = strings.TrimSpace(key)
 
-	// 如果已经有 PEM 头尾，直接返回
+	// 如果已经有 PEM 头尾，检查是否需要替换字面量的\n为真实换行符
 	if strings.HasPrefix(key, "-----BEGIN") {
+		// 处理环境变量中的字面量 \n
+		if strings.Contains(key, "\\n") {
+			key = strings.ReplaceAll(key, "\\n", "\n")
+		}
 		return key
 	}
 
-	// 移除所有空格和换行符
+	// 移除所有空格和换行符（包括字面量的\n）
 	key = strings.ReplaceAll(key, " ", "")
-	key = strings.ReplaceAll(key, "\n", "")
+	key = strings.ReplaceAll(key, "\\n", "") // 移除字面量的\n
+	key = strings.ReplaceAll(key, "\n", "")  // 移除真实换行符
 	key = strings.ReplaceAll(key, "\r", "")
 
 	// 添加 PEM 头尾，并每64个字符换行

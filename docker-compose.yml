@@ -108,6 +108,9 @@ services:
       - Bucket=${Bucket}
       - Domain=${Domain}
       - Region=${Region}
+      - AlipayAppId=${AlipayAppId}
+      - AlipayAppPrivateKey=${AlipayAppPrivateKey}
+      - AlipayAlipayPublicKey=${AlipayAlipayPublicKey}
     volumes:
       - ${PWD}/rpc/payment/logs:/app/logs:cached
     networks:

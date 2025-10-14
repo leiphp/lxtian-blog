@@ -25,8 +25,8 @@ type Config struct {
 // AlipayConfig 支付宝配置
 type AlipayConfig struct {
 	AppId           string `json:",env=AlipayAppId"`
-	AppPrivateKey   string `json:",env=AppPrivateKey"`
-	AlipayPublicKey string `json:",env=AlipayPublicKey"`
+	AppPrivateKey   string `json:",env=AlipayAppPrivateKey"`
+	AlipayPublicKey string `json:",env=AlipayAlipayPublicKey"`
 	GatewayUrl      string `json:",optional"`
 	NotifyUrl       string `json:",optional"`
 	ReturnUrl       string `json:",optional"`
