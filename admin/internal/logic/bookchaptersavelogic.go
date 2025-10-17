@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"lxtian-blog/common/pkg/model/mysql"
-	"lxtian-blog/common/pkg/redis"
+	"lxtian-blog/common/pkg/utils"
 	"time"
 
 	"lxtian-blog/admin/internal/svc"
@@ -54,9 +54,10 @@ func (l *BookChapterSaveLogic) BookChapterSave(req *types.BookChapterSaveReq) (r
 		}
 	}
 	// 删除缓存
-	cacheKey := redis.ReturnRedisKey(redis.ApiWebStringBookChapter, req.Id)
-	if _, err = l.svcCtx.Rds.Del(cacheKey); err != nil {
-		return nil, err
+	cacheUtil := utils.NewCacheUtil(l.svcCtx.Rds)
+	if err = cacheUtil.DeleteChapterCache(l.ctx, data.Id); err != nil {
+		logx.Errorf("删除章节缓存失败: %v", err)
+		// 缓存删除失败不影响主流程，只记录日志
 	}
 
 	resp = new(types.BookChapterSaveResp)

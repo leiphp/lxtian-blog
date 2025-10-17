@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"lxtian-blog/common/pkg/model/mysql"
+	"lxtian-blog/common/pkg/utils"
 	"time"
 
 	"lxtian-blog/admin/internal/svc"
@@ -87,6 +88,13 @@ func (l *ArticleSaveLogic) ArticleSave(req *types.ArticleSaveReq) (resp *types.A
 	// 3. 提交事务
 	if err = tx.Commit().Error; err != nil {
 		return nil, err
+	}
+
+	// 4. 删除文章缓存
+	cacheUtil := utils.NewCacheUtil(l.svcCtx.Rds)
+	if err = cacheUtil.DeleteArticleCache(l.ctx, data.Id); err != nil {
+		logx.Errorf("删除文章缓存失败: %v", err)
+		// 缓存删除失败不影响主流程，只记录日志
 	}
 
 	resp = new(types.ArticleSaveResp)
