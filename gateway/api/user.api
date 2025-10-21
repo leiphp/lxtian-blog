@@ -94,6 +94,14 @@ service gateway-api {
     @doc "用户登录"
     @handler Login
     post /login (LoginReq) returns (LoginResp)
+
+    @doc "OAuth登录-发起授权"
+    @handler AuthLogin
+    get /auth/:type/login
+
+    @doc "OAuth登录-授权回调"
+    @handler AuthCallback
+    get /auth/:type/callback
 }
 
 // 需要认证的用户接口 - 使用用户限流配置 + JWT认证

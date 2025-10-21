@@ -8,6 +8,7 @@ const (
 	PaymentStatusCancelled       = "CANCELLED"        // 已取消
 	PaymentStatusRefunded        = "REFUNDED"         // 已退款
 	PaymentStatusPartialRefunded = "PARTIAL_REFUNDED" // 部分退款
+	PaymentStatusFAILED          = "FAILED"           // 验证失败
 )
 
 // 支付宝交易状态常量

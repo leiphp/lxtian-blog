@@ -24,4 +24,29 @@ type Config struct {
 		Host string `json:",env=WS_HOST"`
 		Port int
 	}
+	OAuth struct {
+		QQConf struct {
+			ClientID     string `json:",env=QQ_CLIENT_ID"`
+			ClientSecret string `json:",env=QQ_CLIENT_SECRET"`
+			RedirectURL  string `json:",env=QQ_REDIRECT_URL"`
+		}
+		FrontendURL string `json:",env=FRONTEND_URL"` // 前端地址，用于授权成功后重定向
+		WeiboConf   struct {
+			AppID       string `json:",env=WEIBO_APP_ID"`
+			AppSecret   string `json:",env=WEIBO_APP_SECRET"`
+			RedirectURL string `json:",env=WEIBO_REDIRECT_URL"`
+		}
+
+		GithubConf struct {
+			ClientID     string `json:",env=GITHUB_CLIENT_ID"`
+			ClientSecret string `json:",env=GITHUB_CLIENT_SECRET"`
+			RedirectURL  string `json:",env=GITHUB_REDIRECT_URL"`
+		}
+
+		WechatConf struct {
+			AppID       string `json:",env=WECHAT_APP_ID"`
+			AppSecret   string `json:",env=WECHAT_APP_SECRET"`
+			RedirectURL string `json:",env=WECHAT_REDIRECT_URL"`
+		}
+	}
 }

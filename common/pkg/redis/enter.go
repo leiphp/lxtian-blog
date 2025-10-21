@@ -18,6 +18,7 @@ const (
 	ApiWebStringBook        = 8  //图书book
 	ApiWebStringBookChapter = 9  //图书章节
 	ArticleViewString       = 10 //文章浏览次数记录
+	OAuthStateString        = 11 //OAuth state
 )
 
 var apiCacheKeys = map[int]string{
@@ -31,6 +32,7 @@ var apiCacheKeys = map[int]string{
 	ApiWebStringBook:        "web:book",
 	ApiWebStringBookChapter: "web:book:chapter",
 	ArticleViewString:       "article:view",
+	OAuthStateString:        "oauth:state",
 }
 
 /**

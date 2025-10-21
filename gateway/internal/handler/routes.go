@@ -100,6 +100,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/register",
 					Handler: user.RegisterHandler(serverCtx),
 				},
+				{
+					// OAuth登录-发起授权 (支持: qq, weibo, github, wechat)
+					Method:  http.MethodGet,
+					Path:    "/auth/:type/login",
+					Handler: user.AuthLoginHandler(serverCtx),
+				},
+				{
+					// OAuth登录-授权回调 (支持: qq, weibo, github, wechat)
+					Method:  http.MethodGet,
+					Path:    "/auth/:type/callback",
+					Handler: user.AuthCallbackHandler(serverCtx),
+				},
 			}...,
 		),
 		rest.WithPrefix("/user"),

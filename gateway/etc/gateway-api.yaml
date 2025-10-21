@@ -54,3 +54,22 @@ Prometheus:
   Host: 0.0.0.0  # 监听地址
   Port: 9080      # 暴露/metrics的端口
   Path: /metrics  # 指标端点路径（默认）
+
+OAuth:
+  QQConf:
+    ClientID: ${QQ_CLIENT_ID}
+    ClientSecret: ${QQ_CLIENT_SECRET}
+    RedirectURL: ${QQ_REDIRECT_URL}  # 例如: http://localhost:8888/user/auth/qq/callback
+  WeiboConf:
+    AppID: ${WEIBO_APP_ID}
+    AppSecret: ${WEIBO_APP_SECRET}
+    RedirectURL: ${WEIBO_REDIRECT_URL}  # 例如: http://localhost:8888/user/auth/weibo/callback
+  GithubConf:
+    ClientID: ${GITHUB_CLIENT_ID}
+    ClientSecret: ${GITHUB_CLIENT_SECRET}
+    RedirectURL: ${GITHUB_REDIRECT_URL}  # 例如: http://localhost:8888/user/auth/github/callback
+  WechatConf:
+    AppID: ${WECHAT_APP_ID}
+    AppSecret: ${WECHAT_APP_SECRET}
+    RedirectURL: ${WECHAT_REDIRECT_URL}  # 例如: http://localhost:8888/user/auth/wechat/callback
+  FrontendURL: ${FRONTEND_URL}  # 前端地址，例如: http://localhost:5173
