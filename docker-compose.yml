@@ -132,6 +132,13 @@ services:
       - REDIS_TLS=${REDIS_TLS}
       - ACCESS_SECRET=${ACCESS_SECRET}
       - WS_HOST=${WS_HOST}
+      - QQ_CLIENT_ID=${QQ_CLIENT_ID}
+      - QQ_CLIENT_SECRET=${QQ_CLIENT_SECRET}
+      - QQ_REDIRECT_URL=${QQ_REDIRECT_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - WEIBO_APP_ID=${WEIBO_APP_ID}
+      - WEIBO_APP_SECRET=${WEIBO_APP_SECRET}
+      - WEIBO_REDIRECT_URL=${WEIBO_REDIRECT_URL}
     volumes:
       - ${PWD}/gateway/logs:/app/logs:cached
     networks:
