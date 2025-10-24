@@ -139,6 +139,9 @@ services:
       - WEIBO_APP_ID=${WEIBO_APP_ID}
       - WEIBO_APP_SECRET=${WEIBO_APP_SECRET}
       - WEIBO_REDIRECT_URL=${WEIBO_REDIRECT_URL}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - GITHUB_REDIRECT_URL=${GITHUB_REDIRECT_URL}
     volumes:
       - ${PWD}/gateway/logs:/app/logs:cached
     networks:
