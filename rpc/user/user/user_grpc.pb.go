@@ -19,12 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	User_Getqr_FullMethodName      = "/user.User/Getqr"
-	User_QrStatus_FullMethodName   = "/user.User/QrStatus"
-	User_Register_FullMethodName   = "/user.User/Register"
-	User_Login_FullMethodName      = "/user.User/Login"
-	User_Info_FullMethodName       = "/user.User/Info"
-	User_UpdateInfo_FullMethodName = "/user.User/UpdateInfo"
+	User_Getqr_FullMethodName             = "/user.User/Getqr"
+	User_QrStatus_FullMethodName          = "/user.User/QrStatus"
+	User_Register_FullMethodName          = "/user.User/Register"
+	User_Login_FullMethodName             = "/user.User/Login"
+	User_Info_FullMethodName              = "/user.User/Info"
+	User_UpdateInfo_FullMethodName        = "/user.User/UpdateInfo"
+	User_GetMembershipList_FullMethodName = "/user.User/GetMembershipList"
+	User_UpgradeMembership_FullMethodName = "/user.User/UpgradeMembership"
 )
 
 // UserClient is the client API for User service.
@@ -37,6 +39,9 @@ type UserClient interface {
 	Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginResp, error)
 	Info(ctx context.Context, in *InfoReq, opts ...grpc.CallOption) (*InfoResp, error)
 	UpdateInfo(ctx context.Context, in *UpdateInfoReq, opts ...grpc.CallOption) (*UpdateInfoResp, error)
+	// 会员相关接口
+	GetMembershipList(ctx context.Context, in *GetMembershipListReq, opts ...grpc.CallOption) (*GetMembershipListResp, error)
+	UpgradeMembership(ctx context.Context, in *UpgradeMembershipReq, opts ...grpc.CallOption) (*UpgradeMembershipResp, error)
 }
 
 type userClient struct {
@@ -101,6 +106,24 @@ func (c *userClient) UpdateInfo(ctx context.Context, in *UpdateInfoReq, opts ...
 	return out, nil
 }
 
+func (c *userClient) GetMembershipList(ctx context.Context, in *GetMembershipListReq, opts ...grpc.CallOption) (*GetMembershipListResp, error) {
+	out := new(GetMembershipListResp)
+	err := c.cc.Invoke(ctx, User_GetMembershipList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) UpgradeMembership(ctx context.Context, in *UpgradeMembershipReq, opts ...grpc.CallOption) (*UpgradeMembershipResp, error) {
+	out := new(UpgradeMembershipResp)
+	err := c.cc.Invoke(ctx, User_UpgradeMembership_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
@@ -111,6 +134,9 @@ type UserServer interface {
 	Login(context.Context, *LoginReq) (*LoginResp, error)
 	Info(context.Context, *InfoReq) (*InfoResp, error)
 	UpdateInfo(context.Context, *UpdateInfoReq) (*UpdateInfoResp, error)
+	// 会员相关接口
+	GetMembershipList(context.Context, *GetMembershipListReq) (*GetMembershipListResp, error)
+	UpgradeMembership(context.Context, *UpgradeMembershipReq) (*UpgradeMembershipResp, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -135,6 +161,12 @@ func (UnimplementedUserServer) Info(context.Context, *InfoReq) (*InfoResp, error
 }
 func (UnimplementedUserServer) UpdateInfo(context.Context, *UpdateInfoReq) (*UpdateInfoResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateInfo not implemented")
+}
+func (UnimplementedUserServer) GetMembershipList(context.Context, *GetMembershipListReq) (*GetMembershipListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMembershipList not implemented")
+}
+func (UnimplementedUserServer) UpgradeMembership(context.Context, *UpgradeMembershipReq) (*UpgradeMembershipResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpgradeMembership not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -257,6 +289,42 @@ func _User_UpdateInfo_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_GetMembershipList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMembershipListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetMembershipList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_GetMembershipList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetMembershipList(ctx, req.(*GetMembershipListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_UpgradeMembership_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpgradeMembershipReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).UpgradeMembership(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_UpgradeMembership_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).UpgradeMembership(ctx, req.(*UpgradeMembershipReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -287,6 +355,14 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateInfo",
 			Handler:    _User_UpdateInfo_Handler,
+		},
+		{
+			MethodName: "GetMembershipList",
+			Handler:    _User_GetMembershipList_Handler,
+		},
+		{
+			MethodName: "UpgradeMembership",
+			Handler:    _User_UpgradeMembership_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

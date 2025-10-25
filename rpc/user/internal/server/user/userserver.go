@@ -52,3 +52,14 @@ func (s *UserServer) UpdateInfo(ctx context.Context, in *user.UpdateInfoReq) (*u
 	l := userlogic.NewUpdateInfoLogic(ctx, s.svcCtx)
 	return l.UpdateInfo(in)
 }
+
+// 会员相关接口
+func (s *UserServer) GetMembershipList(ctx context.Context, in *user.GetMembershipListReq) (*user.GetMembershipListResp, error) {
+	l := userlogic.NewGetMembershipListLogic(ctx, s.svcCtx)
+	return l.GetMembershipList(in)
+}
+
+func (s *UserServer) UpgradeMembership(ctx context.Context, in *user.UpgradeMembershipReq) (*user.UpgradeMembershipResp, error) {
+	l := userlogic.NewUpgradeMembershipLogic(ctx, s.svcCtx)
+	return l.UpgradeMembership(in)
+}

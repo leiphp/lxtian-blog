@@ -2,10 +2,11 @@ package svc
 
 import (
 	"fmt"
-	"github.com/zeromicro/go-zero/core/stores/redis"
-	"gorm.io/gorm"
 	"lxtian-blog/common/pkg/initdb"
 	"lxtian-blog/rpc/user/internal/config"
+
+	"github.com/zeromicro/go-zero/core/stores/redis"
+	"gorm.io/gorm"
 )
 
 type ServiceContext struct {

@@ -72,6 +72,41 @@ type (
     }
 )
 
+// 获取会员列表
+type (
+    GetMembershipListResp {
+        List []*MembershipType `json:"list"`
+    }
+    // MembershipType - 会员类型
+    MembershipType {
+        Id            int64   `json:"id"`
+        Name          string  `json:"name"`
+        Price         float64 `json:"price"`
+        OriginalPrice float64 `json:"original_price"`
+        Discount      float64 `json:"discount"`
+        Period        string  `json:"period"`
+        Popular       bool    `json:"popular"`
+        Permissions   []string`json:"permissions"`
+        Description   string  `json:"description"`
+    }
+)
+
+// 升级/续费会员
+type(
+    UpgradeMembershipReq {
+        ToMembershipType string  `json:"to_membership_type"` // monthly, quarterly, yearly
+        OrderId          int64   `json:"order_id,optional"`
+        Amount           float64 `json:"amount,optional"`
+    }
+    
+    UpgradeMembershipResp {
+        Success         bool   `json:"success"`
+        Message         string `json:"message"`
+        EndTime         string `json:"end_time"`
+        Level           int    `json:"level"`
+    }
+)
+
 // 用户公开接口 - 使用用户限流配置
 @server (
     middleware: AntiSpamMiddleware,RateLimitMiddleware
@@ -118,4 +153,12 @@ service gateway-api {
     @doc "修改用户信息"
     @handler UpdateInfo
     put /update/info (UpdateInfoReq) returns (UpdateInfoResp)
+
+    @doc "获取会员列表"
+    @handler GetMembershipList
+    get /membership/list returns (GetMembershipListResp)
+
+    @doc "升级/续费会员"
+    @handler UpgradeMembership
+    post /membership/upgrade (UpgradeMembershipReq) returns (UpgradeMembershipResp)
 }

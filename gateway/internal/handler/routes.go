@@ -77,6 +77,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Middleware{serverCtx.AntiSpamMiddleware, serverCtx.RateLimitMiddleware},
 			[]rest.Route{
 				{
+					// OAuth登录-授权回调
+					Method:  http.MethodGet,
+					Path:    "/auth/:type/callback",
+					Handler: user.AuthCallbackHandler(serverCtx),
+				},
+				{
+					// OAuth登录-发起授权
+					Method:  http.MethodGet,
+					Path:    "/auth/:type/login",
+					Handler: user.AuthLoginHandler(serverCtx),
+				},
+				{
 					// 获取二维码
 					Method:  http.MethodGet,
 					Path:    "/getqr/:ws_user_id",
@@ -100,18 +112,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/register",
 					Handler: user.RegisterHandler(serverCtx),
 				},
-				{
-					// OAuth登录-发起授权 (支持: qq, weibo, github, wechat)
-					Method:  http.MethodGet,
-					Path:    "/auth/:type/login",
-					Handler: user.AuthLoginHandler(serverCtx),
-				},
-				{
-					// OAuth登录-授权回调 (支持: qq, weibo, github, wechat)
-					Method:  http.MethodGet,
-					Path:    "/auth/:type/callback",
-					Handler: user.AuthCallbackHandler(serverCtx),
-				},
 			}...,
 		),
 		rest.WithPrefix("/user"),
@@ -126,6 +126,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodGet,
 					Path:    "/info",
 					Handler: user.InfoHandler(serverCtx),
+				},
+				{
+					// 获取会员列表
+					Method:  http.MethodGet,
+					Path:    "/membership/list",
+					Handler: user.GetMembershipListHandler(serverCtx),
+				},
+				{
+					// 升级/续费会员
+					Method:  http.MethodPost,
+					Path:    "/membership/upgrade",
+					Handler: user.UpgradeMembershipHandler(serverCtx),
 				},
 				{
 					// 修改用户信息

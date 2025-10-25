@@ -128,6 +128,10 @@ type CreatePaymentResp struct {
 	PayUrl     string `json:"pay_url"`      // 支付链接
 }
 
+type GetMembershipListResp struct {
+	List []*MembershipType `json:"list"`
+}
+
 type GetqrReq struct {
 	WsUserId string `path:"ws_user_id"`
 }
@@ -154,6 +158,18 @@ type LoginResp struct {
 	AccessToken string                 `json:"access_token"`
 	ExpiresIn   uint64                 `json:"expires_in"`
 	User        map[string]interface{} `json:"user"`
+}
+
+type MembershipType struct {
+	Id            int64    `json:"id"`
+	Name          string   `json:"name"`
+	Price         float64  `json:"price"`
+	OriginalPrice float64  `json:"original_price"`
+	Discount      float64  `json:"discount"`
+	Period        string   `json:"period"`
+	Popular       bool     `json:"popular"`
+	Permissions   []string `json:"permissions"`
+	Description   string   `json:"description"`
 }
 
 type OrderListReq struct {
@@ -284,4 +300,17 @@ type UpdateInfoReq struct {
 
 type UpdateInfoResp struct {
 	Data map[string]interface{} `json:"data"`
+}
+
+type UpgradeMembershipReq struct {
+	ToMembershipType string  `json:"to_membership_type"` // monthly, quarterly, yearly
+	OrderId          int64   `json:"order_id,optional"`
+	Amount           float64 `json:"amount,optional"`
+}
+
+type UpgradeMembershipResp struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	EndTime string `json:"end_time"`
+	Level   int    `json:"level"`
 }

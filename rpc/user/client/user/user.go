@@ -14,18 +14,23 @@ import (
 )
 
 type (
-	GetqrReq       = user.GetqrReq
-	GetqrResp      = user.GetqrResp
-	InfoReq        = user.InfoReq
-	InfoResp       = user.InfoResp
-	LoginReq       = user.LoginReq
-	LoginResp      = user.LoginResp
-	QrStatusReq    = user.QrStatusReq
-	QrStatusResp   = user.QrStatusResp
-	RegisterReq    = user.RegisterReq
-	RegisterResp   = user.RegisterResp
-	UpdateInfoReq  = user.UpdateInfoReq
-	UpdateInfoResp = user.UpdateInfoResp
+	GetMembershipListReq  = user.GetMembershipListReq
+	GetMembershipListResp = user.GetMembershipListResp
+	GetqrReq              = user.GetqrReq
+	GetqrResp             = user.GetqrResp
+	InfoReq               = user.InfoReq
+	InfoResp              = user.InfoResp
+	LoginReq              = user.LoginReq
+	LoginResp             = user.LoginResp
+	MembershipType        = user.MembershipType
+	QrStatusReq           = user.QrStatusReq
+	QrStatusResp          = user.QrStatusResp
+	RegisterReq           = user.RegisterReq
+	RegisterResp          = user.RegisterResp
+	UpdateInfoReq         = user.UpdateInfoReq
+	UpdateInfoResp        = user.UpdateInfoResp
+	UpgradeMembershipReq  = user.UpgradeMembershipReq
+	UpgradeMembershipResp = user.UpgradeMembershipResp
 
 	User interface {
 		Getqr(ctx context.Context, in *GetqrReq, opts ...grpc.CallOption) (*GetqrResp, error)
@@ -34,6 +39,9 @@ type (
 		Login(ctx context.Context, in *LoginReq, opts ...grpc.CallOption) (*LoginResp, error)
 		Info(ctx context.Context, in *InfoReq, opts ...grpc.CallOption) (*InfoResp, error)
 		UpdateInfo(ctx context.Context, in *UpdateInfoReq, opts ...grpc.CallOption) (*UpdateInfoResp, error)
+		// 会员相关接口
+		GetMembershipList(ctx context.Context, in *GetMembershipListReq, opts ...grpc.CallOption) (*GetMembershipListResp, error)
+		UpgradeMembership(ctx context.Context, in *UpgradeMembershipReq, opts ...grpc.CallOption) (*UpgradeMembershipResp, error)
 	}
 
 	defaultUser struct {
@@ -75,4 +83,15 @@ func (m *defaultUser) Info(ctx context.Context, in *InfoReq, opts ...grpc.CallOp
 func (m *defaultUser) UpdateInfo(ctx context.Context, in *UpdateInfoReq, opts ...grpc.CallOption) (*UpdateInfoResp, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.UpdateInfo(ctx, in, opts...)
+}
+
+// 会员相关接口
+func (m *defaultUser) GetMembershipList(ctx context.Context, in *GetMembershipListReq, opts ...grpc.CallOption) (*GetMembershipListResp, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.GetMembershipList(ctx, in, opts...)
+}
+
+func (m *defaultUser) UpgradeMembership(ctx context.Context, in *UpgradeMembershipReq, opts ...grpc.CallOption) (*UpgradeMembershipResp, error) {
+	client := user.NewUserClient(m.cli.Conn())
+	return client.UpgradeMembership(ctx, in, opts...)
 }

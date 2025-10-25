@@ -57,6 +57,42 @@ message UpdateInfoResp{
   string data = 1;
 }
 
+// 会员相关
+// 获取会员列表
+message GetMembershipListReq {
+}
+
+message MembershipType {
+  int64 id = 1;
+  string name = 2;
+  double price = 3;
+  double original_price = 4;
+  double discount = 5;
+  string period = 6;
+  bool popular = 7;
+  repeated string permissions = 8;
+  string description = 9;
+}
+
+message GetMembershipListResp {
+  repeated MembershipType list = 1;
+}
+
+// 升级/续费会员
+message UpgradeMembershipReq {
+  uint64 user_id = 1;
+  string to_membership_type = 2;        // 目标会员类型 monthly, quarterly, yearly
+  int64 order_id = 3;                   // 订单ID
+  double amount = 4;                    // 支付金额
+}
+
+message UpgradeMembershipResp {
+  bool success = 1;
+  string message = 2;
+  string end_time = 3;                  // 会员结束时间
+  int32 level = 4;                      // 会员等级
+}
+
 service User {
   rpc Getqr (GetqrReq) returns (GetqrResp);
   rpc QrStatus (QrStatusReq) returns (QrStatusResp);
@@ -64,6 +100,10 @@ service User {
   rpc Login (LoginReq) returns (LoginResp);
   rpc Info (InfoReq) returns (InfoResp);
   rpc UpdateInfo (UpdateInfoReq) returns (UpdateInfoResp);
+  
+  // 会员相关接口
+  rpc GetMembershipList (GetMembershipListReq) returns(GetMembershipListResp);
+  rpc UpgradeMembership (UpgradeMembershipReq) returns(UpgradeMembershipResp);
 }
 
 //goctl rpc protoc user.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m
