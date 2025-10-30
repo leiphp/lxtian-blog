@@ -1,4 +1,4 @@
-package payment
+package payment_repo
 
 import (
 	"context"
@@ -12,15 +12,15 @@ import (
 
 // LxtPaymentNotifiesRepo LxtPaymentNotifies表仓储接口
 type LxtPaymentNotifiesRepo interface {
-	repository.BaseRepository[model.LxtPaymentNotifies]
+	repository.BaseRepository[model.LxtPaymentNotify]
 
 	// 支付订单特有方法
-	GetByPaymentId(ctx context.Context, paymentId string) (*model.LxtPaymentNotifies, error)
-	GetByOrderId(ctx context.Context, orderId string) (*model.LxtPaymentNotifies, error)
-	GetByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentNotifies, error)
-	GetByUserId(ctx context.Context, userId uint64, page, pageSize int, keywords string) ([]*model.LxtPaymentNotifies, int64, error)
-	GetByStatus(ctx context.Context, status string, page, pageSize int, keywords string) ([]*model.LxtPaymentNotifies, int64, error)
-	GetByTradeNo(ctx context.Context, tradeNo string) (*model.LxtPaymentNotifies, error)
+	GetByPaymentId(ctx context.Context, paymentId string) (*model.LxtPaymentNotify, error)
+	GetByOrderId(ctx context.Context, orderId string) (*model.LxtPaymentNotify, error)
+	GetByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentNotify, error)
+	GetByUserId(ctx context.Context, userId uint64, page, pageSize int, keywords string) ([]*model.LxtPaymentNotify, int64, error)
+	GetByStatus(ctx context.Context, status string, page, pageSize int, keywords string) ([]*model.LxtPaymentNotify, int64, error)
+	GetByTradeNo(ctx context.Context, tradeNo string) (*model.LxtPaymentNotify, error)
 
 	// 更新方法
 	UpdateStatus(ctx context.Context, paymentId string, status string) error
@@ -36,59 +36,59 @@ type LxtPaymentNotifiesRepo interface {
 
 	// 批量操作
 	BatchUpdateStatus(ctx context.Context, paymentIds []string, status string) error
-	GetExpiredOrders(ctx context.Context) ([]*model.LxtPaymentNotifies, error)
-	GetOrdersByTimeRange(ctx context.Context, startTime, endTime time.Time, page, pageSize int) ([]*model.LxtPaymentNotifies, int64, error)
+	GetExpiredOrders(ctx context.Context) ([]*model.LxtPaymentNotify, error)
+	GetOrdersByTimeRange(ctx context.Context, startTime, endTime time.Time, page, pageSize int) ([]*model.LxtPaymentNotify, int64, error)
 }
 
 // paymentOrderRepository PaymentOrder表仓储实现
 type lxtPaymentNotifiesRepo struct {
-	*repository.TransactionalBaseRepository[model.LxtPaymentNotifies]
+	*repository.TransactionalBaseRepository[model.LxtPaymentNotify]
 }
 
 // NewPaymentOrderRepository 创建PaymentOrder仓储
 func NewLxtPaymentNotifiesRepo(db *gorm.DB) LxtPaymentNotifiesRepo {
 	return &lxtPaymentNotifiesRepo{
-		TransactionalBaseRepository: repository.NewTransactionalBaseRepository[model.LxtPaymentNotifies](db),
+		TransactionalBaseRepository: repository.NewTransactionalBaseRepository[model.LxtPaymentNotify](db),
 	}
 }
 
 // GetByPaymentId 根据支付ID获取订单
-func (r *lxtPaymentNotifiesRepo) GetByPaymentId(ctx context.Context, paymentId string) (*model.LxtPaymentNotifies, error) {
+func (r *lxtPaymentNotifiesRepo) GetByPaymentId(ctx context.Context, paymentId string) (*model.LxtPaymentNotify, error) {
 	return r.GetByCondition(ctx, map[string]interface{}{
 		"payment_id": paymentId,
 	})
 }
 
 // GetByOrderId 根据订单ID获取支付订单
-func (r *lxtPaymentNotifiesRepo) GetByOrderId(ctx context.Context, orderId string) (*model.LxtPaymentNotifies, error) {
+func (r *lxtPaymentNotifiesRepo) GetByOrderId(ctx context.Context, orderId string) (*model.LxtPaymentNotify, error) {
 	return r.GetByCondition(ctx, map[string]interface{}{
 		"order_id": orderId,
 	})
 }
 
 // GetByOutTradeNo 根据商户订单号获取支付订单
-func (r *lxtPaymentNotifiesRepo) GetByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentNotifies, error) {
+func (r *lxtPaymentNotifiesRepo) GetByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentNotify, error) {
 	return r.GetByCondition(ctx, map[string]interface{}{
 		"out_trade_no": outTradeNo,
 	})
 }
 
 // GetByUserId 根据用户ID获取支付订单列表
-func (r *lxtPaymentNotifiesRepo) GetByUserId(ctx context.Context, userId uint64, page, pageSize int, keywords string) ([]*model.LxtPaymentNotifies, int64, error) {
+func (r *lxtPaymentNotifiesRepo) GetByUserId(ctx context.Context, userId uint64, page, pageSize int, keywords string) ([]*model.LxtPaymentNotify, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"user_id": userId,
-	}, page, pageSize, keywords)
+	}, page, pageSize, "", "")
 }
 
 // GetByStatus 根据状态获取支付订单列表
-func (r *lxtPaymentNotifiesRepo) GetByStatus(ctx context.Context, status string, page, pageSize int, keywords string) ([]*model.LxtPaymentNotifies, int64, error) {
+func (r *lxtPaymentNotifiesRepo) GetByStatus(ctx context.Context, status string, page, pageSize int, keywords string) ([]*model.LxtPaymentNotify, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"status": status,
-	}, page, pageSize, keywords)
+	}, page, pageSize, "", "")
 }
 
 // GetByTradeNo 根据支付宝交易号获取支付订单
-func (r *lxtPaymentNotifiesRepo) GetByTradeNo(ctx context.Context, tradeNo string) (*model.LxtPaymentNotifies, error) {
+func (r *lxtPaymentNotifiesRepo) GetByTradeNo(ctx context.Context, tradeNo string) (*model.LxtPaymentNotify, error) {
 	return r.GetByCondition(ctx, map[string]interface{}{
 		"trade_no": tradeNo,
 	})
@@ -150,7 +150,7 @@ func (r *lxtPaymentNotifiesRepo) GetTotalAmountByUserId(ctx context.Context, use
 	db := r.GetDB(ctx)
 	var total float64
 
-	err := db.Model(&model.LxtPaymentOrders{}).
+	err := db.Model(&model.LxtPaymentOrder{}).
 		Where("user_id = ? AND status = ?", userId, constant.PaymentStatusPaid).
 		Select("COALESCE(SUM(amount), 0)").
 		Scan(&total).Error
@@ -163,7 +163,7 @@ func (r *lxtPaymentNotifiesRepo) GetTotalAmountByStatus(ctx context.Context, sta
 	db := r.GetDB(ctx)
 	var total float64
 
-	err := db.Model(&model.LxtPaymentOrders{}).
+	err := db.Model(&model.LxtPaymentOrder{}).
 		Where("status = ?", status).
 		Select("COALESCE(SUM(amount), 0)").
 		Scan(&total).Error
@@ -176,7 +176,7 @@ func (r *lxtPaymentNotifiesRepo) GetTotalAmountByTimeRange(ctx context.Context, 
 	db := r.GetDB(ctx)
 	var total float64
 
-	err := db.Model(&model.LxtPaymentOrders{}).
+	err := db.Model(&model.LxtPaymentOrder{}).
 		Where("created_at BETWEEN ? AND ? AND status = ?", startTime, endTime, constant.PaymentStatusPaid).
 		Select("COALESCE(SUM(amount), 0)").
 		Scan(&total).Error
@@ -187,15 +187,15 @@ func (r *lxtPaymentNotifiesRepo) GetTotalAmountByTimeRange(ctx context.Context, 
 // BatchUpdateStatus 批量更新状态
 func (r *lxtPaymentNotifiesRepo) BatchUpdateStatus(ctx context.Context, paymentIds []string, status string) error {
 	db := r.GetDB(ctx)
-	return db.Model(&model.LxtPaymentOrders{}).
+	return db.Model(&model.LxtPaymentOrder{}).
 		Where("payment_id IN ?", paymentIds).
 		Update("status", status).Error
 }
 
 // GetExpiredOrders 获取过期订单
-func (r *lxtPaymentNotifiesRepo) GetExpiredOrders(ctx context.Context) ([]*model.LxtPaymentNotifies, error) {
+func (r *lxtPaymentNotifiesRepo) GetExpiredOrders(ctx context.Context) ([]*model.LxtPaymentNotify, error) {
 	db := r.GetDB(ctx)
-	var orders []*model.LxtPaymentNotifies
+	var orders []*model.LxtPaymentNotify
 
 	// 查询创建时间超过30分钟且状态为待支付的订单
 	cutoffTime := time.Now().Add(-30 * time.Minute)
@@ -206,15 +206,15 @@ func (r *lxtPaymentNotifiesRepo) GetExpiredOrders(ctx context.Context) ([]*model
 }
 
 // GetOrdersByTimeRange 根据时间范围获取订单
-func (r *lxtPaymentNotifiesRepo) GetOrdersByTimeRange(ctx context.Context, startTime, endTime time.Time, page, pageSize int) ([]*model.LxtPaymentNotifies, int64, error) {
+func (r *lxtPaymentNotifiesRepo) GetOrdersByTimeRange(ctx context.Context, startTime, endTime time.Time, page, pageSize int) ([]*model.LxtPaymentNotify, int64, error) {
 	db := r.GetDB(ctx)
-	var orders []*model.LxtPaymentNotifies
+	var orders []*model.LxtPaymentNotify
 	var total int64
 
 	query := db.Where("created_at BETWEEN ? AND ?", startTime, endTime)
 
 	// 获取总数
-	if err := query.Model(&model.LxtPaymentNotifies{}).Count(&total).Error; err != nil {
+	if err := query.Model(&model.LxtPaymentNotify{}).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 

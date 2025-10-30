@@ -35,7 +35,7 @@ func (l *RepayOrderLogic) RepayOrder(in *payment.RepayOrderReq) (*payment.RepayO
 	}
 
 	// 1. 查询订单信息
-	var paymentOrder model.LxtPaymentOrders
+	var paymentOrder model.LxtPaymentOrder
 	query := l.svcCtx.DB.WithContext(l.ctx)
 
 	if in.OrderId != "" {
@@ -49,12 +49,12 @@ func (l *RepayOrderLogic) RepayOrder(in *payment.RepayOrderReq) (*payment.RepayO
 		if err == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf("订单不存在")
 		}
-		l.Errorf("Failed to query payment order: %v", err)
+		l.Errorf("Failed to query payment_repo order: %v", err)
 		return nil, fmt.Errorf("查询订单失败: %w", err)
 	}
 
 	// 2. 验证订单是否属于当前用户
-	if paymentOrder.UserId != int64(in.UserId) {
+	if paymentOrder.UserID != int64(in.UserId) {
 		return nil, fmt.Errorf("无权操作此订单")
 	}
 
@@ -78,20 +78,20 @@ func (l *RepayOrderLogic) RepayOrder(in *payment.RepayOrderReq) (*payment.RepayO
 	// 使用回调地址，优先使用请求中的，否则使用订单中的
 	returnUrl := in.ReturnUrl
 	if returnUrl == "" {
-		returnUrl = paymentOrder.ReturnUrl
+		returnUrl = paymentOrder.ReturnURL
 	}
 
 	notifyUrl := in.NotifyUrl
 	if notifyUrl == "" {
-		notifyUrl = paymentOrder.NotifyUrl
+		notifyUrl = paymentOrder.NotifyURL
 	}
 
 	alipayReq := &alipay.TradeCreateRequest{
 		OutTradeNo:  paymentOrder.OutTradeNo,
 		TotalAmount: amountStr,
 		Subject:     paymentOrder.Subject,
-		Body:        paymentOrder.Body.String,
-		ProductCode: paymentOrder.ProductCode,
+		Body:        *paymentOrder.Body,
+		ProductCode: *paymentOrder.ProductCode,
 		Timeout:     timeout,
 		ReturnUrl:   returnUrl,
 	}
@@ -99,13 +99,13 @@ func (l *RepayOrderLogic) RepayOrder(in *payment.RepayOrderReq) (*payment.RepayO
 	// 调用支付宝API创建支付URL
 	payUrl, err := l.svcCtx.AlipayClient.CreatePayment(alipayReq)
 	if err != nil {
-		l.Errorf("Failed to create alipay payment: %v", err)
+		l.Errorf("Failed to create alipay payment_repo: %v", err)
 		return nil, fmt.Errorf("创建支付订单失败: %w", err)
 	}
 
 	// 6. 更新订单的 payment_id（可选，如果需要记录最新的支付ID）
-	err = l.svcCtx.DB.WithContext(l.ctx).Model(&model.LxtPaymentOrders{}).
-		Where("id = ?", paymentOrder.Id).
+	err = l.svcCtx.DB.WithContext(l.ctx).Model(&model.LxtPaymentOrder{}).
+		Where("id = ?", paymentOrder.ID).
 		Update("payment_id", newPaymentId).Error
 	if err != nil {
 		l.Errorf("Failed to update payment_id: %v", err)

@@ -1,4 +1,4 @@
-package payment
+package payment_repo
 
 import (
 	"context"
@@ -12,15 +12,15 @@ import (
 
 // PaymentOrderRepository PaymentOrder表仓储接口
 type PaymentOrderRepository interface {
-	repository.BaseRepository[model.LxtPaymentOrders]
+	repository.BaseRepository[model.LxtPaymentOrder]
 
 	// 支付订单特有方法
-	GetByPaymentId(ctx context.Context, paymentId string) (*model.LxtPaymentOrders, error)
-	GetByOrderId(ctx context.Context, orderId string) (*model.LxtPaymentOrders, error)
-	GetByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentOrders, error)
-	GetByUserId(ctx context.Context, userId uint64, page, pageSize int, keywords string) ([]*model.LxtPaymentOrders, int64, error)
-	GetByStatus(ctx context.Context, status string, page, pageSize int, keywords string) ([]*model.LxtPaymentOrders, int64, error)
-	GetByTradeNo(ctx context.Context, tradeNo string) (*model.LxtPaymentOrders, error)
+	GetByPaymentId(ctx context.Context, paymentId string) (*model.LxtPaymentOrder, error)
+	GetByOrderId(ctx context.Context, orderId string) (*model.LxtPaymentOrder, error)
+	GetByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentOrder, error)
+	GetByUserId(ctx context.Context, userId uint64, page, pageSize int, keywords string) ([]*model.LxtPaymentOrder, int64, error)
+	GetByStatus(ctx context.Context, status string, page, pageSize int, keywords string) ([]*model.LxtPaymentOrder, int64, error)
+	GetByTradeNo(ctx context.Context, tradeNo string) (*model.LxtPaymentOrder, error)
 
 	// 更新方法
 	UpdateStatus(ctx context.Context, paymentId string, status string) error
@@ -36,13 +36,13 @@ type PaymentOrderRepository interface {
 
 	// 批量操作
 	BatchUpdateStatus(ctx context.Context, paymentIds []string, status string) error
-	GetExpiredOrders(ctx context.Context) ([]*model.LxtPaymentOrders, error)
-	GetOrdersByTimeRange(ctx context.Context, startTime, endTime time.Time, page, pageSize int) ([]*model.LxtPaymentOrders, int64, error)
+	GetExpiredOrders(ctx context.Context) ([]*model.LxtPaymentOrder, error)
+	GetOrdersByTimeRange(ctx context.Context, startTime, endTime time.Time, page, pageSize int) ([]*model.LxtPaymentOrder, int64, error)
 
 	// 支付通知相关方法
-	FindPaymentOrderByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentOrders, error)
-	FindPaymentNotifyByNotifyId(ctx context.Context, notifyId string) (*model.LxtPaymentNotifies, error)
-	UpdatePaymentNotify(ctx context.Context, notify *model.LxtPaymentNotifies) error
+	FindPaymentOrderByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentOrder, error)
+	FindPaymentNotifyByNotifyId(ctx context.Context, notifyId string) (*model.LxtPaymentNotify, error)
+	UpdatePaymentNotify(ctx context.Context, notify *model.LxtPaymentNotify) error
 	UpdatePaymentNotifyVerifyStatus(ctx context.Context, notifyId string, verifyStatus string) error
 	UpdatePaymentNotifyProcessStatus(ctx context.Context, notifyId string, processStatus string, errorMsg string) error
 	UpdatePaymentOrderStatus(ctx context.Context, paymentId string, status string) error
@@ -51,53 +51,53 @@ type PaymentOrderRepository interface {
 
 // paymentOrderRepository PaymentOrder表仓储实现
 type paymentOrderRepository struct {
-	*repository.TransactionalBaseRepository[model.LxtPaymentOrders]
+	*repository.TransactionalBaseRepository[model.LxtPaymentOrder]
 }
 
 // NewPaymentOrderRepository 创建PaymentOrder仓储
 func NewPaymentOrderRepository(db *gorm.DB) PaymentOrderRepository {
 	return &paymentOrderRepository{
-		TransactionalBaseRepository: repository.NewTransactionalBaseRepository[model.LxtPaymentOrders](db),
+		TransactionalBaseRepository: repository.NewTransactionalBaseRepository[model.LxtPaymentOrder](db),
 	}
 }
 
 // GetByPaymentId 根据支付ID获取订单
-func (r *paymentOrderRepository) GetByPaymentId(ctx context.Context, paymentId string) (*model.LxtPaymentOrders, error) {
+func (r *paymentOrderRepository) GetByPaymentId(ctx context.Context, paymentId string) (*model.LxtPaymentOrder, error) {
 	return r.GetByCondition(ctx, map[string]interface{}{
 		"payment_id": paymentId,
 	})
 }
 
 // GetByOrderId 根据订单ID获取支付订单
-func (r *paymentOrderRepository) GetByOrderId(ctx context.Context, orderId string) (*model.LxtPaymentOrders, error) {
+func (r *paymentOrderRepository) GetByOrderId(ctx context.Context, orderId string) (*model.LxtPaymentOrder, error) {
 	return r.GetByCondition(ctx, map[string]interface{}{
 		"order_id": orderId,
 	})
 }
 
 // GetByOutTradeNo 根据商户订单号获取支付订单
-func (r *paymentOrderRepository) GetByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentOrders, error) {
+func (r *paymentOrderRepository) GetByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentOrder, error) {
 	return r.GetByCondition(ctx, map[string]interface{}{
 		"out_trade_no": outTradeNo,
 	})
 }
 
 // GetByUserId 根据用户ID获取支付订单列表
-func (r *paymentOrderRepository) GetByUserId(ctx context.Context, userId uint64, page, pageSize int, keywords string) ([]*model.LxtPaymentOrders, int64, error) {
+func (r *paymentOrderRepository) GetByUserId(ctx context.Context, userId uint64, page, pageSize int, keywords string) ([]*model.LxtPaymentOrder, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"user_id": userId,
-	}, page, pageSize, keywords)
+	}, page, pageSize, "", "")
 }
 
 // GetByStatus 根据状态获取支付订单列表
-func (r *paymentOrderRepository) GetByStatus(ctx context.Context, status string, page, pageSize int, keywords string) ([]*model.LxtPaymentOrders, int64, error) {
+func (r *paymentOrderRepository) GetByStatus(ctx context.Context, status string, page, pageSize int, keywords string) ([]*model.LxtPaymentOrder, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"status": status,
-	}, page, pageSize, keywords)
+	}, page, pageSize, "", "")
 }
 
 // GetByTradeNo 根据支付宝交易号获取支付订单
-func (r *paymentOrderRepository) GetByTradeNo(ctx context.Context, tradeNo string) (*model.LxtPaymentOrders, error) {
+func (r *paymentOrderRepository) GetByTradeNo(ctx context.Context, tradeNo string) (*model.LxtPaymentOrder, error) {
 	return r.GetByCondition(ctx, map[string]interface{}{
 		"trade_no": tradeNo,
 	})
@@ -159,7 +159,7 @@ func (r *paymentOrderRepository) GetTotalAmountByUserId(ctx context.Context, use
 	db := r.GetDB(ctx)
 	var total float64
 
-	err := db.Model(&model.LxtPaymentOrders{}).
+	err := db.Model(&model.LxtPaymentOrder{}).
 		Where("user_id = ? AND status = ?", userId, constant.PaymentStatusPaid).
 		Select("COALESCE(SUM(amount), 0)").
 		Scan(&total).Error
@@ -172,7 +172,7 @@ func (r *paymentOrderRepository) GetTotalAmountByStatus(ctx context.Context, sta
 	db := r.GetDB(ctx)
 	var total float64
 
-	err := db.Model(&model.LxtPaymentOrders{}).
+	err := db.Model(&model.LxtPaymentOrder{}).
 		Where("status = ?", status).
 		Select("COALESCE(SUM(amount), 0)").
 		Scan(&total).Error
@@ -185,7 +185,7 @@ func (r *paymentOrderRepository) GetTotalAmountByTimeRange(ctx context.Context, 
 	db := r.GetDB(ctx)
 	var total float64
 
-	err := db.Model(&model.LxtPaymentOrders{}).
+	err := db.Model(&model.LxtPaymentOrder{}).
 		Where("created_at BETWEEN ? AND ? AND status = ?", startTime, endTime, constant.PaymentStatusPaid).
 		Select("COALESCE(SUM(amount), 0)").
 		Scan(&total).Error
@@ -196,15 +196,15 @@ func (r *paymentOrderRepository) GetTotalAmountByTimeRange(ctx context.Context, 
 // BatchUpdateStatus 批量更新状态
 func (r *paymentOrderRepository) BatchUpdateStatus(ctx context.Context, paymentIds []string, status string) error {
 	db := r.GetDB(ctx)
-	return db.Model(&model.LxtPaymentOrders{}).
+	return db.Model(&model.LxtPaymentOrder{}).
 		Where("payment_id IN ?", paymentIds).
 		Update("status", status).Error
 }
 
 // GetExpiredOrders 获取过期订单
-func (r *paymentOrderRepository) GetExpiredOrders(ctx context.Context) ([]*model.LxtPaymentOrders, error) {
+func (r *paymentOrderRepository) GetExpiredOrders(ctx context.Context) ([]*model.LxtPaymentOrder, error) {
 	db := r.GetDB(ctx)
-	var orders []*model.LxtPaymentOrders
+	var orders []*model.LxtPaymentOrder
 
 	// 查询创建时间超过30分钟且状态为待支付的订单
 	cutoffTime := time.Now().Add(-30 * time.Minute)
@@ -215,15 +215,15 @@ func (r *paymentOrderRepository) GetExpiredOrders(ctx context.Context) ([]*model
 }
 
 // GetOrdersByTimeRange 根据时间范围获取订单
-func (r *paymentOrderRepository) GetOrdersByTimeRange(ctx context.Context, startTime, endTime time.Time, page, pageSize int) ([]*model.LxtPaymentOrders, int64, error) {
+func (r *paymentOrderRepository) GetOrdersByTimeRange(ctx context.Context, startTime, endTime time.Time, page, pageSize int) ([]*model.LxtPaymentOrder, int64, error) {
 	db := r.GetDB(ctx)
-	var orders []*model.LxtPaymentOrders
+	var orders []*model.LxtPaymentOrder
 	var total int64
 
 	query := db.Where("created_at BETWEEN ? AND ?", startTime, endTime)
 
 	// 获取总数
-	if err := query.Model(&model.LxtPaymentOrders{}).Count(&total).Error; err != nil {
+	if err := query.Model(&model.LxtPaymentOrder{}).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
@@ -241,14 +241,14 @@ func (r *paymentOrderRepository) GetOrdersByTimeRange(ctx context.Context, start
 }
 
 // FindPaymentOrderByOutTradeNo 根据商户订单号查找支付订单
-func (r *paymentOrderRepository) FindPaymentOrderByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentOrders, error) {
+func (r *paymentOrderRepository) FindPaymentOrderByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentOrder, error) {
 	return r.GetByOutTradeNo(ctx, outTradeNo)
 }
 
 // FindPaymentNotifyByNotifyId 根据通知ID查找支付通知
-func (r *paymentOrderRepository) FindPaymentNotifyByNotifyId(ctx context.Context, notifyId string) (*model.LxtPaymentNotifies, error) {
+func (r *paymentOrderRepository) FindPaymentNotifyByNotifyId(ctx context.Context, notifyId string) (*model.LxtPaymentNotify, error) {
 	db := r.GetDB(ctx)
-	var notify model.LxtPaymentNotifies
+	var notify model.LxtPaymentNotify
 
 	err := db.Where("notify_id = ?", notifyId).First(&notify).Error
 	if err != nil {
@@ -259,17 +259,17 @@ func (r *paymentOrderRepository) FindPaymentNotifyByNotifyId(ctx context.Context
 }
 
 // UpdatePaymentNotify 更新支付通知记录
-func (r *paymentOrderRepository) UpdatePaymentNotify(ctx context.Context, notify *model.LxtPaymentNotifies) error {
+func (r *paymentOrderRepository) UpdatePaymentNotify(ctx context.Context, notify *model.LxtPaymentNotify) error {
 	db := r.GetDB(ctx)
-	return db.Model(&model.LxtPaymentNotifies{}).
-		Where("notify_id = ?", notify.NotifyId).
+	return db.Model(&model.LxtPaymentNotify{}).
+		Where("notify_id = ?", notify.NotifyID).
 		Updates(notify).Error
 }
 
 // UpdatePaymentNotifyVerifyStatus 更新支付通知验证状态
 func (r *paymentOrderRepository) UpdatePaymentNotifyVerifyStatus(ctx context.Context, notifyId string, verifyStatus string) error {
 	db := r.GetDB(ctx)
-	return db.Model(&model.LxtPaymentNotifies{}).
+	return db.Model(&model.LxtPaymentNotify{}).
 		Where("notify_id = ?", notifyId).
 		Update("verify_status", verifyStatus).Error
 }
@@ -290,7 +290,7 @@ func (r *paymentOrderRepository) UpdatePaymentNotifyProcessStatus(ctx context.Co
 		updates["processed_at"] = &now
 	}
 
-	return db.Model(&model.LxtPaymentNotifies{}).
+	return db.Model(&model.LxtPaymentNotify{}).
 		Where("notify_id = ?", notifyId).
 		Updates(updates).Error
 }

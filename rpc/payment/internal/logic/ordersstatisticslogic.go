@@ -4,20 +4,20 @@ import (
 	"context"
 
 	"lxtian-blog/common/constant"
-	paymentSvc "lxtian-blog/common/repository/payment"
+	"lxtian-blog/common/repository/payment_repo"
 	"lxtian-blog/rpc/payment/internal/svc"
 	"lxtian-blog/rpc/payment/pb/payment"
 )
 
 type OrdersStatisticsLogic struct {
 	*BaseLogic
-	paymentService paymentSvc.PaymentOrderRepository
+	paymentService payment_repo.PaymentOrderRepository
 }
 
 func NewOrdersStatisticsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OrdersStatisticsLogic {
 	return &OrdersStatisticsLogic{
 		BaseLogic:      NewBaseLogic(ctx, svcCtx),
-		paymentService: paymentSvc.NewPaymentOrderRepository(svcCtx.DB),
+		paymentService: payment_repo.NewPaymentOrderRepository(svcCtx.DB),
 	}
 }
 

@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"lxtian-blog/common/constant"
+	"lxtian-blog/common/repository/payment_repo"
 
 	"lxtian-blog/common/model"
 	"lxtian-blog/common/pkg/alipay"
-	paymentSvc "lxtian-blog/common/repository/payment"
 	"lxtian-blog/rpc/payment/internal/svc"
 	"lxtian-blog/rpc/payment/pb/payment"
 )
@@ -31,9 +31,9 @@ func (l *CancelPaymentLogic) CancelPayment(in *payment.CancelPaymentReq) (*payme
 		}, fmt.Errorf("at least one of payment_id, order_id, out_trade_no is required")
 	}
 
-	var paymentOrder *model.LxtPaymentOrders
+	var paymentOrder *model.LxtPaymentOrder
 	var err error
-	paymentService := paymentSvc.NewPaymentOrderRepository(l.svcCtx.DB)
+	paymentService := payment_repo.NewPaymentOrderRepository(l.svcCtx.DB)
 	// 根据提供的参数查找支付订单
 	if in.PaymentId != "" {
 		paymentOrder, err = paymentService.GetByPaymentId(l.ctx, in.PaymentId)
@@ -75,7 +75,7 @@ func (l *CancelPaymentLogic) CancelPayment(in *payment.CancelPaymentReq) (*payme
 	}
 
 	// 更新本地订单状态
-	err = paymentService.UpdateStatus(l.ctx, paymentOrder.PaymentId, constant.PaymentStatusCancelled)
+	err = paymentService.UpdateStatus(l.ctx, paymentOrder.PaymentID, constant.PaymentStatusCancelled)
 	if err != nil {
 		l.Errorf("Failed to update payment status: %v", err)
 		// 即使本地更新失败，支付宝那边已经取消了，所以仍然返回成功
@@ -83,7 +83,7 @@ func (l *CancelPaymentLogic) CancelPayment(in *payment.CancelPaymentReq) (*payme
 
 	// 记录日志
 	l.Infof("Cancelled payment order: paymentId=%s, orderSn=%s, outTradeNo=%s",
-		paymentOrder.PaymentId, paymentOrder.OrderSn, alipayResp.OutTradeNo)
+		paymentOrder.PaymentID, paymentOrder.OrderSn, alipayResp.OutTradeNo)
 
 	return &payment.CancelPaymentResp{
 		Success: true,

@@ -1,4 +1,4 @@
-package user
+package user_repo
 
 import (
 	"context"
@@ -72,7 +72,7 @@ func (r *txyUserRepository) GetByUnionid(ctx context.Context, unionid string) (*
 func (r *txyUserRepository) GetByType(ctx context.Context, userType uint64, page, pageSize int) ([]*mysql.TxyUser, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"type": userType,
-	}, page, pageSize)
+	}, page, pageSize, "", "")
 }
 
 // GetUsersByLastLoginTime 根据最后登录时间获取用户列表

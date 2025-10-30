@@ -1,4 +1,4 @@
-package payment
+package payment_repo
 
 import (
 	"context"
@@ -11,33 +11,33 @@ import (
 )
 
 type LxtPaymentRefundsRepo interface {
-	repository.BaseRepository[model.LxtPaymentRefunds]
+	repository.BaseRepository[model.LxtPaymentRefund]
 
 	// 退款相关方法
-	FindPaymentOrderByPaymentId(ctx context.Context, paymentId string) (*model.LxtPaymentOrders, error)
-	FindPaymentOrderByOrderId(ctx context.Context, orderId string) (*model.LxtPaymentOrders, error)
-	FindPaymentOrderByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentOrders, error)
-	FindPaymentRefundByOutRequestNo(ctx context.Context, outRequestNo string) (*model.LxtPaymentRefunds, error)
-	InsertPaymentRefund(ctx context.Context, refund *model.LxtPaymentRefunds) (sql.Result, error)
-	UpdatePaymentRefund(ctx context.Context, refund *model.LxtPaymentRefunds) error
+	FindPaymentOrderByPaymentId(ctx context.Context, paymentId string) (*model.LxtPaymentOrder, error)
+	FindPaymentOrderByOrderId(ctx context.Context, orderId string) (*model.LxtPaymentOrder, error)
+	FindPaymentOrderByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentOrder, error)
+	FindPaymentRefundByOutRequestNo(ctx context.Context, outRequestNo string) (*model.LxtPaymentRefund, error)
+	InsertPaymentRefund(ctx context.Context, refund *model.LxtPaymentRefund) (sql.Result, error)
+	UpdatePaymentRefund(ctx context.Context, refund *model.LxtPaymentRefund) error
 	UpdatePaymentRefundStatus(ctx context.Context, refundId string, status string) error
 	UpdatePaymentOrderStatus(ctx context.Context, paymentId string, status string) error
 }
 
 type lxtPaymentRefundsRepo struct {
-	*repository.TransactionalBaseRepository[model.LxtPaymentRefunds]
+	*repository.TransactionalBaseRepository[model.LxtPaymentRefund]
 }
 
 func NewLxtPaymentRefundsRepo(db *gorm.DB) LxtPaymentRefundsRepo {
 	return &lxtPaymentRefundsRepo{
-		TransactionalBaseRepository: repository.NewTransactionalBaseRepository[model.LxtPaymentRefunds](db),
+		TransactionalBaseRepository: repository.NewTransactionalBaseRepository[model.LxtPaymentRefund](db),
 	}
 }
 
 // FindPaymentOrderByPaymentId 根据支付ID查找支付订单
-func (r *lxtPaymentRefundsRepo) FindPaymentOrderByPaymentId(ctx context.Context, paymentId string) (*model.LxtPaymentOrders, error) {
+func (r *lxtPaymentRefundsRepo) FindPaymentOrderByPaymentId(ctx context.Context, paymentId string) (*model.LxtPaymentOrder, error) {
 	db := r.GetDB(ctx)
-	var order model.LxtPaymentOrders
+	var order model.LxtPaymentOrder
 
 	err := db.Where("payment_id = ?", paymentId).First(&order).Error
 	if err != nil {
@@ -48,9 +48,9 @@ func (r *lxtPaymentRefundsRepo) FindPaymentOrderByPaymentId(ctx context.Context,
 }
 
 // FindPaymentOrderByOrderId 根据订单ID查找支付订单
-func (r *lxtPaymentRefundsRepo) FindPaymentOrderByOrderId(ctx context.Context, orderId string) (*model.LxtPaymentOrders, error) {
+func (r *lxtPaymentRefundsRepo) FindPaymentOrderByOrderId(ctx context.Context, orderId string) (*model.LxtPaymentOrder, error) {
 	db := r.GetDB(ctx)
-	var order model.LxtPaymentOrders
+	var order model.LxtPaymentOrder
 
 	err := db.Where("order_id = ?", orderId).First(&order).Error
 	if err != nil {
@@ -61,9 +61,9 @@ func (r *lxtPaymentRefundsRepo) FindPaymentOrderByOrderId(ctx context.Context, o
 }
 
 // FindPaymentOrderByOutTradeNo 根据商户订单号查找支付订单
-func (r *lxtPaymentRefundsRepo) FindPaymentOrderByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentOrders, error) {
+func (r *lxtPaymentRefundsRepo) FindPaymentOrderByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentOrder, error) {
 	db := r.GetDB(ctx)
-	var order model.LxtPaymentOrders
+	var order model.LxtPaymentOrder
 
 	err := db.Where("out_trade_no = ?", outTradeNo).First(&order).Error
 	if err != nil {
@@ -74,9 +74,9 @@ func (r *lxtPaymentRefundsRepo) FindPaymentOrderByOutTradeNo(ctx context.Context
 }
 
 // FindPaymentRefundByOutRequestNo 根据退款单号查找退款记录
-func (r *lxtPaymentRefundsRepo) FindPaymentRefundByOutRequestNo(ctx context.Context, outRequestNo string) (*model.LxtPaymentRefunds, error) {
+func (r *lxtPaymentRefundsRepo) FindPaymentRefundByOutRequestNo(ctx context.Context, outRequestNo string) (*model.LxtPaymentRefund, error) {
 	db := r.GetDB(ctx)
-	var refund model.LxtPaymentRefunds
+	var refund model.LxtPaymentRefund
 
 	err := db.Where("out_request_no = ?", outRequestNo).First(&refund).Error
 	if err != nil {
@@ -87,24 +87,24 @@ func (r *lxtPaymentRefundsRepo) FindPaymentRefundByOutRequestNo(ctx context.Cont
 }
 
 // InsertPaymentRefund 插入退款记录
-func (r *lxtPaymentRefundsRepo) InsertPaymentRefund(ctx context.Context, refund *model.LxtPaymentRefunds) (sql.Result, error) {
+func (r *lxtPaymentRefundsRepo) InsertPaymentRefund(ctx context.Context, refund *model.LxtPaymentRefund) (sql.Result, error) {
 	db := r.GetDB(ctx)
 	result := db.Create(refund)
 	return nil, result.Error
 }
 
 // UpdatePaymentRefund 更新退款记录
-func (r *lxtPaymentRefundsRepo) UpdatePaymentRefund(ctx context.Context, refund *model.LxtPaymentRefunds) error {
+func (r *lxtPaymentRefundsRepo) UpdatePaymentRefund(ctx context.Context, refund *model.LxtPaymentRefund) error {
 	db := r.GetDB(ctx)
-	return db.Model(&model.LxtPaymentRefunds{}).
-		Where("refund_id = ?", refund.RefundId).
+	return db.Model(&model.LxtPaymentRefund{}).
+		Where("refund_id = ?", refund.RefundID).
 		Updates(refund).Error
 }
 
 // UpdatePaymentRefundStatus 更新退款状态
 func (r *lxtPaymentRefundsRepo) UpdatePaymentRefundStatus(ctx context.Context, refundId string, status string) error {
 	db := r.GetDB(ctx)
-	return db.Model(&model.LxtPaymentRefunds{}).
+	return db.Model(&model.LxtPaymentRefund{}).
 		Where("refund_id = ?", refundId).
 		Update("status", status).Error
 }
@@ -112,7 +112,7 @@ func (r *lxtPaymentRefundsRepo) UpdatePaymentRefundStatus(ctx context.Context, r
 // UpdatePaymentOrderStatus 更新支付订单状态
 func (r *lxtPaymentRefundsRepo) UpdatePaymentOrderStatus(ctx context.Context, paymentId string, status string) error {
 	db := r.GetDB(ctx)
-	return db.Model(&model.LxtPaymentOrders{}).
+	return db.Model(&model.LxtPaymentOrder{}).
 		Where("payment_id = ?", paymentId).
 		Update("status", status).Error
 }

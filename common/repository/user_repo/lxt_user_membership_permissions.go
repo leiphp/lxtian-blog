@@ -1,4 +1,4 @@
-package user
+package user_repo
 
 import (
 	"context"
@@ -10,29 +10,29 @@ import (
 
 // MembershipPermissionRepository 会员权限仓储接口
 type MembershipPermissionRepository interface {
-	repository.BaseRepository[model.LxtUserMembershipPermissions]
+	repository.BaseRepository[model.LxtUserMembershipPermission]
 
 	// 权限特有方法
-	FindByMembershipTypeId(ctx context.Context, membershipTypeId uint64) ([]*model.LxtUserMembershipPermissions, error)
+	FindByMembershipTypeId(ctx context.Context, membershipTypeId uint64) ([]*model.LxtUserMembershipPermission, error)
 	GetPermissionKeysByTypeId(ctx context.Context, membershipTypeId uint64) ([]string, error)
-	BatchCreateByTypeId(ctx context.Context, membershipTypeId uint64, permissions []*model.LxtUserMembershipPermissions) error
+	BatchCreateByTypeId(ctx context.Context, membershipTypeId int64, permissions []*model.LxtUserMembershipPermission) error
 }
 
 // membershipPermissionRepository 会员权限仓储实现
 type membershipPermissionRepository struct {
-	*repository.TransactionalBaseRepository[model.LxtUserMembershipPermissions]
+	*repository.TransactionalBaseRepository[model.LxtUserMembershipPermission]
 }
 
 // NewMembershipPermissionRepository 创建会员权限仓储
 func NewMembershipPermissionRepository(db *gorm.DB) MembershipPermissionRepository {
 	return &membershipPermissionRepository{
-		TransactionalBaseRepository: repository.NewTransactionalBaseRepository[model.LxtUserMembershipPermissions](db),
+		TransactionalBaseRepository: repository.NewTransactionalBaseRepository[model.LxtUserMembershipPermission](db),
 	}
 }
 
 // FindByMembershipTypeId 根据会员类型ID查询权限
-func (r *membershipPermissionRepository) FindByMembershipTypeId(ctx context.Context, membershipTypeId uint64) ([]*model.LxtUserMembershipPermissions, error) {
-	var entities []*model.LxtUserMembershipPermissions
+func (r *membershipPermissionRepository) FindByMembershipTypeId(ctx context.Context, membershipTypeId uint64) ([]*model.LxtUserMembershipPermission, error) {
+	var entities []*model.LxtUserMembershipPermission
 	db := r.GetDB(ctx)
 	err := db.
 		Where("membership_type_id = ? AND deleted_at IS NULL", membershipTypeId).
@@ -56,9 +56,9 @@ func (r *membershipPermissionRepository) GetPermissionKeysByTypeId(ctx context.C
 }
 
 // BatchCreateByTypeId 批量创建权限
-func (r *membershipPermissionRepository) BatchCreateByTypeId(ctx context.Context, membershipTypeId uint64, permissions []*model.LxtUserMembershipPermissions) error {
+func (r *membershipPermissionRepository) BatchCreateByTypeId(ctx context.Context, membershipTypeId int64, permissions []*model.LxtUserMembershipPermission) error {
 	for _, p := range permissions {
-		p.MembershipTypeId = membershipTypeId
+		p.MembershipTypeID = membershipTypeId
 	}
 	db := r.GetDB(ctx)
 	return db.CreateInBatches(permissions, 100).Error

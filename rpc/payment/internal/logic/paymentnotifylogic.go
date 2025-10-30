@@ -2,11 +2,10 @@ package logic
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"lxtian-blog/common/constant"
 	"lxtian-blog/common/model"
-	paymentSvc "lxtian-blog/common/repository/payment"
+	paymentSvc "lxtian-blog/common/repository/payment_repo"
 	"strings"
 	"time"
 
@@ -39,12 +38,12 @@ func (l *PaymentNotifyLogic) PaymentNotify(in *payment.PaymentNotifyReq) (*payme
 	notifyId := l.generateNotifyId()
 
 	// 创建通知记录
-	paymentNotify := &model.LxtPaymentNotifies{
-		NotifyId:      notifyId,
+	paymentNotify := &model.LxtPaymentNotify{
+		NotifyID:      notifyId,
 		NotifyType:    constant.NotifyTypePayment,
 		NotifyData:    in.NotifyData,
-		Sign:          sql.NullString{String: in.Sign, Valid: in.Sign != ""},
-		SignType:      sql.NullString{String: in.SignType, Valid: in.SignType != ""},
+		Sign:          &in.Sign,
+		SignType:      &in.SignType,
 		VerifyStatus:  constant.VerifyStatusPending,
 		ProcessStatus: constant.ProcessStatusPending,
 	}
@@ -52,11 +51,11 @@ func (l *PaymentNotifyLogic) PaymentNotify(in *payment.PaymentNotifyReq) (*payme
 	// 保存通知记录
 	err := l.svcCtx.DB.WithContext(l.ctx).Create(paymentNotify).Error
 	if err != nil {
-		l.Errorf("Failed to insert payment notify: %v", err)
+		l.Errorf("Failed to insert payment_repo notify: %v", err)
 		return &payment.PaymentNotifyResp{
 			Success: false,
 			Message: "保存通知记录失败",
-		}, fmt.Errorf("failed to insert payment notify: %w", err)
+		}, fmt.Errorf("failed to insert payment_repo notify: %w", err)
 	}
 
 	// 验证签名
@@ -105,7 +104,7 @@ func (l *PaymentNotifyLogic) PaymentNotify(in *payment.PaymentNotifyReq) (*payme
 	}
 
 	// 记录日志
-	l.Infof("Processed payment notify: notifyId=%s, out_trade_no=%s", notifyId, notifyData["out_trade_no"])
+	l.Infof("Processed payment_repo notify: notifyId=%s, out_trade_no=%s", notifyId, notifyData["out_trade_no"])
 
 	return &payment.PaymentNotifyResp{
 		Success: true,
@@ -161,7 +160,7 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 	// 更新通知记录的支付ID
 	notify, err := l.paymentService.FindPaymentNotifyByNotifyId(l.ctx, notifyId)
 	if err == nil {
-		notify.PaymentId = paymentOrder.PaymentId
+		notify.PaymentID = paymentOrder.PaymentID
 		l.paymentService.UpdatePaymentNotify(l.ctx, notify)
 	}
 
@@ -193,7 +192,7 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 		// 更新订单信息
 		err = l.paymentService.UpdatePaymentOrderTradeInfo(
 			l.ctx,
-			paymentOrder.PaymentId,
+			paymentOrder.PaymentID,
 			notifyData["trade_no"],
 			tradeStatus,
 			notifyData["buyer_id"],
@@ -212,7 +211,7 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 	case "TRADE_CLOSED":
 		// 交易关闭
 		if paymentOrder.Status != constant.PaymentStatusClosed {
-			err = l.paymentService.UpdatePaymentOrderStatus(l.ctx, paymentOrder.PaymentId, constant.PaymentStatusClosed)
+			err = l.paymentService.UpdatePaymentOrderStatus(l.ctx, paymentOrder.PaymentID, constant.PaymentStatusClosed)
 			if err != nil {
 				return fmt.Errorf("failed to update status to closed: %w", err)
 			}
@@ -230,7 +229,7 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 }
 
 // 处理支付成功后的业务逻辑
-func (l *PaymentNotifyLogic) handlePaymentSuccess(paymentOrder *model.LxtPaymentOrders, notifyData map[string]string) {
+func (l *PaymentNotifyLogic) handlePaymentSuccess(paymentOrder *model.LxtPaymentOrder, notifyData map[string]string) {
 	// 这里可以添加具体的业务逻辑
 	// 例如：
 	// 1. 发送支付成功通知给用户
@@ -239,7 +238,7 @@ func (l *PaymentNotifyLogic) handlePaymentSuccess(paymentOrder *model.LxtPayment
 	// 4. 记录支付日志
 
 	l.Infof("Payment success: paymentId=%s, orderSn=%s, amount=%.2f",
-		paymentOrder.PaymentId, paymentOrder.OrderSn, paymentOrder.Amount)
+		paymentOrder.PaymentID, paymentOrder.OrderSn, paymentOrder.Amount)
 }
 
 // 简单的浮点数解析

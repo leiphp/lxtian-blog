@@ -1,4 +1,4 @@
-package payment
+package web_repo
 
 import (
 	"context"
@@ -69,21 +69,21 @@ func (r *txyOrderRepository) GetByOutTradeNo(ctx context.Context, outTradeNo str
 func (r *txyOrderRepository) GetByUserId(ctx context.Context, userId uint64, page, pageSize int, keywords string) ([]*mysql.TxyOrder, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"user_id": userId,
-	}, page, pageSize, keywords)
+	}, page, pageSize, "", "")
 }
 
 // GetByPayType 根据支付类型获取订单列表
 func (r *txyOrderRepository) GetByPayType(ctx context.Context, payType int64, page, pageSize int, keywords string) ([]*mysql.TxyOrder, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"pay_type": payType,
-	}, page, pageSize, keywords)
+	}, page, pageSize, "", "")
 }
 
 // GetByStatus 根据状态获取订单列表
 func (r *txyOrderRepository) GetByStatus(ctx context.Context, status int64, page, pageSize int, keywords string) ([]*mysql.TxyOrder, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"status": status,
-	}, page, pageSize, keywords)
+	}, page, pageSize, "", "")
 }
 
 // GetOrdersByTimeRange 根据时间范围获取订单列表

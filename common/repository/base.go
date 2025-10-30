@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -67,7 +68,7 @@ func (r *baseRepository[T]) GetByCondition(ctx context.Context, condition map[st
 }
 
 // GetList 根据条件获取列表（支持分页）
-func (r *baseRepository[T]) GetList(ctx context.Context, condition map[string]interface{}, page, pageSize int) ([]*T, int64, error) {
+func (r *baseRepository[T]) GetList(ctx context.Context, condition map[string]interface{}, page, pageSize int, orderBy string, keywords string, fields ...string) ([]*T, int64, error) {
 	var entities []*T
 	var total int64
 
@@ -78,10 +79,25 @@ func (r *baseRepository[T]) GetList(ctx context.Context, condition map[string]in
 		query = query.Where(key, value)
 	}
 
-	//if keywords != "" {
-	//	kw := "%" + keywords + "%"
-	//	query = query.Where("out_trade_no LIKE ? OR subject LIKE ?", kw, kw)
-	//}
+	// 移除兼容模式：不再从 condition 中读取 keywords
+
+	if keywords != "" && len(fields) > 0 {
+		kw := "%" + keywords + "%"
+		parts := make([]string, 0, len(fields))
+		vals := make([]interface{}, 0, len(fields))
+		for _, f := range fields {
+			f = strings.TrimSpace(f)
+			if f == "" {
+				continue
+			}
+			parts = append(parts, fmt.Sprintf("%s LIKE ?", f))
+			vals = append(vals, kw)
+		}
+		if len(parts) > 0 {
+			where := strings.Join(parts, " OR ")
+			query = query.Where(where, vals...)
+		}
+	}
 
 	// 获取总数
 	if err := query.Model(new(T)).Count(&total).Error; err != nil {
@@ -94,7 +110,11 @@ func (r *baseRepository[T]) GetList(ctx context.Context, condition map[string]in
 		query = query.Offset(offset).Limit(pageSize)
 	}
 
-	if err := query.Order("id desc").Find(&entities).Error; err != nil {
+	orderClause := orderBy
+	if strings.TrimSpace(orderClause) == "" {
+		orderClause = "id desc"
+	}
+	if err := query.Order(orderClause).Find(&entities).Error; err != nil {
 		return nil, 0, fmt.Errorf("failed to get entities list: %w", err)
 	}
 

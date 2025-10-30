@@ -1,4 +1,4 @@
-package user
+package user_repo
 
 import (
 	"context"
@@ -51,7 +51,7 @@ func (r *txyRolesRepository) GetByKey(ctx context.Context, key string) (*mysql.T
 func (r *txyRolesRepository) GetByStatus(ctx context.Context, status int64) ([]*mysql.TxyRoles, error) {
 	roles, _, err := r.GetList(ctx, map[string]interface{}{
 		"status": status,
-	}, 0, 0) // 不分页
+	}, 0, 0, "", "") // 不分页
 	return roles, err
 }
 

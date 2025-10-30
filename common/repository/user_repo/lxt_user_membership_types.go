@@ -1,4 +1,4 @@
-package user
+package user_repo
 
 import (
 	"context"
@@ -10,29 +10,29 @@ import (
 
 // MembershipTypeRepository 会员类型仓储接口
 type MembershipTypeRepository interface {
-	repository.BaseRepository[model.LxtUserMembershipTypes]
+	repository.BaseRepository[model.LxtUserMembershipType]
 
 	// 会员类型特有方法
-	FindAllActive(ctx context.Context) ([]*model.LxtUserMembershipTypes, error)
-	GetByKey(ctx context.Context, key string) (*model.LxtUserMembershipTypes, error)
+	FindAllActive(ctx context.Context) ([]*model.LxtUserMembershipType, error)
+	GetByKey(ctx context.Context, key string) (*model.LxtUserMembershipType, error)
 	//GetList(ctx context.Context, page, pageSize int, status int64) ([]*model.LxtUserMembershipTypes, int64, error)
 }
 
 // membershipTypeRepository 会员类型仓储实现
 type membershipTypeRepository struct {
-	*repository.TransactionalBaseRepository[model.LxtUserMembershipTypes]
+	*repository.TransactionalBaseRepository[model.LxtUserMembershipType]
 }
 
 // NewMembershipTypeRepository 创建会员类型仓储
 func NewMembershipTypeRepository(db *gorm.DB) MembershipTypeRepository {
 	return &membershipTypeRepository{
-		TransactionalBaseRepository: repository.NewTransactionalBaseRepository[model.LxtUserMembershipTypes](db),
+		TransactionalBaseRepository: repository.NewTransactionalBaseRepository[model.LxtUserMembershipType](db),
 	}
 }
 
 // FindAllActive 查询所有启用的会员类型
-func (r *membershipTypeRepository) FindAllActive(ctx context.Context) ([]*model.LxtUserMembershipTypes, error) {
-	var entities []*model.LxtUserMembershipTypes
+func (r *membershipTypeRepository) FindAllActive(ctx context.Context) ([]*model.LxtUserMembershipType, error) {
+	var entities []*model.LxtUserMembershipType
 	db := r.GetDB(ctx)
 	err := db.WithContext(ctx).
 		Where("status = ? AND deleted_at IS NULL", 1).
@@ -43,8 +43,8 @@ func (r *membershipTypeRepository) FindAllActive(ctx context.Context) ([]*model.
 }
 
 // GetByKey 根据key获取会员类型
-func (r *membershipTypeRepository) GetByKey(ctx context.Context, key string) (*model.LxtUserMembershipTypes, error) {
-	var entity model.LxtUserMembershipTypes
+func (r *membershipTypeRepository) GetByKey(ctx context.Context, key string) (*model.LxtUserMembershipType, error) {
+	var entity model.LxtUserMembershipType
 	db := r.GetDB(ctx)
 	err := db.WithContext(ctx).
 		Where("`key` = ? AND deleted_at IS NULL", key).

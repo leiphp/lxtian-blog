@@ -3,7 +3,7 @@ package userlogic
 import (
 	"context"
 	"encoding/json"
-	userrepo "lxtian-blog/common/repository/user"
+	"lxtian-blog/common/repository/user_repo"
 	"lxtian-blog/rpc/user/internal/svc"
 	"lxtian-blog/rpc/user/user"
 
@@ -14,8 +14,8 @@ type GetMembershipListLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
-	membershipTypesRepository       userrepo.MembershipTypeRepository
-	membershipPermissionsRepository userrepo.MembershipPermissionRepository
+	membershipTypesRepository       user_repo.MembershipTypeRepository
+	membershipPermissionsRepository user_repo.MembershipPermissionRepository
 }
 
 func NewGetMembershipListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetMembershipListLogic {
@@ -23,8 +23,8 @@ func NewGetMembershipListLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 		ctx:                             ctx,
 		svcCtx:                          svcCtx,
 		Logger:                          logx.WithContext(ctx),
-		membershipTypesRepository:       userrepo.NewMembershipTypeRepository(svcCtx.DB),
-		membershipPermissionsRepository: userrepo.NewMembershipPermissionRepository(svcCtx.DB),
+		membershipTypesRepository:       user_repo.NewMembershipTypeRepository(svcCtx.DB),
+		membershipPermissionsRepository: user_repo.NewMembershipPermissionRepository(svcCtx.DB),
 	}
 }
 
@@ -42,19 +42,19 @@ func (l *GetMembershipListLogic) GetMembershipList(in *user.GetMembershipListReq
 	for _, mt := range membershipTypes {
 		// 解析 JSON 权限字段
 		var permissionsJSON string
-		if mt.Permissions.Valid {
-			permissionsJSON = mt.Permissions.String
+		if mt.Permissions != nil {
+			permissionsJSON = *mt.Permissions
 		}
 		permissions := l.parsePermissions(permissionsJSON)
 
 		// 处理描述字段
 		description := ""
-		if mt.Description.Valid {
-			description = mt.Description.String
+		if mt.Description != nil {
+			description = *mt.Description
 		}
 
 		respList = append(respList, &user.MembershipType{
-			Id:            int64(mt.Id),
+			Id:            mt.ID,
 			Name:          mt.Name,
 			Price:         mt.Price,
 			OriginalPrice: mt.OriginalPrice,

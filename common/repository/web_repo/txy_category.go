@@ -1,4 +1,4 @@
-package web
+package web_repo
 
 import (
 	"context"
@@ -57,7 +57,7 @@ func (r *txyCategoryRepository) GetBySlug(ctx context.Context, slug string) (*my
 func (r *txyCategoryRepository) GetByStatus(ctx context.Context, status int64) ([]*mysql.TxyCategory, error) {
 	categories, _, err := r.GetList(ctx, map[string]interface{}{
 		"status": status,
-	}, 0, 0) // 不分页
+	}, 0, 0, "", "") // 不分页
 	return categories, err
 }
 
@@ -65,7 +65,7 @@ func (r *txyCategoryRepository) GetByStatus(ctx context.Context, status int64) (
 func (r *txyCategoryRepository) GetByParentId(ctx context.Context, parentId uint64) ([]*mysql.TxyCategory, error) {
 	categories, _, err := r.GetList(ctx, map[string]interface{}{
 		"parent_id": parentId,
-	}, 0, 0) // 不分页
+	}, 0, 0, "", "") // 不分页
 	return categories, err
 }
 

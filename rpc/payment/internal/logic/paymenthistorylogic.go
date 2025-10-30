@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	paymentSvc "lxtian-blog/common/repository/payment"
+	"lxtian-blog/common/repository/payment_repo"
 	"time"
 
 	"lxtian-blog/common/model"
@@ -14,13 +14,13 @@ import (
 
 type PaymentHistoryLogic struct {
 	*BaseLogic
-	paymentService paymentSvc.PaymentOrderRepository
+	paymentService payment_repo.PaymentOrderRepository
 }
 
 func NewPaymentHistoryLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PaymentHistoryLogic {
 	return &PaymentHistoryLogic{
 		BaseLogic:      NewBaseLogic(ctx, svcCtx),
-		paymentService: paymentSvc.NewPaymentOrderRepository(svcCtx.DB),
+		paymentService: payment_repo.NewPaymentOrderRepository(svcCtx.DB),
 	}
 }
 
@@ -48,7 +48,7 @@ func (l *PaymentHistoryLogic) PaymentHistory(in *payment.PaymentHistoryReq) (*pa
 	}
 
 	// 使用基础仓储的 GetList 方法（已修复总数查询问题）
-	paymentOrders, total, err := l.paymentService.GetList(l.ctx, condition, int(in.Page), int(in.PageSize), in.Keywords)
+	paymentOrders, total, err := l.paymentService.GetList(l.ctx, condition, int(in.Page), int(in.PageSize), "", in.Keywords, "out_trade_no", "subject")
 	if err != nil {
 		l.Errorf("Failed to get payment orders: %v", err)
 		return nil, fmt.Errorf("failed to get payment orders: %w", err)
@@ -77,8 +77,8 @@ func (l *PaymentHistoryLogic) PaymentHistory(in *payment.PaymentHistoryReq) (*pa
 }
 
 // 按时间范围过滤
-func (l *PaymentHistoryLogic) filterByTimeRange(orders []*model.LxtPaymentOrders, startTime, endTime string) []*model.LxtPaymentOrders {
-	var filtered []*model.LxtPaymentOrders
+func (l *PaymentHistoryLogic) filterByTimeRange(orders []*model.LxtPaymentOrder, startTime, endTime string) []*model.LxtPaymentOrder {
+	var filtered []*model.LxtPaymentOrder
 
 	var start, end time.Time
 	var err error
@@ -116,13 +116,13 @@ func (l *PaymentHistoryLogic) filterByTimeRange(orders []*model.LxtPaymentOrders
 }
 
 // 构建支付订单项
-func (l *PaymentHistoryLogic) buildPaymentOrderItem(order *model.LxtPaymentOrders) map[string]interface{} {
+func (l *PaymentHistoryLogic) buildPaymentOrderItem(order *model.LxtPaymentOrder) map[string]interface{} {
 	item := map[string]interface{}{
-		"id":           order.Id,
-		"payment_id":   order.PaymentId,
+		"id":           order.ID,
+		"payment_id":   order.PaymentID,
 		"order_sn":     order.OrderSn,
 		"out_trade_no": order.OutTradeNo,
-		"user_id":      order.UserId,
+		"user_id":      order.UserID,
 		"amount":       order.Amount,
 		"subject":      order.Subject,
 		"body":         order.Body,
@@ -130,27 +130,27 @@ func (l *PaymentHistoryLogic) buildPaymentOrderItem(order *model.LxtPaymentOrder
 		"trade_no":     order.TradeNo,
 		"trade_status": order.TradeStatus,
 		"product_code": order.ProductCode,
-		"return_url":   order.ReturnUrl,
-		"notify_url":   order.NotifyUrl,
+		"return_url":   order.ReturnURL,
+		"notify_url":   order.NotifyURL,
 		"timeout":      order.Timeout,
 		"created_at":   order.CreatedAt.Format("2006-01-02 15:04:05"),
 		"updated_at":   order.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
 
-	if order.BuyerUserId != "" {
-		item["buyer_user_id"] = order.BuyerUserId
+	if order.BuyerUserID != "" {
+		item["buyer_user_id"] = order.BuyerUserID
 	}
-	if order.BuyerLogonId != "" {
-		item["buyer_logon_id"] = order.BuyerLogonId
+	if order.BuyerLogonID != "" {
+		item["buyer_logon_id"] = order.BuyerLogonID
 	}
 	if order.ReceiptAmount != 0 {
 		item["receipt_amount"] = order.ReceiptAmount
 	}
-	if order.PayTime.Valid {
-		item["pay_time"] = order.PayTime.Time.Format("2006-01-02 15:04:05")
+	if order.PayTime != nil {
+		item["pay_time"] = order.PayTime.Format("2006-01-02 15:04:05")
 	}
-	if order.CloseTime.Valid {
-		item["close_time"] = order.CloseTime.Time.Format("2006-01-02 15:04:05")
+	if order.CloseTime != nil {
+		item["close_time"] = order.CloseTime.Format("2006-01-02 15:04:05")
 	}
 
 	return item

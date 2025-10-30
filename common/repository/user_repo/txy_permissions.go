@@ -1,4 +1,4 @@
-package user
+package user_repo
 
 import (
 	"context"
@@ -53,7 +53,7 @@ func (r *txyPermissionsRepository) GetByPermissionCode(ctx context.Context, perm
 func (r *txyPermissionsRepository) GetByModule(ctx context.Context, module string) ([]*mysql.TxyPermissions, error) {
 	permissions, _, err := r.GetList(ctx, map[string]interface{}{
 		"module": module,
-	}, 0, 0) // 不分页
+	}, 0, 0, "", "") // 不分页
 	return permissions, err
 }
 
@@ -61,7 +61,7 @@ func (r *txyPermissionsRepository) GetByModule(ctx context.Context, module strin
 func (r *txyPermissionsRepository) GetByStatus(ctx context.Context, status int64) ([]*mysql.TxyPermissions, error) {
 	permissions, _, err := r.GetList(ctx, map[string]interface{}{
 		"status": status,
-	}, 0, 0) // 不分页
+	}, 0, 0, "", "") // 不分页
 	return permissions, err
 }
 

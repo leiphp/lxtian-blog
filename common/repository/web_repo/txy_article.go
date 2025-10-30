@@ -1,4 +1,4 @@
-package web
+package web_repo
 
 import (
 	"context"
@@ -66,21 +66,21 @@ func (r *txyArticleRepository) GetByTitle(ctx context.Context, title string) (*m
 func (r *txyArticleRepository) GetByAuthorId(ctx context.Context, authorId uint64, page, pageSize int) ([]*mysql.TxyArticle, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"author_id": authorId,
-	}, page, pageSize)
+	}, page, pageSize, "", "")
 }
 
 // GetByCategoryId 根据分类ID获取文章列表
 func (r *txyArticleRepository) GetByCategoryId(ctx context.Context, categoryId uint64, page, pageSize int) ([]*mysql.TxyArticle, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"category_id": categoryId,
-	}, page, pageSize)
+	}, page, pageSize, "", "")
 }
 
 // GetByStatus 根据状态获取文章列表
 func (r *txyArticleRepository) GetByStatus(ctx context.Context, status int64, page, pageSize int) ([]*mysql.TxyArticle, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"status": status,
-	}, page, pageSize)
+	}, page, pageSize, "", "")
 }
 
 // GetByTagId 根据标签ID获取文章列表
@@ -117,7 +117,7 @@ func (r *txyArticleRepository) GetByTagId(ctx context.Context, tagId uint64, pag
 func (r *txyArticleRepository) GetPublishedArticles(ctx context.Context, page, pageSize int) ([]*mysql.TxyArticle, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"status": 1, // 假设1表示已发布
-	}, page, pageSize)
+	}, page, pageSize, "", "")
 }
 
 // GetPopularArticles 获取热门文章

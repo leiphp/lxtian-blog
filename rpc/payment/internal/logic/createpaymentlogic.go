@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"lxtian-blog/common/constant"
 	"lxtian-blog/common/model"
@@ -63,33 +62,30 @@ func (l *CreatePaymentLogic) CreatePayment(in *payment.CreatePaymentReq) (*payme
 	}
 
 	// 2. 创建支付订单记录（lxt_payment_orders表）
-	paymentOrder := &model.LxtPaymentOrders{
-		GoodsId:     in.GoodsId,
-		PaymentId:   paymentId,
+	paymentOrder := &model.LxtPaymentOrder{
+		GoodsID:     int32(in.GoodsId),
+		PaymentID:   paymentId,
 		OrderSn:     orderSn,
 		OutTradeNo:  outTradeNo,
-		UserId:      int64(in.UserId),
+		UserID:      int64(in.UserId),
 		Amount:      in.Amount,
 		Subject:     in.Subject,
 		Status:      constant.PaymentStatusPending,
-		ProductCode: in.ProductCode,
-		PayType:     in.PayType,
-		BuyType:     in.BuyType,
+		ProductCode: &in.ProductCode,
+		PayType:     int32(in.PayType),
+		BuyType:     int32(in.BuyType),
 		// 处理可空字段
-		Body: sql.NullString{
-			String: in.Body,
-			Valid:  in.Body != "",
-		},
-		ReturnUrl: in.ReturnUrl,
-		NotifyUrl: in.NotifyUrl,
+		Body:      &in.Body,
+		ReturnURL: in.ReturnUrl,
+		NotifyURL: in.NotifyUrl,
 		Timeout:   in.Timeout,
-		ClientIp:  in.ClientIp,
+		ClientIP:  in.ClientIp,
 	}
 
 	// 使用GORM保存支付订单到数据库
 	err := l.svcCtx.DB.WithContext(l.ctx).Create(paymentOrder).Error
 	if err != nil {
-		l.Errorf("Failed to insert payment order: %v", err)
+		l.Errorf("Failed to insert payment_repo order: %v", err)
 		return nil, fmt.Errorf("创建支付订单失败: %w", err)
 	}
 
@@ -116,16 +112,16 @@ func (l *CreatePaymentLogic) CreatePayment(in *payment.CreatePaymentReq) (*payme
 	// 调用支付宝API创建支付URL
 	payUrl, err := l.svcCtx.AlipayClient.CreatePayment(alipayReq)
 	if err != nil {
-		l.Errorf("Failed to create alipay payment: %v", err)
+		l.Errorf("Failed to create alipay payment_repo: %v", err)
 		// 使用GORM更新订单状态为失败
-		l.svcCtx.DB.WithContext(l.ctx).Model(&model.LxtPaymentOrders{}).
+		l.svcCtx.DB.WithContext(l.ctx).Model(&model.LxtPaymentOrder{}).
 			Where("payment_id = ?", paymentId).
 			Update("status", constant.VerifyStatusFailed)
 		return nil, fmt.Errorf("创建支付订单失败: %w", err)
 	}
 
 	// 记录日志
-	l.Infof("Created payment order: paymentId=%s, orderSn=%s, outTradeNo=%s, amount=%.2f, payUrl=%s",
+	l.Infof("Created payment_repo order: paymentId=%s, orderSn=%s, outTradeNo=%s, amount=%.2f, payUrl=%s",
 		paymentId, orderSn, outTradeNo, in.Amount, payUrl)
 
 	return &payment.CreatePaymentResp{

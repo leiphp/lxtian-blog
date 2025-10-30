@@ -1,4 +1,4 @@
-package web
+package web_repo
 
 import (
 	"context"
@@ -54,21 +54,21 @@ func NewTxyCommentRepository(db *gorm.DB) TxyCommentRepository {
 func (r *txyCommentRepository) GetByArticleId(ctx context.Context, articleId uint64, page, pageSize int) ([]*mysql.TxyComment, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"article_id": articleId,
-	}, page, pageSize)
+	}, page, pageSize, "", "")
 }
 
 // GetByUserId 根据用户ID获取评论列表
 func (r *txyCommentRepository) GetByUserId(ctx context.Context, userId uint64, page, pageSize int) ([]*mysql.TxyComment, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"user_id": userId,
-	}, page, pageSize)
+	}, page, pageSize, "", "")
 }
 
 // GetByParentId 根据父评论ID获取子评论列表
 func (r *txyCommentRepository) GetByParentId(ctx context.Context, parentId uint64) ([]*mysql.TxyComment, error) {
 	comments, _, err := r.GetList(ctx, map[string]interface{}{
 		"parent_id": parentId,
-	}, 0, 0) // 不分页
+	}, 0, 0, "", "") // 不分页
 	return comments, err
 }
 
@@ -76,7 +76,7 @@ func (r *txyCommentRepository) GetByParentId(ctx context.Context, parentId uint6
 func (r *txyCommentRepository) GetByStatus(ctx context.Context, status int64, page, pageSize int) ([]*mysql.TxyComment, int64, error) {
 	return r.GetList(ctx, map[string]interface{}{
 		"status": status,
-	}, page, pageSize)
+	}, page, pageSize, "", "")
 }
 
 // GetRecentComments 获取最近评论

@@ -1,4 +1,4 @@
-package web
+package web_repo
 
 import (
 	"context"
@@ -58,7 +58,7 @@ func (r *txyTagRepository) GetBySlug(ctx context.Context, slug string) (*mysql.T
 func (r *txyTagRepository) GetByStatus(ctx context.Context, status int64) ([]*mysql.TxyTag, error) {
 	tags, _, err := r.GetList(ctx, map[string]interface{}{
 		"status": status,
-	}, 0, 0) // 不分页
+	}, 0, 0, "", "") // 不分页
 	return tags, err
 }
 
