@@ -12,13 +12,13 @@ import (
 
 const TableNameLxtPaymentGood = "lxt_payment_goods"
 
-// LxtPaymentGood 支付订单表
+// LxtPaymentGood 商品表
 type LxtPaymentGood struct {
 	ID            int64          `gorm:"column:id;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                      // 主键ID
 	Name          string         `gorm:"column:name;not null;comment:商品名称" json:"name"`                                       // 商品名称
 	Desc          string         `gorm:"column:desc;not null;comment:商品描述" json:"desc"`                                       // 商品描述
 	Detail        *string        `gorm:"column:detail;comment:商品详情" json:"detail"`                                            // 商品详情
-	CategoryID    int32          `gorm:"column:category_id;not null;comment:商品分类ID" json:"category_id"`                       // 商品分类ID
+	ClassifyID    int32          `gorm:"column:classify_id;not null;comment:商品分类ID" json:"classify_id"`                       // 商品分类ID
 	Price         float64        `gorm:"column:price;not null;comment:商品价格" json:"price"`                                     // 商品价格
 	OriginalPrice float64        `gorm:"column:original_price;not null;comment:商品原价" json:"original_price"`                   // 商品原价
 	Rating        float64        `gorm:"column:rating;not null;comment:评分" json:"rating"`                                     // 评分
