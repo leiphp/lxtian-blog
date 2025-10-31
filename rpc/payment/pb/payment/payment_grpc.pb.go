@@ -28,6 +28,7 @@ const (
 	Payment_PaymentNotify_FullMethodName    = "/payment.Payment/PaymentNotify"
 	Payment_ClosePayment_FullMethodName     = "/payment.Payment/ClosePayment"
 	Payment_CancelPayment_FullMethodName    = "/payment.Payment/CancelPayment"
+	Payment_GoodsList_FullMethodName        = "/payment.Payment/GoodsList"
 )
 
 // PaymentClient is the client API for Payment service.
@@ -52,6 +53,8 @@ type PaymentClient interface {
 	ClosePayment(ctx context.Context, in *ClosePaymentReq, opts ...grpc.CallOption) (*ClosePaymentResp, error)
 	// 取消支付订单
 	CancelPayment(ctx context.Context, in *CancelPaymentReq, opts ...grpc.CallOption) (*CancelPaymentResp, error)
+	// 商品列表查询
+	GoodsList(ctx context.Context, in *GoodsListReq, opts ...grpc.CallOption) (*GoodsListResp, error)
 }
 
 type paymentClient struct {
@@ -143,6 +146,15 @@ func (c *paymentClient) CancelPayment(ctx context.Context, in *CancelPaymentReq,
 	return out, nil
 }
 
+func (c *paymentClient) GoodsList(ctx context.Context, in *GoodsListReq, opts ...grpc.CallOption) (*GoodsListResp, error) {
+	out := new(GoodsListResp)
+	err := c.cc.Invoke(ctx, Payment_GoodsList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PaymentServer is the server API for Payment service.
 // All implementations must embed UnimplementedPaymentServer
 // for forward compatibility
@@ -165,6 +177,8 @@ type PaymentServer interface {
 	ClosePayment(context.Context, *ClosePaymentReq) (*ClosePaymentResp, error)
 	// 取消支付订单
 	CancelPayment(context.Context, *CancelPaymentReq) (*CancelPaymentResp, error)
+	// 商品列表查询
+	GoodsList(context.Context, *GoodsListReq) (*GoodsListResp, error)
 	mustEmbedUnimplementedPaymentServer()
 }
 
@@ -198,6 +212,9 @@ func (UnimplementedPaymentServer) ClosePayment(context.Context, *ClosePaymentReq
 }
 func (UnimplementedPaymentServer) CancelPayment(context.Context, *CancelPaymentReq) (*CancelPaymentResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelPayment not implemented")
+}
+func (UnimplementedPaymentServer) GoodsList(context.Context, *GoodsListReq) (*GoodsListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GoodsList not implemented")
 }
 func (UnimplementedPaymentServer) mustEmbedUnimplementedPaymentServer() {}
 
@@ -374,6 +391,24 @@ func _Payment_CancelPayment_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Payment_GoodsList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GoodsListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PaymentServer).GoodsList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Payment_GoodsList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PaymentServer).GoodsList(ctx, req.(*GoodsListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Payment_ServiceDesc is the grpc.ServiceDesc for Payment service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -416,6 +451,10 @@ var Payment_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelPayment",
 			Handler:    _Payment_CancelPayment_Handler,
+		},
+		{
+			MethodName: "GoodsList",
+			Handler:    _Payment_GoodsList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

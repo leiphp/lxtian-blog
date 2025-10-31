@@ -63,6 +63,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
+				// 商品列表
+				Method:  http.MethodPost,
+				Path:    "/goods/list",
+				Handler: payment.GoodsListHandler(serverCtx),
+			},
+			{
 				// 支付结果异步通知
 				Method:  http.MethodPost,
 				Path:    "/notify",

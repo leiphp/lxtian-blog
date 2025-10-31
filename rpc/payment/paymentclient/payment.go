@@ -20,6 +20,8 @@ type (
 	ClosePaymentResp     = payment.ClosePaymentResp
 	CreatePaymentReq     = payment.CreatePaymentReq
 	CreatePaymentResp    = payment.CreatePaymentResp
+	GoodsListReq         = payment.GoodsListReq
+	GoodsListResp        = payment.GoodsListResp
 	OrdersStatisticsReq  = payment.OrdersStatisticsReq
 	OrdersStatisticsResp = payment.OrdersStatisticsResp
 	PaymentHistoryReq    = payment.PaymentHistoryReq
@@ -52,6 +54,8 @@ type (
 		ClosePayment(ctx context.Context, in *ClosePaymentReq, opts ...grpc.CallOption) (*ClosePaymentResp, error)
 		// 取消支付订单
 		CancelPayment(ctx context.Context, in *CancelPaymentReq, opts ...grpc.CallOption) (*CancelPaymentResp, error)
+		// 商品列表查询
+		GoodsList(ctx context.Context, in *GoodsListReq, opts ...grpc.CallOption) (*GoodsListResp, error)
 	}
 
 	defaultPayment struct {
@@ -117,4 +121,10 @@ func (m *defaultPayment) ClosePayment(ctx context.Context, in *ClosePaymentReq, 
 func (m *defaultPayment) CancelPayment(ctx context.Context, in *CancelPaymentReq, opts ...grpc.CallOption) (*CancelPaymentResp, error) {
 	client := payment.NewPaymentClient(m.cli.Conn())
 	return client.CancelPayment(ctx, in, opts...)
+}
+
+// 商品列表查询
+func (m *defaultPayment) GoodsList(ctx context.Context, in *GoodsListReq, opts ...grpc.CallOption) (*GoodsListResp, error) {
+	client := payment.NewPaymentClient(m.cli.Conn())
+	return client.GoodsList(ctx, in, opts...)
 }

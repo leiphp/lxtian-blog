@@ -1428,6 +1428,174 @@ func (x *CancelPaymentResp) GetMessage() string {
 	return ""
 }
 
+// 商品列表查询请求
+type GoodsListReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ClassifyId int32   `protobuf:"varint,1,opt,name=classify_id,json=classifyId,proto3" json:"classify_id,omitempty"` // 分类ID
+	PriceMin   float32 `protobuf:"fixed32,2,opt,name=price_min,json=priceMin,proto3" json:"price_min,omitempty"`      // 最低价格
+	PriceMax   float32 `protobuf:"fixed32,3,opt,name=price_max,json=priceMax,proto3" json:"price_max,omitempty"`      // 最高价格
+	Page       uint32  `protobuf:"varint,4,opt,name=page,proto3" json:"page,omitempty"`                               // 页码
+	PageSize   uint32  `protobuf:"varint,5,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`       // 每页数量
+	Keywords   string  `protobuf:"bytes,6,opt,name=keywords,proto3" json:"keywords,omitempty"`                        // 关键词搜索
+	OrderBy    string  `protobuf:"bytes,7,opt,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`           // 排序字段
+}
+
+func (x *GoodsListReq) Reset() {
+	*x = GoodsListReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_payment_proto_msgTypes[18]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GoodsListReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GoodsListReq) ProtoMessage() {}
+
+func (x *GoodsListReq) ProtoReflect() protoreflect.Message {
+	mi := &file_payment_proto_msgTypes[18]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GoodsListReq.ProtoReflect.Descriptor instead.
+func (*GoodsListReq) Descriptor() ([]byte, []int) {
+	return file_payment_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *GoodsListReq) GetClassifyId() int32 {
+	if x != nil {
+		return x.ClassifyId
+	}
+	return 0
+}
+
+func (x *GoodsListReq) GetPriceMin() float32 {
+	if x != nil {
+		return x.PriceMin
+	}
+	return 0
+}
+
+func (x *GoodsListReq) GetPriceMax() float32 {
+	if x != nil {
+		return x.PriceMax
+	}
+	return 0
+}
+
+func (x *GoodsListReq) GetPage() uint32 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *GoodsListReq) GetPageSize() uint32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *GoodsListReq) GetKeywords() string {
+	if x != nil {
+		return x.Keywords
+	}
+	return ""
+}
+
+func (x *GoodsListReq) GetOrderBy() string {
+	if x != nil {
+		return x.OrderBy
+	}
+	return ""
+}
+
+// 商品列表查询响应
+type GoodsListResp struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Page     uint32 `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`                         // 页码
+	PageSize uint32 `protobuf:"varint,2,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"` // 每页数量
+	Total    uint64 `protobuf:"varint,3,opt,name=total,proto3" json:"total,omitempty"`                       // 总数
+	List     string `protobuf:"bytes,4,opt,name=list,proto3" json:"list,omitempty"`                          // 商品列表（JSON字符串）
+}
+
+func (x *GoodsListResp) Reset() {
+	*x = GoodsListResp{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_payment_proto_msgTypes[19]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GoodsListResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GoodsListResp) ProtoMessage() {}
+
+func (x *GoodsListResp) ProtoReflect() protoreflect.Message {
+	mi := &file_payment_proto_msgTypes[19]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GoodsListResp.ProtoReflect.Descriptor instead.
+func (*GoodsListResp) Descriptor() ([]byte, []int) {
+	return file_payment_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *GoodsListResp) GetPage() uint32 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *GoodsListResp) GetPageSize() uint32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *GoodsListResp) GetTotal() uint64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *GoodsListResp) GetList() string {
+	if x != nil {
+		return x.List
+	}
+	return ""
+}
+
 var File_payment_proto protoreflect.FileDescriptor
 
 var file_payment_proto_rawDesc = []byte{
@@ -1612,7 +1780,27 @@ var file_payment_proto_rawDesc = []byte{
 	0x73, 0x70, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20,
 	0x01, 0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x12, 0x18, 0x0a, 0x07,
 	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d,
-	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x32, 0x8e, 0x05, 0x0a, 0x07, 0x50, 0x61, 0x79, 0x6d, 0x65,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0xd1, 0x01, 0x0a, 0x0c, 0x47, 0x6f, 0x6f, 0x64, 0x73,
+	0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x71, 0x12, 0x1f, 0x0a, 0x0b, 0x63, 0x6c, 0x61, 0x73, 0x73,
+	0x69, 0x66, 0x79, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0a, 0x63, 0x6c,
+	0x61, 0x73, 0x73, 0x69, 0x66, 0x79, 0x49, 0x64, 0x12, 0x1b, 0x0a, 0x09, 0x70, 0x72, 0x69, 0x63,
+	0x65, 0x5f, 0x6d, 0x69, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x02, 0x52, 0x08, 0x70, 0x72, 0x69,
+	0x63, 0x65, 0x4d, 0x69, 0x6e, 0x12, 0x1b, 0x0a, 0x09, 0x70, 0x72, 0x69, 0x63, 0x65, 0x5f, 0x6d,
+	0x61, 0x78, 0x18, 0x03, 0x20, 0x01, 0x28, 0x02, 0x52, 0x08, 0x70, 0x72, 0x69, 0x63, 0x65, 0x4d,
+	0x61, 0x78, 0x12, 0x12, 0x0a, 0x04, 0x70, 0x61, 0x67, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0d,
+	0x52, 0x04, 0x70, 0x61, 0x67, 0x65, 0x12, 0x1b, 0x0a, 0x09, 0x70, 0x61, 0x67, 0x65, 0x5f, 0x73,
+	0x69, 0x7a, 0x65, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x08, 0x70, 0x61, 0x67, 0x65, 0x53,
+	0x69, 0x7a, 0x65, 0x12, 0x1a, 0x0a, 0x08, 0x6b, 0x65, 0x79, 0x77, 0x6f, 0x72, 0x64, 0x73, 0x18,
+	0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x6b, 0x65, 0x79, 0x77, 0x6f, 0x72, 0x64, 0x73, 0x12,
+	0x19, 0x0a, 0x08, 0x6f, 0x72, 0x64, 0x65, 0x72, 0x5f, 0x62, 0x79, 0x18, 0x07, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x07, 0x6f, 0x72, 0x64, 0x65, 0x72, 0x42, 0x79, 0x22, 0x6a, 0x0a, 0x0d, 0x47, 0x6f,
+	0x6f, 0x64, 0x73, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x73, 0x70, 0x12, 0x12, 0x0a, 0x04, 0x70,
+	0x61, 0x67, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x04, 0x70, 0x61, 0x67, 0x65, 0x12,
+	0x1b, 0x0a, 0x09, 0x70, 0x61, 0x67, 0x65, 0x5f, 0x73, 0x69, 0x7a, 0x65, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x0d, 0x52, 0x08, 0x70, 0x61, 0x67, 0x65, 0x53, 0x69, 0x7a, 0x65, 0x12, 0x14, 0x0a, 0x05,
+	0x74, 0x6f, 0x74, 0x61, 0x6c, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x52, 0x05, 0x74, 0x6f, 0x74,
+	0x61, 0x6c, 0x12, 0x12, 0x0a, 0x04, 0x6c, 0x69, 0x73, 0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x04, 0x6c, 0x69, 0x73, 0x74, 0x32, 0xca, 0x05, 0x0a, 0x07, 0x50, 0x61, 0x79, 0x6d, 0x65,
 	0x6e, 0x74, 0x12, 0x46, 0x0a, 0x0d, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x50, 0x61, 0x79, 0x6d,
 	0x65, 0x6e, 0x74, 0x12, 0x19, 0x2e, 0x70, 0x61, 0x79, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x43, 0x72,
 	0x65, 0x61, 0x74, 0x65, 0x50, 0x61, 0x79, 0x6d, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x1a, 0x1a,
@@ -1653,8 +1841,12 @@ var file_payment_proto_rawDesc = []byte{
 	0x12, 0x19, 0x2e, 0x70, 0x61, 0x79, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x43, 0x61, 0x6e, 0x63, 0x65,
 	0x6c, 0x50, 0x61, 0x79, 0x6d, 0x65, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x1a, 0x1a, 0x2e, 0x70, 0x61,
 	0x79, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x50, 0x61, 0x79, 0x6d,
-	0x65, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x42, 0x0b, 0x5a, 0x09, 0x2e, 0x2f, 0x70, 0x61, 0x79,
-	0x6d, 0x65, 0x6e, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x65, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x12, 0x3a, 0x0a, 0x09, 0x47, 0x6f, 0x6f, 0x64, 0x73,
+	0x4c, 0x69, 0x73, 0x74, 0x12, 0x15, 0x2e, 0x70, 0x61, 0x79, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x47,
+	0x6f, 0x6f, 0x64, 0x73, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x71, 0x1a, 0x16, 0x2e, 0x70, 0x61,
+	0x79, 0x6d, 0x65, 0x6e, 0x74, 0x2e, 0x47, 0x6f, 0x6f, 0x64, 0x73, 0x4c, 0x69, 0x73, 0x74, 0x52,
+	0x65, 0x73, 0x70, 0x42, 0x0b, 0x5a, 0x09, 0x2e, 0x2f, 0x70, 0x61, 0x79, 0x6d, 0x65, 0x6e, 0x74,
+	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1669,7 +1861,7 @@ func file_payment_proto_rawDescGZIP() []byte {
 	return file_payment_proto_rawDescData
 }
 
-var file_payment_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_payment_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_payment_proto_goTypes = []interface{}{
 	(*CreatePaymentReq)(nil),     // 0: payment.CreatePaymentReq
 	(*CreatePaymentResp)(nil),    // 1: payment.CreatePaymentResp
@@ -1689,6 +1881,8 @@ var file_payment_proto_goTypes = []interface{}{
 	(*ClosePaymentResp)(nil),     // 15: payment.ClosePaymentResp
 	(*CancelPaymentReq)(nil),     // 16: payment.CancelPaymentReq
 	(*CancelPaymentResp)(nil),    // 17: payment.CancelPaymentResp
+	(*GoodsListReq)(nil),         // 18: payment.GoodsListReq
+	(*GoodsListResp)(nil),        // 19: payment.GoodsListResp
 }
 var file_payment_proto_depIdxs = []int32{
 	0,  // 0: payment.Payment.CreatePayment:input_type -> payment.CreatePaymentReq
@@ -1700,17 +1894,19 @@ var file_payment_proto_depIdxs = []int32{
 	12, // 6: payment.Payment.PaymentNotify:input_type -> payment.PaymentNotifyReq
 	14, // 7: payment.Payment.ClosePayment:input_type -> payment.ClosePaymentReq
 	16, // 8: payment.Payment.CancelPayment:input_type -> payment.CancelPaymentReq
-	1,  // 9: payment.Payment.CreatePayment:output_type -> payment.CreatePaymentResp
-	3,  // 10: payment.Payment.RepayOrder:output_type -> payment.RepayOrderResp
-	5,  // 11: payment.Payment.QueryPayment:output_type -> payment.QueryPaymentResp
-	7,  // 12: payment.Payment.RefundPayment:output_type -> payment.RefundPaymentResp
-	9,  // 13: payment.Payment.PaymentHistory:output_type -> payment.PaymentHistoryResp
-	11, // 14: payment.Payment.OrdersStatistics:output_type -> payment.OrdersStatisticsResp
-	13, // 15: payment.Payment.PaymentNotify:output_type -> payment.PaymentNotifyResp
-	15, // 16: payment.Payment.ClosePayment:output_type -> payment.ClosePaymentResp
-	17, // 17: payment.Payment.CancelPayment:output_type -> payment.CancelPaymentResp
-	9,  // [9:18] is the sub-list for method output_type
-	0,  // [0:9] is the sub-list for method input_type
+	18, // 9: payment.Payment.GoodsList:input_type -> payment.GoodsListReq
+	1,  // 10: payment.Payment.CreatePayment:output_type -> payment.CreatePaymentResp
+	3,  // 11: payment.Payment.RepayOrder:output_type -> payment.RepayOrderResp
+	5,  // 12: payment.Payment.QueryPayment:output_type -> payment.QueryPaymentResp
+	7,  // 13: payment.Payment.RefundPayment:output_type -> payment.RefundPaymentResp
+	9,  // 14: payment.Payment.PaymentHistory:output_type -> payment.PaymentHistoryResp
+	11, // 15: payment.Payment.OrdersStatistics:output_type -> payment.OrdersStatisticsResp
+	13, // 16: payment.Payment.PaymentNotify:output_type -> payment.PaymentNotifyResp
+	15, // 17: payment.Payment.ClosePayment:output_type -> payment.ClosePaymentResp
+	17, // 18: payment.Payment.CancelPayment:output_type -> payment.CancelPaymentResp
+	19, // 19: payment.Payment.GoodsList:output_type -> payment.GoodsListResp
+	10, // [10:20] is the sub-list for method output_type
+	0,  // [0:10] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name
@@ -1938,6 +2134,30 @@ func file_payment_proto_init() {
 				return nil
 			}
 		}
+		file_payment_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GoodsListReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_payment_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GoodsListResp); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1945,7 +2165,7 @@ func file_payment_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_payment_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

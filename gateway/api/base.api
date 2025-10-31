@@ -1,8 +1,24 @@
 syntax =  "v1"
 
-type Base {
-    Page       uint32 `json:"page"`
-    PageSize   uint32 `json:"page_size"`
+// 基础分页请求
+type BasePageReq {
+    Page      int    `form:"page,default=1"`       // 页码，默认第1页
+    PageSize  int    `form:"page_size,default=20"` // 每页数量，默认20条
+    Keywords  string `form:"keywords,optional"`    // 关键词搜索，可选
+    OrderBy   string `form:"order_by,optional"`    // 排序字段，可选
+}
+
+// 基础分页请求
+type BaseJsonReq {
+    Page      int    `json:"page,default=1"`       // 页码，默认第1页
+    PageSize  int    `json:"page_size,default=20"` // 每页数量，默认20条
+    Keywords  string `json:"keywords,optional"`    // 关键词搜索，可选
+    OrderBy   string `json:"order_by,optional"`    // 排序字段，可选
+}
+
+type BasePageRes {
+    Page       int `json:"page"`
+    PageSize   int `json:"page_size"`
     List       [] map[string]interface{} `json:"list"`
-    Total      uint64 `json:"total"`
+    Total      int64 `json:"total"`
 }

@@ -8,6 +8,8 @@ info(
     version: "v1.0.0"
 )
 
+import "base.api"
+
 type (
     // 创建支付订单请求（一步完成：创建订单+支付）
     CreatePaymentReq {
@@ -143,6 +145,21 @@ type (
     }
 )
 
+type (
+    // 商品列表请求
+    GoodsListReq {
+        ClassifyId    int     `json:"classify_id"`
+        PriceMin      float32 `json:"price_min,optional"`
+        PriceMax      float32 `json:"price_max,optional"`
+        BaseJsonReq
+    }
+
+    // 商品列表响应
+    GoodsListResp {
+        BasePageRes
+    }
+)
+
 // 支付相关接口 - 需要用户认证
 @server (
     middleware: JwtMiddleware,AntiSpamMiddleware,RateLimitMiddleware
@@ -184,4 +201,8 @@ service gateway-api {
     @doc "支付结果异步通知"
     @handler PaymentNotify
     post /notify (PaymentNotifyReq) returns (PaymentNotifyResp)
+
+    @doc "商品列表"
+    @handler GoodsList
+    post /goods/list (GoodsListReq) returns (GoodsListResp)
 }

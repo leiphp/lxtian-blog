@@ -35,6 +35,27 @@ type ArticleResp struct {
 	Data map[string]interface{} `json:"data"`
 }
 
+type BaseJsonReq struct {
+	Page     int    `json:"page,default=1"`       // 页码，默认第1页
+	PageSize int    `json:"page_size,default=20"` // 每页数量，默认20条
+	Keywords string `json:"keywords,optional"`    // 关键词搜索，可选
+	OrderBy  string `json:"order_by,optional"`    // 排序字段，可选
+}
+
+type BasePageReq struct {
+	Page     int    `form:"page,default=1"`       // 页码，默认第1页
+	PageSize int    `form:"page_size,default=20"` // 每页数量，默认20条
+	Keywords string `form:"keywords,optional"`    // 关键词搜索，可选
+	OrderBy  string `form:"order_by,optional"`    // 排序字段，可选
+}
+
+type BasePageRes struct {
+	Page     int                      `json:"page"`
+	PageSize int                      `json:"page_size"`
+	List     []map[string]interface{} `json:"list"`
+	Total    int64                    `json:"total"`
+}
+
 type BookChapterReq struct {
 	Id uint32 `path:"id"`
 }
@@ -139,6 +160,17 @@ type GetqrReq struct {
 type GetqrResp struct {
 	Uuid  string `json:"uuid"`
 	QrImg string `json:"qr_img"`
+}
+
+type GoodsListReq struct {
+	ClassifyId int     `json:"classify_id"`
+	PriceMin   float32 `json:"price_min,optional"`
+	PriceMax   float32 `json:"price_max,optional"`
+	BaseJsonReq
+}
+
+type GoodsListResp struct {
+	BasePageRes
 }
 
 type InfoResp struct {

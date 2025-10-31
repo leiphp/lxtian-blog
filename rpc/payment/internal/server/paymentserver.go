@@ -76,3 +76,9 @@ func (s *PaymentServer) CancelPayment(ctx context.Context, in *payment.CancelPay
 	l := logic.NewCancelPaymentLogic(ctx, s.svcCtx)
 	return l.CancelPayment(in)
 }
+
+// 商品列表查询
+func (s *PaymentServer) GoodsList(ctx context.Context, in *payment.GoodsListReq) (*payment.GoodsListResp, error) {
+	l := logic.NewGoodsListLogic(ctx, s.svcCtx)
+	return l.GoodsList(in)
+}

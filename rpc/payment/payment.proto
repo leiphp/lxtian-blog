@@ -162,6 +162,25 @@ message CancelPaymentResp {
   string message = 2;           // 返回消息
 }
 
+// 商品列表查询请求
+message GoodsListReq {
+  int32 classify_id = 1;        // 分类ID
+  float price_min = 2;          // 最低价格
+  float price_max = 3;          // 最高价格
+  uint32 page = 4;              // 页码
+  uint32 page_size = 5;         // 每页数量
+  string keywords = 6;         // 关键词搜索
+  string order_by = 7;         // 排序字段
+}
+
+// 商品列表查询响应
+message GoodsListResp {
+  uint32 page = 1;              // 页码
+  uint32 page_size = 2;         // 每页数量
+  uint64 total = 3;             // 总数
+  string list = 4;              // 商品列表（JSON字符串）
+}
+
 // 支付服务定义
 service Payment {
   // 创建支付订单
@@ -190,6 +209,9 @@ service Payment {
 
   // 取消支付订单
   rpc CancelPayment(CancelPaymentReq) returns(CancelPaymentResp);
+
+  // 商品列表查询
+  rpc GoodsList(GoodsListReq) returns(GoodsListResp);
 }
 
 //goctl rpc protoc payment.proto --go_out=./pb --go-grpc_out=./pb --zrpc_out=. --client=true
