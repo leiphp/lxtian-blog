@@ -150,7 +150,17 @@ func (l *GoodsListLogic) buildGoodsItem(good *model.LxtPaymentGood) map[string]i
 		item["pic_url"] = *good.PicURL
 	}
 	if good.Tags != nil {
-		item["tags"] = *good.Tags
+		// 将 tags JSON 字符串解析为数组
+		var tagsArray []string
+		if err := json.Unmarshal([]byte(*good.Tags), &tagsArray); err == nil {
+			item["tags"] = tagsArray
+		} else {
+			// 如果解析失败，设置为空数组
+			item["tags"] = []string{}
+		}
+	} else {
+		// 如果 tags 为 nil，设置为空数组
+		item["tags"] = []string{}
 	}
 
 	return item
