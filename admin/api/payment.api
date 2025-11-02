@@ -1,5 +1,50 @@
 syntax = "v1"
 
+info(
+    title: "支付相关模块"
+    desc: "支付相关模块，包含支付宝支付功能"
+    author: "雷小天"
+    email: "1124378213@qq.com"
+    version: "v1.0.0"
+)
+
+
+import "base.api"
+
+type (
+    // 商品列表请求
+    GoodsListReq {
+        ClassifyId    int     `json:"classify_id"`
+        PriceMin      float32 `json:"price_min,optional"`
+        PriceMax      float32 `json:"price_max,optional"`
+        BaseJsonReq
+    }
+
+        // 商品列表响应
+    GoodsListResp {
+        BasePageRes
+    }
+)
+
+// 获取会员列表
+type (
+    MembershipListResp {
+        List []*MembershipType `json:"list"`
+    }
+        // MembershipType - 会员类型
+    MembershipType {
+        Id            int64   `json:"id"`
+        Name          string  `json:"name"`
+        Price         float64 `json:"price"`
+        OriginalPrice float64 `json:"original_price"`
+        Discount      float64 `json:"discount"`
+        Period        string  `json:"period"`
+        Popular       bool    `json:"popular"`
+        Permissions   []string`json:"permissions"`
+        Description   string  `json:"description"`
+    }
+)
+
 type (
     // 支付订单管理请求
     PaymentOrdersReq {
@@ -174,6 +219,14 @@ type (
     prefix:     /admin/payment
 )
 service admin-api {
+    @doc "商品管理"
+    @handler GoodsList
+    post /goods/list (GoodsListReq) returns (GoodsListResp)
+
+    @doc "会员套餐"
+    @handler MembershipList
+    get /membership/list returns (MembershipListResp)
+
     @doc "支付订单管理"
     @handler PaymentOrders
     get /orders (PaymentOrdersReq) returns (PaymentOrdersResp)

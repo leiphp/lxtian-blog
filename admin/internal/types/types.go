@@ -47,6 +47,27 @@ type ArticlesResp struct {
 	Total    int64                    `json:"total"`
 }
 
+type BaseJsonReq struct {
+	Page     int    `json:"page,default=1"`       // 页码，默认第1页
+	PageSize int    `json:"page_size,default=20"` // 每页数量，默认20条
+	Keywords string `json:"keywords,optional"`    // 关键词搜索，可选
+	OrderBy  string `json:"order_by,optional"`    // 排序字段，可选
+}
+
+type BasePageReq struct {
+	Page     int    `form:"page,default=1"`       // 页码，默认第1页
+	PageSize int    `form:"page_size,default=20"` // 每页数量，默认20条
+	Keywords string `form:"keywords,optional"`    // 关键词搜索，可选
+	OrderBy  string `form:"order_by,optional"`    // 排序字段，可选
+}
+
+type BasePageRes struct {
+	Page     int                      `json:"page"`
+	PageSize int                      `json:"page_size"`
+	List     []map[string]interface{} `json:"list"`
+	Total    int64                    `json:"total"`
+}
+
 type BookChapterReq struct {
 	Id uint32 `path:"id"`
 }
@@ -96,8 +117,29 @@ type ChapterDetailResp struct {
 	Data map[string]interface{} `json:"data"`
 }
 
+type ClosePaymentReq struct {
+	PaymentId string `json:"payment_id"`      // 支付ID
+	Reason    string `json:"reason,optional"` // 关闭原因
+}
+
+type ClosePaymentResp struct {
+	Data    bool   `json:"data"`    // 关闭结果
+	Message string `json:"message"` // 返回消息
+}
+
 type ColumnListResp struct {
 	Data []map[string]interface{} `json:"data"`
+}
+
+type GoodsListReq struct {
+	ClassifyId int     `json:"classify_id"`
+	PriceMin   float32 `json:"price_min,optional"`
+	PriceMax   float32 `json:"price_max,optional"`
+	BaseJsonReq
+}
+
+type GoodsListResp struct {
+	BasePageRes
 }
 
 type InfoResp struct {
@@ -114,6 +156,33 @@ type LoginReq struct {
 type LoginResp struct {
 	Token string `json:"token"`
 	User  User   `json:"user"`
+}
+
+type ManualRefundReq struct {
+	PaymentId    string  `json:"payment_id"`    // 支付ID
+	RefundAmount float64 `json:"refund_amount"` // 退款金额
+	RefundReason string  `json:"refund_reason"` // 退款原因
+}
+
+type ManualRefundResp struct {
+	Data    bool   `json:"data"`    // 退款结果
+	Message string `json:"message"` // 返回消息
+}
+
+type MembershipListResp struct {
+	List []*MembershipType `json:"list"`
+}
+
+type MembershipType struct {
+	Id            int64    `json:"id"`
+	Name          string   `json:"name"`
+	Price         float64  `json:"price"`
+	OriginalPrice float64  `json:"original_price"`
+	Discount      float64  `json:"discount"`
+	Period        string   `json:"period"`
+	Popular       bool     `json:"popular"`
+	Permissions   []string `json:"permissions"`
+	Description   string   `json:"description"`
 }
 
 type MenuSaveReq struct {
@@ -138,6 +207,104 @@ type MenusResp struct {
 	Data []map[string]interface{} `json:"data"`
 }
 
+type PaymentConfigSaveReq struct {
+	Id              int64  `json:"id,optional"`         // 配置ID
+	AppId           string `json:"app_id"`              // 应用ID
+	AppName         string `json:"app_name"`            // 应用名称
+	AppPrivateKey   string `json:"app_private_key"`     // 应用私钥
+	AlipayPublicKey string `json:"alipay_public_key"`   // 支付宝公钥
+	GatewayUrl      string `json:"gateway_url"`         // 支付宝网关地址
+	IsProd          bool   `json:"is_prod"`             // 是否生产环境
+	IsEnabled       bool   `json:"is_enabled"`          // 是否启用
+	NotifyUrl       string `json:"notify_url,optional"` // 默认通知地址
+	ReturnUrl       string `json:"return_url,optional"` // 默认返回地址
+}
+
+type PaymentConfigSaveResp struct {
+	Data bool `json:"data"` // 保存结果
+}
+
+type PaymentConfigsReq struct {
+	Page     int `form:"page,default=1"`       // 页码
+	PageSize int `form:"page_size,default=10"` // 每页数量
+}
+
+type PaymentConfigsResp struct {
+	Page     int                      `json:"page"`      // 页码
+	PageSize int                      `json:"page_size"` // 每页数量
+	Total    int64                    `json:"total"`     // 总数
+	List     []map[string]interface{} `json:"list"`      // 支付配置列表
+}
+
+type PaymentNotifiesReq struct {
+	NotifyType    string `form:"notify_type,optional"`    // 通知类型
+	VerifyStatus  string `form:"verify_status,optional"`  // 验证状态
+	ProcessStatus string `form:"process_status,optional"` // 处理状态
+	StartTime     string `form:"start_time,optional"`     // 开始时间
+	EndTime       string `form:"end_time,optional"`       // 结束时间
+	Page          int    `form:"page,default=1"`          // 页码
+	PageSize      int    `form:"page_size,default=10"`    // 每页数量
+}
+
+type PaymentNotifiesResp struct {
+	Page     int                      `json:"page"`      // 页码
+	PageSize int                      `json:"page_size"` // 每页数量
+	Total    int64                    `json:"total"`     // 总数
+	List     []map[string]interface{} `json:"list"`      // 通知记录列表
+}
+
+type PaymentOrderReq struct {
+	PaymentId string `path:"payment_id"` // 支付ID
+}
+
+type PaymentOrderResp struct {
+	Data map[string]interface{} `json:"data"` // 支付订单详情
+}
+
+type PaymentOrdersReq struct {
+	UserId        uint64 `form:"user_id,optional"`        // 用户ID
+	OrderId       string `form:"order_id,optional"`       // 订单ID
+	PaymentStatus string `form:"payment_status,optional"` // 支付状态
+	StartTime     string `form:"start_time,optional"`     // 开始时间
+	EndTime       string `form:"end_time,optional"`       // 结束时间
+	Page          int    `form:"page,default=1"`          // 页码
+	PageSize      int    `form:"page_size,default=10"`    // 每页数量
+}
+
+type PaymentOrdersResp struct {
+	Page     int                      `json:"page"`      // 页码
+	PageSize int                      `json:"page_size"` // 每页数量
+	Total    int64                    `json:"total"`     // 总数
+	List     []map[string]interface{} `json:"list"`      // 支付订单列表
+}
+
+type PaymentRefundsReq struct {
+	PaymentId    string `form:"payment_id,optional"`    // 支付ID
+	OrderId      string `form:"order_id,optional"`      // 订单ID
+	RefundStatus string `form:"refund_status,optional"` // 退款状态
+	StartTime    string `form:"start_time,optional"`    // 开始时间
+	EndTime      string `form:"end_time,optional"`      // 结束时间
+	Page         int    `form:"page,default=1"`         // 页码
+	PageSize     int    `form:"page_size,default=10"`   // 每页数量
+}
+
+type PaymentRefundsResp struct {
+	Page     int                      `json:"page"`      // 页码
+	PageSize int                      `json:"page_size"` // 每页数量
+	Total    int64                    `json:"total"`     // 总数
+	List     []map[string]interface{} `json:"list"`      // 退款记录列表
+}
+
+type PaymentStatsReq struct {
+	StartTime string `form:"start_time"`        // 开始时间
+	EndTime   string `form:"end_time"`          // 结束时间
+	GroupBy   string `form:"group_by,optional"` // 分组方式：day/hour
+}
+
+type PaymentStatsResp struct {
+	Data []map[string]interface{} `json:"data"` // 统计数据
+}
+
 type PremSaveReq struct {
 	RoleId  int64   `json:"role_id"`
 	PermIds []int64 `json:"perm_ids"`
@@ -145,6 +312,15 @@ type PremSaveReq struct {
 
 type PremSaveResp struct {
 	Data bool `json:"data"`
+}
+
+type ResendNotifyReq struct {
+	NotifyId string `json:"notify_id"` // 通知ID
+}
+
+type ResendNotifyResp struct {
+	Data    bool   `json:"data"`    // 重发结果
+	Message string `json:"message"` // 返回消息
 }
 
 type RolesReq struct {

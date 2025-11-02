@@ -19,7 +19,9 @@ type (
         Role         string `json:"role"`
         Permissions  []string `json:"permissions"`
     }
+)
 
+type (
     UsersReq {
         Role        string `form:"role,optional"`
         Keywords    string `form:"keywords,optional"`
@@ -33,11 +35,15 @@ type (
         List       [] map[string]interface{} `json:"list"`
         Total      int64 `json:"total"`
     }
+)
 
+type (
     InfoResp {
         User
     }
+)
 
+type (
     RolesReq {
         Keywords    string `form:"keywords,optional"`
         Page        int    `form:"page,default=1"`
@@ -50,7 +56,9 @@ type (
         List       [] map[string]interface{} `json:"list"`
         Total      int64 `json:"total"`
     }
+)
 
+type (
     MenusReq {
         Perm    string `form:"perm,optional"`
     }
@@ -58,7 +66,9 @@ type (
     MenusResp {
         Data       [] map[string]interface{} `json:"data"`
     }
+)
 
+type (
     MenuSaveReq {
         Id         int64  `json:"id,optional"`
         Title      string `json:"title"`
@@ -71,7 +81,9 @@ type (
     MenuSaveResp {
         Data        bool `json:"data"`
     }
+)
 
+type (
     PremSaveReq {
         RoleId    int64 `json:"role_id"`
         PermIds   []int64 `json:"perm_ids"`
@@ -81,3 +93,40 @@ type (
         Data      bool `json:"data"`
     }
 )
+
+
+service admin-api {
+    @doc "后台登录"
+    @handler Login
+    post /admin/login (LoginReq) returns (LoginResp)
+}
+
+@server (
+    middleware: JwtMiddleware
+    prefix:     /admin
+)
+service admin-api {
+    @doc "用户管理"
+    @handler Users
+    get /users (UsersReq) returns (UsersResp)
+
+    @doc "角色管理"
+    @handler Roles
+    get /roles (RolesReq) returns (RolesResp)
+
+    @doc "菜单管理"
+    @handler Menus
+    get /menus (MenusReq) returns (MenusResp)
+
+    @doc "菜单保存"
+    @handler MenuSave
+    post /menu/save (MenuSaveReq) returns (MenuSaveResp)
+
+    @doc "权限保存"
+    @handler PremSave
+    post /prem/save (PremSaveReq) returns (PremSaveResp)
+
+    @doc "用户信息"
+    @handler Info
+    get /info returns (InfoResp)
+}

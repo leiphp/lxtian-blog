@@ -90,7 +90,8 @@ func (r *baseRepository[T]) GetList(ctx context.Context, condition map[string]in
 			if f == "" {
 				continue
 			}
-			parts = append(parts, fmt.Sprintf("%s LIKE ?", f))
+			// 使用反引号包裹字段名，避免 MySQL 保留关键字冲突
+			parts = append(parts, fmt.Sprintf("`%s` LIKE ?", f))
 			vals = append(vals, kw)
 		}
 		if len(parts) > 0 {

@@ -15,14 +15,18 @@ type (
         List       [] map[string]interface{} `json:"list"`
         Total      int64 `json:"total"`
     }
+)
 
+type (
     ArticleReq {
         Id      uint32 `path:"id"`
     }
     ArticleResp {
         Data       map[string]interface{} `json:"data"`
     }
+)
 
+type (
     ArticleSaveReq {
         Id           int64  `json:"id,optional"`
         Title        string `json:"title"`
@@ -43,30 +47,42 @@ type (
     ArticleSaveResp {
         Data        bool `json:"data"`
     }
+)
 
+type (
     CategoryResp {
         Data       [] map[string]interface{} `json:"data"`
     }
+)
 
+type (
     TagsResp {
         Data       [] map[string]interface{} `json:"data"`
     }
+)
 
+type (
     UploadResp {
         Url       string `json:"url"`
     }
+)
 
+type (
     BookResp {
         Data       [] map[string]interface{} `json:"data"`
     }
+)
 
+type (
     BookChapterReq {
         Id      uint32 `path:"id"`
     }
     BookChapterResp {
         Data       []map[string]interface{} `json:"data"`
     }
+)
 
+type (
     BookChapterSaveReq {
         Id           int64  `json:"id,optional"`
         Title        string `json:"title"`
@@ -77,18 +93,24 @@ type (
     BookChapterSaveResp {
         Data        bool `json:"data"`
     }
+)
 
+type (
     ChapterDetailReq {
         Id      uint32 `path:"id"`
     }
     ChapterDetailResp {
         Data       map[string]interface{} `json:"data"`
     }
+)
 
+type (
     ColumnListResp {
         Data       [] map[string]interface{} `json:"data"`
     }
+)
 
+type (
     BookSaveReq {
         Id           int64  `json:"id,optional"`
         Title        string `json:"title"`
@@ -101,3 +123,58 @@ type (
         Data        bool `json:"data"`
     }
 )
+
+
+@server (
+    middleware: JwtMiddleware
+    prefix:     /admin
+)
+service admin-api {
+    @doc "文章管理"
+    @handler Articles
+    get /articles (ArticlesReq) returns (ArticlesResp)
+
+    @doc "文章详情"
+    @handler Article
+    get /article/:id (ArticleReq) returns (ArticleResp)
+
+    @doc "文章保存"
+    @handler ArticleSave
+    post /article/save (ArticleSaveReq) returns (ArticleSaveResp)
+
+    @doc "文章分类"
+    @handler Category
+    get /category returns (CategoryResp)
+
+    @doc "标签列表"
+    @handler Tags
+    get /tags returns (TagsResp)
+
+    @doc "图片上传"
+    @handler Upload
+    post /upload returns (UploadResp)
+
+    @doc "书单管理"
+    @handler BooK
+    get /book returns (BookResp)
+
+    @doc "书单章节"
+    @handler BookChapter
+    get /book/chapter/:id (BookChapterReq) returns (BookChapterResp)
+
+    @doc "章节保存"
+    @handler BookChapterSave
+    post /book/chapter/save (BookChapterSaveReq) returns (BookChapterSaveResp)
+
+    @doc "书单详情"
+    @handler ChapterDetail
+    get /book/chapter/detail/:id (ChapterDetailReq) returns (ChapterDetailResp)
+
+    @doc "专栏列表"
+    @handler ColumnList
+    get /column/list returns (ColumnListResp)
+
+    @doc "书单保存"
+    @handler BookSave
+    post /column/save (BookSaveReq) returns (BookSaveResp)
+}

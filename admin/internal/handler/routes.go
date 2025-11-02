@@ -28,6 +28,51 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Middleware{serverCtx.JwtMiddleware},
 			[]rest.Route{
 				{
+					// 用户信息
+					Method:  http.MethodGet,
+					Path:    "/info",
+					Handler: InfoHandler(serverCtx),
+				},
+				{
+					// 菜单保存
+					Method:  http.MethodPost,
+					Path:    "/menu/save",
+					Handler: MenuSaveHandler(serverCtx),
+				},
+				{
+					// 菜单管理
+					Method:  http.MethodGet,
+					Path:    "/menus",
+					Handler: MenusHandler(serverCtx),
+				},
+				{
+					// 权限保存
+					Method:  http.MethodPost,
+					Path:    "/prem/save",
+					Handler: PremSaveHandler(serverCtx),
+				},
+				{
+					// 角色管理
+					Method:  http.MethodGet,
+					Path:    "/roles",
+					Handler: RolesHandler(serverCtx),
+				},
+				{
+					// 用户管理
+					Method:  http.MethodGet,
+					Path:    "/users",
+					Handler: UsersHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/admin"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.JwtMiddleware},
+			[]rest.Route{
+				{
 					// 文章详情
 					Method:  http.MethodGet,
 					Path:    "/article/:id",
@@ -88,36 +133,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: BookSaveHandler(serverCtx),
 				},
 				{
-					// 用户信息
-					Method:  http.MethodGet,
-					Path:    "/info",
-					Handler: InfoHandler(serverCtx),
-				},
-				{
-					// 菜单保存
-					Method:  http.MethodPost,
-					Path:    "/menu/save",
-					Handler: MenuSaveHandler(serverCtx),
-				},
-				{
-					// 菜单管理
-					Method:  http.MethodGet,
-					Path:    "/menus",
-					Handler: MenusHandler(serverCtx),
-				},
-				{
-					// 权限保存
-					Method:  http.MethodPost,
-					Path:    "/prem/save",
-					Handler: PremSaveHandler(serverCtx),
-				},
-				{
-					// 角色管理
-					Method:  http.MethodGet,
-					Path:    "/roles",
-					Handler: RolesHandler(serverCtx),
-				},
-				{
 					// 标签列表
 					Method:  http.MethodGet,
 					Path:    "/tags",
@@ -129,14 +144,89 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/upload",
 					Handler: UploadHandler(serverCtx),
 				},
-				{
-					// 用户管理
-					Method:  http.MethodGet,
-					Path:    "/users",
-					Handler: UsersHandler(serverCtx),
-				},
 			}...,
 		),
 		rest.WithPrefix("/admin"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.JwtMiddleware},
+			[]rest.Route{
+				{
+					// 关闭支付订单
+					Method:  http.MethodPost,
+					Path:    "/close-payment",
+					Handler: ClosePaymentHandler(serverCtx),
+				},
+				{
+					// 支付配置保存
+					Method:  http.MethodPost,
+					Path:    "/config/save",
+					Handler: PaymentConfigSaveHandler(serverCtx),
+				},
+				{
+					// 支付配置管理
+					Method:  http.MethodGet,
+					Path:    "/configs",
+					Handler: PaymentConfigsHandler(serverCtx),
+				},
+				{
+					// 商品管理
+					Method:  http.MethodPost,
+					Path:    "/goods/list",
+					Handler: GoodsListHandler(serverCtx),
+				},
+				{
+					// 手动退款
+					Method:  http.MethodPost,
+					Path:    "/manual-refund",
+					Handler: ManualRefundHandler(serverCtx),
+				},
+				{
+					// 会员套餐
+					Method:  http.MethodGet,
+					Path:    "/membership/list",
+					Handler: MembershipListHandler(serverCtx),
+				},
+				{
+					// 支付通知记录
+					Method:  http.MethodGet,
+					Path:    "/notifies",
+					Handler: PaymentNotifiesHandler(serverCtx),
+				},
+				{
+					// 支付订单详情
+					Method:  http.MethodGet,
+					Path:    "/order/:payment_id",
+					Handler: PaymentOrderHandler(serverCtx),
+				},
+				{
+					// 支付订单管理
+					Method:  http.MethodGet,
+					Path:    "/orders",
+					Handler: PaymentOrdersHandler(serverCtx),
+				},
+				{
+					// 退款记录管理
+					Method:  http.MethodGet,
+					Path:    "/refunds",
+					Handler: PaymentRefundsHandler(serverCtx),
+				},
+				{
+					// 重发支付通知
+					Method:  http.MethodPost,
+					Path:    "/resend-notify",
+					Handler: ResendNotifyHandler(serverCtx),
+				},
+				{
+					// 支付统计
+					Method:  http.MethodGet,
+					Path:    "/stats",
+					Handler: PaymentStatsHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/admin/payment"),
 	)
 }
