@@ -8,6 +8,7 @@ import (
 	"lxtian-blog/admin/internal/types"
 	"lxtian-blog/common/model"
 	"lxtian-blog/common/repository/payment_repo"
+	"strings"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -132,6 +133,7 @@ func (l *GoodsListLogic) buildGoodsItem(good *model.LxtPaymentGood) map[string]i
 		"download":       good.Download,
 		"size":           good.Size,
 		"status":         good.Status,
+		"pic_url":        good.PicURL,
 		"created_at":     good.CreatedAt.Format("2006-01-02 15:04:05"),
 		"updated_at":     good.UpdatedAt.Format("2006-01-02 15:04:05"),
 	}
@@ -157,6 +159,10 @@ func (l *GoodsListLogic) buildGoodsItem(good *model.LxtPaymentGood) map[string]i
 	} else {
 		// 如果 tags 为 nil，设置为空数组
 		item["tags"] = []string{}
+	}
+
+	if !strings.HasPrefix(item["pic_url"].(string), "http://") && !strings.HasPrefix(item["pic_url"].(string), "https://") {
+		item["pic_url"] = l.svcCtx.QiniuClient.PrivateURL(item["pic_url"].(string), 3600)
 	}
 
 	return item
