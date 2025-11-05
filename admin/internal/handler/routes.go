@@ -6,68 +6,15 @@ package handler
 import (
 	"net/http"
 
+	content "lxtian-blog/admin/internal/handler/content"
+	payment "lxtian-blog/admin/internal/handler/payment"
+	user "lxtian-blog/admin/internal/handler/user"
 	"lxtian-blog/admin/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
-	server.AddRoutes(
-		[]rest.Route{
-			{
-				// 后台登录
-				Method:  http.MethodPost,
-				Path:    "/admin/login",
-				Handler: LoginHandler(serverCtx),
-			},
-		},
-	)
-
-	server.AddRoutes(
-		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.JwtMiddleware},
-			[]rest.Route{
-				{
-					// 用户信息
-					Method:  http.MethodGet,
-					Path:    "/info",
-					Handler: InfoHandler(serverCtx),
-				},
-				{
-					// 菜单保存
-					Method:  http.MethodPost,
-					Path:    "/menu/save",
-					Handler: MenuSaveHandler(serverCtx),
-				},
-				{
-					// 菜单管理
-					Method:  http.MethodGet,
-					Path:    "/menus",
-					Handler: MenusHandler(serverCtx),
-				},
-				{
-					// 权限保存
-					Method:  http.MethodPost,
-					Path:    "/prem/save",
-					Handler: PremSaveHandler(serverCtx),
-				},
-				{
-					// 角色管理
-					Method:  http.MethodGet,
-					Path:    "/roles",
-					Handler: RolesHandler(serverCtx),
-				},
-				{
-					// 用户管理
-					Method:  http.MethodGet,
-					Path:    "/users",
-					Handler: UsersHandler(serverCtx),
-				},
-			}...,
-		),
-		rest.WithPrefix("/admin"),
-	)
-
 	server.AddRoutes(
 		rest.WithMiddlewares(
 			[]rest.Middleware{serverCtx.JwtMiddleware},
@@ -76,73 +23,73 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					// 文章详情
 					Method:  http.MethodGet,
 					Path:    "/article/:id",
-					Handler: ArticleHandler(serverCtx),
+					Handler: content.ArticleHandler(serverCtx),
 				},
 				{
 					// 文章保存
 					Method:  http.MethodPost,
 					Path:    "/article/save",
-					Handler: ArticleSaveHandler(serverCtx),
+					Handler: content.ArticleSaveHandler(serverCtx),
 				},
 				{
 					// 文章管理
 					Method:  http.MethodGet,
 					Path:    "/articles",
-					Handler: ArticlesHandler(serverCtx),
+					Handler: content.ArticlesHandler(serverCtx),
 				},
 				{
 					// 书单管理
 					Method:  http.MethodGet,
 					Path:    "/book",
-					Handler: BooKHandler(serverCtx),
+					Handler: content.BooKHandler(serverCtx),
 				},
 				{
 					// 书单章节
 					Method:  http.MethodGet,
 					Path:    "/book/chapter/:id",
-					Handler: BookChapterHandler(serverCtx),
+					Handler: content.BookChapterHandler(serverCtx),
 				},
 				{
 					// 书单详情
 					Method:  http.MethodGet,
 					Path:    "/book/chapter/detail/:id",
-					Handler: ChapterDetailHandler(serverCtx),
+					Handler: content.ChapterDetailHandler(serverCtx),
 				},
 				{
 					// 章节保存
 					Method:  http.MethodPost,
 					Path:    "/book/chapter/save",
-					Handler: BookChapterSaveHandler(serverCtx),
+					Handler: content.BookChapterSaveHandler(serverCtx),
 				},
 				{
 					// 文章分类
 					Method:  http.MethodGet,
 					Path:    "/category",
-					Handler: CategoryHandler(serverCtx),
+					Handler: content.CategoryHandler(serverCtx),
 				},
 				{
 					// 专栏列表
 					Method:  http.MethodGet,
 					Path:    "/column/list",
-					Handler: ColumnListHandler(serverCtx),
+					Handler: content.ColumnListHandler(serverCtx),
 				},
 				{
 					// 书单保存
 					Method:  http.MethodPost,
 					Path:    "/column/save",
-					Handler: BookSaveHandler(serverCtx),
+					Handler: content.BookSaveHandler(serverCtx),
 				},
 				{
 					// 标签列表
 					Method:  http.MethodGet,
 					Path:    "/tags",
-					Handler: TagsHandler(serverCtx),
+					Handler: content.TagsHandler(serverCtx),
 				},
 				{
 					// 图片上传
 					Method:  http.MethodPost,
 					Path:    "/upload",
-					Handler: UploadHandler(serverCtx),
+					Handler: content.UploadHandler(serverCtx),
 				},
 			}...,
 		),
@@ -157,76 +104,133 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					// 关闭支付订单
 					Method:  http.MethodPost,
 					Path:    "/close-payment",
-					Handler: ClosePaymentHandler(serverCtx),
+					Handler: payment.ClosePaymentHandler(serverCtx),
 				},
 				{
 					// 支付配置保存
 					Method:  http.MethodPost,
 					Path:    "/config/save",
-					Handler: PaymentConfigSaveHandler(serverCtx),
+					Handler: payment.PaymentConfigSaveHandler(serverCtx),
 				},
 				{
 					// 支付配置管理
 					Method:  http.MethodGet,
 					Path:    "/configs",
-					Handler: PaymentConfigsHandler(serverCtx),
+					Handler: payment.PaymentConfigsHandler(serverCtx),
 				},
 				{
 					// 商品管理
 					Method:  http.MethodPost,
 					Path:    "/goods/list",
-					Handler: GoodsListHandler(serverCtx),
+					Handler: payment.GoodsListHandler(serverCtx),
 				},
 				{
 					// 手动退款
 					Method:  http.MethodPost,
 					Path:    "/manual-refund",
-					Handler: ManualRefundHandler(serverCtx),
+					Handler: payment.ManualRefundHandler(serverCtx),
 				},
 				{
 					// 会员套餐
 					Method:  http.MethodGet,
 					Path:    "/membership/list",
-					Handler: MembershipListHandler(serverCtx),
+					Handler: payment.MembershipListHandler(serverCtx),
 				},
 				{
 					// 支付通知记录
 					Method:  http.MethodGet,
 					Path:    "/notifies",
-					Handler: PaymentNotifiesHandler(serverCtx),
+					Handler: payment.PaymentNotifiesHandler(serverCtx),
 				},
 				{
 					// 支付订单详情
 					Method:  http.MethodGet,
 					Path:    "/order/:payment_id",
-					Handler: PaymentOrderHandler(serverCtx),
+					Handler: payment.PaymentOrderHandler(serverCtx),
 				},
 				{
 					// 支付订单管理
 					Method:  http.MethodGet,
 					Path:    "/orders",
-					Handler: PaymentOrdersHandler(serverCtx),
+					Handler: payment.PaymentOrdersHandler(serverCtx),
 				},
 				{
 					// 退款记录管理
 					Method:  http.MethodGet,
 					Path:    "/refunds",
-					Handler: PaymentRefundsHandler(serverCtx),
+					Handler: payment.PaymentRefundsHandler(serverCtx),
 				},
 				{
 					// 重发支付通知
 					Method:  http.MethodPost,
 					Path:    "/resend-notify",
-					Handler: ResendNotifyHandler(serverCtx),
+					Handler: payment.ResendNotifyHandler(serverCtx),
 				},
 				{
 					// 支付统计
 					Method:  http.MethodGet,
 					Path:    "/stats",
-					Handler: PaymentStatsHandler(serverCtx),
+					Handler: payment.PaymentStatsHandler(serverCtx),
 				},
 			}...,
 		),
 		rest.WithPrefix("/admin/payment"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				// 后台登录
+				Method:  http.MethodPost,
+				Path:    "/login",
+				Handler: user.LoginHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/admin"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.JwtMiddleware},
+			[]rest.Route{
+				{
+					// 用户信息
+					Method:  http.MethodGet,
+					Path:    "/info",
+					Handler: user.InfoHandler(serverCtx),
+				},
+				{
+					// 菜单保存
+					Method:  http.MethodPost,
+					Path:    "/menu/save",
+					Handler: user.MenuSaveHandler(serverCtx),
+				},
+				{
+					// 菜单管理
+					Method:  http.MethodGet,
+					Path:    "/menus",
+					Handler: user.MenusHandler(serverCtx),
+				},
+				{
+					// 权限保存
+					Method:  http.MethodPost,
+					Path:    "/prem/save",
+					Handler: user.PremSaveHandler(serverCtx),
+				},
+				{
+					// 角色管理
+					Method:  http.MethodGet,
+					Path:    "/roles",
+					Handler: user.RolesHandler(serverCtx),
+				},
+				{
+					// 用户管理
+					Method:  http.MethodGet,
+					Path:    "/users",
+					Handler: user.UsersHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/admin"),
 	)
 }

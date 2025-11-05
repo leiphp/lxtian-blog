@@ -94,16 +94,20 @@ type (
     }
 )
 
-
+@server (
+    prefix:     /admin
+    group:      user
+)
 service admin-api {
     @doc "后台登录"
     @handler Login
-    post /admin/login (LoginReq) returns (LoginResp)
+    post /login (LoginReq) returns (LoginResp)
 }
 
 @server (
     middleware: JwtMiddleware
     prefix:     /admin
+    group:      user
 )
 service admin-api {
     @doc "用户管理"

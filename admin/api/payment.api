@@ -217,6 +217,7 @@ type (
 @server (
     middleware: JwtMiddleware
     prefix:     /admin/payment
+    group:      payment
 )
 service admin-api {
     @doc "商品管理"
