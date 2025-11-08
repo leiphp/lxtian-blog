@@ -46,3 +46,16 @@ const (
 	ProcessStatusSuccess = "SUCCESS" // 处理成功
 	ProcessStatusFailed  = "FAILED"  // 处理失败
 )
+
+// 购买类型
+const (
+	BuyTypeDonate     = 1 // 捐赠
+	BuyTypeMembership = 2 // 购买会员
+	BuyTypeGoods      = 3 // 商品消费
+)
+
+// 会员续费类型
+const (
+	MembershipRenewalTypeRenewal = 1 // 同级续费
+	MembershipRenewalTypeUpgrade = 2 // 向上升级
+)

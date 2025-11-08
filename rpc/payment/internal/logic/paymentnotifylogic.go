@@ -2,15 +2,22 @@ package logic
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"lxtian-blog/common/constant"
-	"lxtian-blog/common/model"
-	paymentSvc "lxtian-blog/common/repository/payment_repo"
+	"math"
+	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
+	"lxtian-blog/common/constant"
+	"lxtian-blog/common/model"
+	paymentSvc "lxtian-blog/common/repository/payment_repo"
+
 	"lxtian-blog/rpc/payment/internal/svc"
 	"lxtian-blog/rpc/payment/pb/payment"
+
+	"gorm.io/gorm"
 )
 
 type PaymentNotifyLogic struct {
@@ -27,7 +34,7 @@ func NewPaymentNotifyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pay
 
 func (l *PaymentNotifyLogic) PaymentNotify(in *payment.PaymentNotifyReq) (*payment.PaymentNotifyResp, error) {
 	// 参数验证
-	if in.NotifyData == "" {
+	if strings.TrimSpace(in.NotifyData) == "" {
 		return &payment.PaymentNotifyResp{
 			Success: false,
 			Message: "通知数据不能为空",
@@ -51,11 +58,11 @@ func (l *PaymentNotifyLogic) PaymentNotify(in *payment.PaymentNotifyReq) (*payme
 	// 保存通知记录
 	err := l.svcCtx.DB.WithContext(l.ctx).Create(paymentNotify).Error
 	if err != nil {
-		l.Errorf("Failed to insert payment_repo notify: %v", err)
+		l.Errorf("Failed to insert payment notify: %v", err)
 		return &payment.PaymentNotifyResp{
 			Success: false,
 			Message: "保存通知记录失败",
-		}, fmt.Errorf("failed to insert payment_repo notify: %w", err)
+		}, fmt.Errorf("failed to insert payment notify: %w", err)
 	}
 
 	// 验证签名
@@ -104,7 +111,7 @@ func (l *PaymentNotifyLogic) PaymentNotify(in *payment.PaymentNotifyReq) (*payme
 	}
 
 	// 记录日志
-	l.Infof("Processed payment_repo notify: notifyId=%s, out_trade_no=%s", notifyId, notifyData["out_trade_no"])
+	l.Infof("Processed payment notify: notifyId=%s, out_trade_no=%s", notifyId, notifyData["out_trade_no"])
 
 	return &payment.PaymentNotifyResp{
 		Success: true,
@@ -120,18 +127,29 @@ func (l *PaymentNotifyLogic) verifySign(data, sign string) error {
 
 // 解析通知数据
 func (l *PaymentNotifyLogic) parseNotifyData(notifyData string) (map[string]string, error) {
-	// 解析支付宝通知数据格式
-	// 支付宝通知数据通常是URL编码的键值对格式
 	data := make(map[string]string)
 
-	// 简单的URL参数解析
 	pairs := strings.Split(notifyData, "&")
 	for _, pair := range pairs {
-		kv := strings.SplitN(pair, "=", 2)
-		if len(kv) == 2 {
-			// 这里应该进行URL解码，简化处理
-			data[kv[0]] = kv[1]
+		if pair == "" {
+			continue
 		}
+
+		kv := strings.SplitN(pair, "=", 2)
+		if len(kv) != 2 {
+			continue
+		}
+
+		key, err := url.QueryUnescape(kv[0])
+		if err != nil {
+			key = kv[0]
+		}
+		value, err := url.QueryUnescape(kv[1])
+		if err != nil {
+			value = kv[1]
+		}
+
+		data[strings.TrimSpace(key)] = strings.TrimSpace(value)
 	}
 
 	// 验证必要字段
@@ -142,6 +160,9 @@ func (l *PaymentNotifyLogic) parseNotifyData(notifyData string) (map[string]stri
 	if data["trade_status"] == "" {
 		return nil, fmt.Errorf("missing trade_status")
 	}
+
+	// 统一交易状态格式
+	data["trade_status"] = strings.ToUpper(data["trade_status"])
 
 	return data, nil
 }
@@ -161,12 +182,14 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 	notify, err := l.paymentService.FindPaymentNotifyByNotifyId(l.ctx, notifyId)
 	if err == nil {
 		notify.PaymentID = paymentOrder.PaymentID
-		l.paymentService.UpdatePaymentNotify(l.ctx, notify)
+		if err := l.paymentService.UpdatePaymentNotify(l.ctx, notify); err != nil {
+			l.Errorf("Failed to update payment notify record: %v", err)
+		}
 	}
 
 	// 根据交易状态处理
 	switch tradeStatus {
-	case "TRADE_SUCCESS", "TRADE_FINISHED":
+	case constant.TradeStatusSuccess, constant.TradeStatusFinished:
 		// 支付成功
 		if paymentOrder.Status == constant.PaymentStatusPaid {
 			// 已经处理过，直接返回成功
@@ -178,6 +201,8 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 		if notifyData["gmt_payment"] != "" {
 			if t, err := time.Parse("2006-01-02 15:04:05", notifyData["gmt_payment"]); err == nil {
 				gmtPayment = &t
+			} else {
+				l.Errorf("Failed to parse gmt_payment '%s': %v", notifyData["gmt_payment"], err)
 			}
 		}
 
@@ -186,6 +211,8 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 		if notifyData["receipt_amount"] != "" {
 			if amount, err := parseFloat(notifyData["receipt_amount"]); err == nil {
 				receiptAmount = amount
+			} else {
+				l.Errorf("Failed to parse receipt_amount '%s': %v", notifyData["receipt_amount"], err)
 			}
 		}
 
@@ -204,11 +231,23 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 			return fmt.Errorf("failed to update trade info: %w", err)
 		}
 
-		// 这里可以添加支付成功后的业务逻辑
-		// 例如：发送通知、更新库存、发放优惠券等
-		l.handlePaymentSuccess(paymentOrder, notifyData)
+		// 同步更新内存对象，便于后续逻辑使用
+		paymentOrder.TradeNo = notifyData["trade_no"]
+		paymentOrder.TradeStatus = tradeStatus
+		paymentOrder.BuyerUserID = notifyData["buyer_id"]
+		paymentOrder.BuyerLogonID = notifyData["buyer_logon_id"]
+		paymentOrder.ReceiptAmount = receiptAmount
+		paymentOrder.Status = constant.PaymentStatusPaid
+		if gmtPayment != nil {
+			paymentOrder.PayTime = gmtPayment
+		}
 
-	case "TRADE_CLOSED":
+		// 支付成功后的业务逻辑
+		if err := l.handlePaymentSuccess(paymentOrder, notifyData); err != nil {
+			return err
+		}
+
+	case constant.TradeStatusClosed:
 		// 交易关闭
 		if paymentOrder.Status != constant.PaymentStatusClosed {
 			err = l.paymentService.UpdatePaymentOrderStatus(l.ctx, paymentOrder.PaymentID, constant.PaymentStatusClosed)
@@ -217,7 +256,7 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 			}
 		}
 
-	case "WAIT_BUYER_PAY":
+	case constant.TradeStatusWaitBuyerPay:
 		// 等待买家付款，不需要特殊处理
 
 	default:
@@ -229,24 +268,156 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 }
 
 // 处理支付成功后的业务逻辑
-func (l *PaymentNotifyLogic) handlePaymentSuccess(paymentOrder *model.LxtPaymentOrder, notifyData map[string]string) {
-	// 这里可以添加具体的业务逻辑
-	// 例如：
-	// 1. 发送支付成功通知给用户
-	// 2. 更新订单状态
-	// 3. 发放积分或优惠券
-	// 4. 记录支付日志
-
+func (l *PaymentNotifyLogic) handlePaymentSuccess(paymentOrder *model.LxtPaymentOrder, notifyData map[string]string) error {
 	l.Infof("Payment success: paymentId=%s, orderSn=%s, amount=%.2f",
 		paymentOrder.PaymentID, paymentOrder.OrderSn, paymentOrder.Amount)
+
+	// 如果是会员购买订单，自动开通或续费会员
+	if paymentOrder.BuyType == constant.BuyTypeMembership {
+		if err := l.activateMembership(paymentOrder); err != nil {
+			l.Errorf("Failed to activate membership for paymentId=%s: %v", paymentOrder.PaymentID, err)
+			return fmt.Errorf("activate membership failed: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// activateMembership 为会员订单开通或续费会员
+func (l *PaymentNotifyLogic) activateMembership(paymentOrder *model.LxtPaymentOrder) error {
+	if paymentOrder == nil {
+		return errors.New("payment order is nil")
+	}
+
+	return l.svcCtx.DB.WithContext(l.ctx).Transaction(func(tx *gorm.DB) error {
+		var membershipType model.LxtUserMembershipType
+		if err := tx.Where("id = ?", paymentOrder.GoodsID).First(&membershipType).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("membership type not found for goods_id=%d", paymentOrder.GoodsID)
+			}
+			return fmt.Errorf("query membership type failed: %w", err)
+		}
+
+		daysToAdd := int(membershipType.Days)
+		if daysToAdd <= 0 {
+			return fmt.Errorf("invalid membership days for type %d", membershipType.ID)
+		}
+
+		now := time.Now()
+
+		var membership model.LxtUserMembership
+		err := tx.Where("user_id = ?", paymentOrder.UserID).First(&membership).Error
+
+		var (
+			beforeStart      *time.Time
+			beforeEnd        *time.Time
+			fromTypeID       *int64
+			remainingDaysPtr *int32
+			renewalType      int32 = constant.MembershipRenewalTypeRenewal
+		)
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			membership = model.LxtUserMembership{
+				UserID:           paymentOrder.UserID,
+				MembershipTypeID: membershipType.ID,
+				StartTime:        now,
+				EndTime:          now.AddDate(0, 0, daysToAdd),
+				IsActive:         1,
+				TotalDays:        int32(daysToAdd),
+				Level:            calculateMembershipLevel(int(daysToAdd)),
+			}
+
+			if err := tx.Create(&membership).Error; err != nil {
+				return fmt.Errorf("create membership failed: %w", err)
+			}
+		} else if err != nil {
+			return fmt.Errorf("query membership failed: %w", err)
+		} else {
+			origStart := membership.StartTime
+			origEnd := membership.EndTime
+			beforeStart = &origStart
+			beforeEnd = &origEnd
+			fromType := membership.MembershipTypeID
+			fromTypeID = &fromType
+
+			if membership.MembershipTypeID != membershipType.ID {
+				renewalType = constant.MembershipRenewalTypeUpgrade
+			}
+
+			if membership.EndTime.Before(now) {
+				membership.StartTime = now
+				membership.EndTime = now.AddDate(0, 0, daysToAdd)
+			} else {
+				membership.EndTime = membership.EndTime.AddDate(0, 0, daysToAdd)
+				remaining := int32(math.Ceil(origEnd.Sub(now).Hours() / 24))
+				if remaining < 0 {
+					remaining = 0
+				}
+				remainingCopy := remaining
+				remainingDaysPtr = &remainingCopy
+			}
+
+			membership.MembershipTypeID = membershipType.ID
+			membership.IsActive = 1
+			newTotal := membership.TotalDays + int32(daysToAdd)
+			membership.TotalDays = newTotal
+			membership.Level = calculateMembershipLevel(int(newTotal))
+
+			if err := tx.Save(&membership).Error; err != nil {
+				return fmt.Errorf("update membership failed: %w", err)
+			}
+		}
+
+		orderID := paymentOrder.ID
+		renewalRecord := &model.LxtUserMembershipRenewal{
+			UserID:               paymentOrder.UserID,
+			OrderID:              &orderID,
+			FromMembershipTypeID: fromTypeID,
+			ToMembershipTypeID:   membershipType.ID,
+			RenewalType:          renewalType,
+			BeforeStartTime:      beforeStart,
+			BeforeEndTime:        beforeEnd,
+			AfterStartTime:       membership.StartTime,
+			AfterEndTime:         membership.EndTime,
+			RemainingDays:        remainingDaysPtr,
+			CalculatedDays:       membership.TotalDays,
+			Amount:               paymentOrder.Amount,
+		}
+
+		if err := tx.Create(renewalRecord).Error; err != nil {
+			return fmt.Errorf("create membership renewal failed: %w", err)
+		}
+
+		return nil
+	})
+}
+
+// calculateMembershipLevel 按累计天数计算会员等级
+func calculateMembershipLevel(totalDays int) int32 {
+	switch {
+	case totalDays <= 90:
+		return 1
+	case totalDays <= 180:
+		return 2
+	case totalDays <= 365:
+		return 3
+	case totalDays <= 730:
+		return 4
+	default:
+		return 5
+	}
 }
 
 // 简单的浮点数解析
 func parseFloat(s string) (float64, error) {
-	// 这里应该使用strconv.ParseFloat，简化处理
-	if s == "" {
+	if strings.TrimSpace(s) == "" {
 		return 0, fmt.Errorf("empty string")
 	}
-	// 实际项目中应该正确处理浮点数解析
-	return 0, fmt.Errorf("not implemented")
+
+	value, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return 0, err
+	}
+
+	return value, nil
 }
