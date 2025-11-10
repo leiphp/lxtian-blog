@@ -262,7 +262,6 @@ type PaymentNotifyReq struct {
 	BuyerId        string `form:"buyer_id,optional"`         // 买家支付宝用户号
 	SellerId       string `form:"seller_id,optional"`        // 卖家支付宝用户号
 	AuthAppId      string `form:"auth_app_id,optional"`      // 授权应用ID
-	NotifyData     string `form:"-" json:"notify_data"`      // 通知原始数据（处理时使用）
 }
 
 type PaymentNotifyResp struct {

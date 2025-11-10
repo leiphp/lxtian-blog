@@ -29,12 +29,12 @@ func NewPaymentNotifyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pay
 
 func (l *PaymentNotifyLogic) PaymentNotify(req *types.PaymentNotifyReq) (resp *types.PaymentNotifyResp, err error) {
 	l.Infof("payment notify req: %+v", req)
-	l.Infof("req:", req)
 	if req == nil {
 		return nil, errors.New("request can not be nil")
 	}
 
-	if strings.TrimSpace(req.NotifyData) == "" {
+	notifyData := strings.TrimSpace(req.NotifyData)
+	if notifyData == "" {
 		return nil, errors.New("notify_data can not be empty")
 	}
 
@@ -48,7 +48,7 @@ func (l *PaymentNotifyLogic) PaymentNotify(req *types.PaymentNotifyReq) (resp *t
 	}
 
 	rpcResp, err := l.svcCtx.PaymentRpc.PaymentNotify(l.ctx, &payment.PaymentNotifyReq{
-		NotifyData: req.NotifyData,
+		NotifyData: notifyData,
 		Sign:       sign,
 		SignType:   signType,
 		ClientIp:   clientIP,

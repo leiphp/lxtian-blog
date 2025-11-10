@@ -231,6 +231,11 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 			return fmt.Errorf("failed to update trade info: %w", err)
 		}
 
+		// 显式更新订单状态为已支付，确保状态同步
+		if err := l.paymentService.UpdatePaymentOrderStatus(l.ctx, paymentOrder.PaymentID, constant.PaymentStatusPaid); err != nil {
+			return fmt.Errorf("failed to update payment order status: %w", err)
+		}
+
 		// 同步更新内存对象，便于后续逻辑使用
 		paymentOrder.TradeNo = notifyData["trade_no"]
 		paymentOrder.TradeStatus = tradeStatus

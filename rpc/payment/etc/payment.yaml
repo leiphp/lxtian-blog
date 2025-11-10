@@ -20,6 +20,13 @@ RedisConfig:
   Pass: ${REDIS_PASS}
   Tls: false
 
+Log:
+  ServiceName: payment_rpc
+  Mode: file
+  KeepDays: 3
+  Rotation: daily
+  Stat: true
+
 # 支付宝配置
 Alipay:
   AppId: ${AlipayAppId}
