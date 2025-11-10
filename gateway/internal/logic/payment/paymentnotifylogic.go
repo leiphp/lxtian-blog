@@ -28,6 +28,7 @@ func NewPaymentNotifyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Pay
 }
 
 func (l *PaymentNotifyLogic) PaymentNotify(req *types.PaymentNotifyReq) (resp *types.PaymentNotifyResp, err error) {
+	l.Infof("payment notify req: %+v", req)
 	l.Infof("req:", req)
 	if req == nil {
 		return nil, errors.New("request can not be nil")

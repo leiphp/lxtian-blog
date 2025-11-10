@@ -133,9 +133,31 @@ type (
 type (
     // 支付回调通知处理请求（内部使用）
     PaymentNotifyReq {
-        NotifyData    string `json:"notify_data"`        // 通知数据
-        Sign          string `json:"sign"`               // 签名
-        SignType      string `json:"sign_type"`          // 签名类型
+        NotifyTime     string `form:"notify_time,optional"`      // 通知时间
+        NotifyType     string `form:"notify_type,optional"`      // 通知类型
+        NotifyId       string `form:"notify_id,optional"`        // 通知ID
+        AppId          string `form:"app_id"`                    // 应用ID
+        Charset        string `form:"charset,optional"`          // 编码格式
+        Version        string `form:"version,optional"`          // 接口版本
+        SignType       string `form:"sign_type"`                 // 签名类型
+        Sign           string `form:"sign"`                      // 签名
+        TradeNo        string `form:"trade_no"`                  // 支付宝交易号
+        OutTradeNo     string `form:"out_trade_no"`              // 商户订单号
+        TradeStatus    string `form:"trade_status"`              // 交易状态
+        TotalAmount    string `form:"total_amount"`              // 订单金额
+        ReceiptAmount  string `form:"receipt_amount,optional"`   // 实收金额
+        InvoiceAmount  string `form:"invoice_amount,optional"`   // 发票金额
+        BuyerPayAmount string `form:"buyer_pay_amount,optional"` // 买家付款金额
+        PointAmount    string `form:"point_amount,optional"`     // 积分支付金额
+        FundBillList   string `form:"fund_bill_list,optional"`   // 支付渠道明细
+        GmtCreate      string `form:"gmt_create,optional"`       // 交易创建时间
+        GmtPayment     string `form:"gmt_payment,optional"`      // 交易付款时间
+        Subject        string `form:"subject,optional"`          // 订单标题
+        Body           string `form:"body,optional"`             // 订单描述
+        BuyerId        string `form:"buyer_id,optional"`         // 买家支付宝用户号
+        SellerId       string `form:"seller_id,optional"`        // 卖家支付宝用户号
+        AuthAppId      string `form:"auth_app_id,optional"`      // 授权应用ID
+        NotifyData     string `form:"-" json:"notify_data"`      // 通知原始数据（处理时使用）
     }
     
     // 支付回调通知处理响应
