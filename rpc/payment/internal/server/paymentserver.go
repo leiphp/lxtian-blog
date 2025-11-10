@@ -82,3 +82,9 @@ func (s *PaymentServer) GoodsList(ctx context.Context, in *payment.GoodsListReq)
 	l := logic.NewGoodsListLogic(ctx, s.svcCtx)
 	return l.GoodsList(in)
 }
+
+// 商品详情
+func (s *PaymentServer) Goods(ctx context.Context, in *payment.GoodsReq) (*payment.GoodsResp, error) {
+	l := logic.NewGoodsLogic(ctx, s.svcCtx)
+	return l.Goods(in)
+}

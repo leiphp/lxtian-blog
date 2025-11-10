@@ -23,7 +23,7 @@ type LxtPaymentGood struct {
 	OriginalPrice float64        `gorm:"column:original_price;not null;comment:商品原价" json:"original_price"`                   // 商品原价
 	Rating        float64        `gorm:"column:rating;not null;comment:评分" json:"rating"`                                     // 评分
 	Sales         int32          `gorm:"column:sales;not null;comment:销量" json:"sales"`                                       // 销量
-	Download      int32          `gorm:"column:download;not null;comment:下载" json:"download"`                                 // 下载
+	Downloads     int32          `gorm:"column:downloads;not null;comment:下载" json:"downloads"`                                 // 下载
 	Size          int32          `gorm:"column:size;not null;comment:文件大小" json:"size"`                                       // 文件大小
 	Status        int32          `gorm:"column:status;not null;comment:状态：0待发布；1已发布" json:"status"`                           // 状态：0待发布；1已发布
 	ProductCode   *string        `gorm:"column:product_code;default:FAST_INSTANT_TRADE_PAY;comment:产品码" json:"product_code"`  // 产品码

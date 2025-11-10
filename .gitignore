@@ -25,6 +25,7 @@ vendor
 gateway/logs
 rpc/user/logs
 rpc/web/logs
+rpc/payment/logs
 html
 test/
 docs/

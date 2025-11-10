@@ -173,6 +173,14 @@ type GoodsListResp struct {
 	BasePageRes
 }
 
+type GoodsReq struct {
+	Id uint32 `path:"id"`
+}
+
+type GoodsResp struct {
+	Data map[string]interface{} `json:"data"`
+}
+
 type InfoResp struct {
 	Data map[string]interface{} `json:"data"`
 }
@@ -262,6 +270,7 @@ type PaymentNotifyReq struct {
 	BuyerId        string `form:"buyer_id,optional"`         // 买家支付宝用户号
 	SellerId       string `form:"seller_id,optional"`        // 卖家支付宝用户号
 	AuthAppId      string `form:"auth_app_id,optional"`      // 授权应用ID
+	NotifyData     string `form:"notify_data,optional"`      // 授权应用ID
 }
 
 type PaymentNotifyResp struct {

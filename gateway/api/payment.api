@@ -157,6 +157,7 @@ type (
         BuyerId        string `form:"buyer_id,optional"`         // 买家支付宝用户号
         SellerId       string `form:"seller_id,optional"`        // 卖家支付宝用户号
         AuthAppId      string `form:"auth_app_id,optional"`      // 授权应用ID
+        NotifyData     string `form:"notify_data,optional"`      // 授权应用ID
     }
     
     // 支付回调通知处理响应
@@ -179,6 +180,16 @@ type (
     GoodsListResp {
         BasePageRes
     }
+)
+
+type (
+    GoodsReq {
+        Id      uint32 `path:"id"`
+    }
+    GoodsResp {
+        Data    map[string]interface{} `json:"data"`
+    }
+
 )
 
 // 支付相关接口 - 需要用户认证
@@ -226,4 +237,9 @@ service gateway-api {
     @doc "商品列表"
     @handler GoodsList
     post /goods/list (GoodsListReq) returns (GoodsListResp)
+
+    @doc "商品详情"
+    @handler Goods
+    get /goods/:id (GoodsReq) returns (GoodsResp)
+
 }

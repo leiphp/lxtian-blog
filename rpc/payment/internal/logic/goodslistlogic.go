@@ -133,7 +133,7 @@ func (l *GoodsListLogic) buildGoodsItem(good *model.LxtPaymentGood) map[string]i
 		"original_price": good.OriginalPrice,
 		"rating":         good.Rating,
 		"sales":          good.Sales,
-		"download":       good.Download,
+		"downloads":      good.Downloads,
 		"size":           good.Size,
 		"status":         good.Status,
 		"created_at":     good.CreatedAt.Format("2006-01-02 15:04:05"),

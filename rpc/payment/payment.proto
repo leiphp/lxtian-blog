@@ -181,6 +181,13 @@ message GoodsListResp {
   string list = 4;              // 商品列表（JSON字符串）
 }
 
+message GoodsReq {
+  uint64 id = 1;
+}
+message GoodsResp {
+  string data = 1;
+}
+
 // 支付服务定义
 service Payment {
   // 创建支付订单
@@ -212,6 +219,9 @@ service Payment {
 
   // 商品列表查询
   rpc GoodsList(GoodsListReq) returns(GoodsListResp);
+
+  // 商品详情
+  rpc Goods(GoodsReq) returns(GoodsResp);
 }
 
 //goctl rpc protoc payment.proto --go_out=./pb --go-grpc_out=./pb --zrpc_out=. --client=true
