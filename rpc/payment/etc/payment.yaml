@@ -26,7 +26,7 @@ Alipay:
   AppPrivateKey: ${AlipayAppPrivateKey}
   AlipayPublicKey: ${AlipayAlipayPublicKey}
   GatewayUrl: "https://openapi.alipay.com/gateway.do"
-  NotifyUrl: "https://www.100txy.com/api/payment/notify"
+  NotifyUrl: "https://gw.100txy.com/api/payment/notify"
   ReturnUrl: "https://www.100txy.com/api/payment/return"
   IsProd: true
   SignType: "RSA2"
