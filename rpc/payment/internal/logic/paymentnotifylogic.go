@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -121,8 +122,20 @@ func (l *PaymentNotifyLogic) PaymentNotify(in *payment.PaymentNotifyReq) (*payme
 
 // 验证签名
 func (l *PaymentNotifyLogic) verifySign(data, sign string) error {
+	if strings.TrimSpace(sign) == "" {
+		return fmt.Errorf("sign is empty")
+	}
+
+	signContent, err := buildSignContent(data)
+	if err != nil {
+		return fmt.Errorf("failed to build sign content: %w", err)
+	}
+	if signContent == "" {
+		return fmt.Errorf("sign content is empty")
+	}
+
 	// 使用支付宝客户端验证签名
-	return l.svcCtx.AlipayClient.VerifySign(data, sign)
+	return l.svcCtx.AlipayClient.VerifySign(signContent, sign)
 }
 
 // 解析通知数据
@@ -232,9 +245,9 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 		}
 
 		// 显式更新订单状态为已支付，确保状态同步
-		if err := l.paymentService.UpdatePaymentOrderStatus(l.ctx, paymentOrder.PaymentID, constant.PaymentStatusPaid); err != nil {
-			return fmt.Errorf("failed to update payment order status: %w", err)
-		}
+		//if err := l.paymentService.UpdatePaymentOrderStatus(l.ctx, paymentOrder.PaymentID, constant.PaymentStatusPaid); err != nil {
+		//	return fmt.Errorf("failed to update payment order status: %w", err)
+		//}
 
 		// 同步更新内存对象，便于后续逻辑使用
 		paymentOrder.TradeNo = notifyData["trade_no"]
@@ -425,4 +438,56 @@ func parseFloat(s string) (float64, error) {
 	}
 
 	return value, nil
+}
+
+// buildSignContent 根据支付宝签名规则构建待验签字符串
+func buildSignContent(rawData string) (string, error) {
+	if strings.TrimSpace(rawData) == "" {
+		return "", fmt.Errorf("raw notify data is empty")
+	}
+
+	values, err := url.ParseQuery(rawData)
+	if err != nil {
+		return "", fmt.Errorf("parse notify data failed: %w", err)
+	}
+
+	values.Del("sign")
+	values.Del("sign_type")
+
+	if len(values) == 0 {
+		return "", fmt.Errorf("no parameters available for sign")
+	}
+
+	keys := make([]string, 0, len(values))
+	for key, val := range values {
+		if len(val) == 0 {
+			continue
+		}
+		if strings.TrimSpace(val[0]) == "" {
+			continue
+		}
+		keys = append(keys, key)
+	}
+
+	sort.Strings(keys)
+
+	var builder strings.Builder
+	first := true
+	for _, key := range keys {
+		value := values.Get(key)
+		if strings.TrimSpace(value) == "" {
+			continue
+		}
+
+		if !first {
+			builder.WriteByte('&')
+		} else {
+			first = false
+		}
+		builder.WriteString(key)
+		builder.WriteByte('=')
+		builder.WriteString(value)
+	}
+
+	return builder.String(), nil
 }
