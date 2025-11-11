@@ -23,6 +23,12 @@ func NewPaymentServer(svcCtx *svc.ServiceContext) *PaymentServer {
 	}
 }
 
+// 创建捐赠订单
+func (s *PaymentServer) Donate(ctx context.Context, in *payment.DonateReq) (*payment.DonateResp, error) {
+	l := logic.NewDonateLogic(ctx, s.svcCtx)
+	return l.Donate(in)
+}
+
 // 创建支付订单
 func (s *PaymentServer) CreatePayment(ctx context.Context, in *payment.CreatePaymentReq) (*payment.CreatePaymentResp, error) {
 	l := logic.NewCreatePaymentLogic(ctx, s.svcCtx)

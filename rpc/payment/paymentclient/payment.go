@@ -20,6 +20,8 @@ type (
 	ClosePaymentResp     = payment.ClosePaymentResp
 	CreatePaymentReq     = payment.CreatePaymentReq
 	CreatePaymentResp    = payment.CreatePaymentResp
+	DonateReq            = payment.DonateReq
+	DonateResp           = payment.DonateResp
 	GoodsListReq         = payment.GoodsListReq
 	GoodsListResp        = payment.GoodsListResp
 	GoodsReq             = payment.GoodsReq
@@ -38,6 +40,8 @@ type (
 	RepayOrderResp       = payment.RepayOrderResp
 
 	Payment interface {
+		// 创建捐赠订单
+		Donate(ctx context.Context, in *DonateReq, opts ...grpc.CallOption) (*DonateResp, error)
 		// 创建支付订单
 		CreatePayment(ctx context.Context, in *CreatePaymentReq, opts ...grpc.CallOption) (*CreatePaymentResp, error)
 		// 重新支付订单
@@ -71,6 +75,12 @@ func NewPayment(cli zrpc.Client) Payment {
 	return &defaultPayment{
 		cli: cli,
 	}
+}
+
+// 创建捐赠订单
+func (m *defaultPayment) Donate(ctx context.Context, in *DonateReq, opts ...grpc.CallOption) (*DonateResp, error) {
+	client := payment.NewPaymentClient(m.cli.Conn())
+	return client.Donate(ctx, in, opts...)
 }
 
 // 创建支付订单

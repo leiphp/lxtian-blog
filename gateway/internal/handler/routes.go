@@ -63,6 +63,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
+				// 在线捐赠
+				Method:  http.MethodPost,
+				Path:    "/donate",
+				Handler: payment.DonateHandler(serverCtx),
+			},
+			{
 				// 商品详情
 				Method:  http.MethodGet,
 				Path:    "/goods/:id",

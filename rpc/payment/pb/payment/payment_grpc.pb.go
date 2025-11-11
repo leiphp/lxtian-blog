@@ -19,6 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
+	Payment_Donate_FullMethodName           = "/payment.Payment/Donate"
 	Payment_CreatePayment_FullMethodName    = "/payment.Payment/CreatePayment"
 	Payment_RepayOrder_FullMethodName       = "/payment.Payment/RepayOrder"
 	Payment_QueryPayment_FullMethodName     = "/payment.Payment/QueryPayment"
@@ -36,6 +37,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PaymentClient interface {
+	// 创建捐赠订单
+	Donate(ctx context.Context, in *DonateReq, opts ...grpc.CallOption) (*DonateResp, error)
 	// 创建支付订单
 	CreatePayment(ctx context.Context, in *CreatePaymentReq, opts ...grpc.CallOption) (*CreatePaymentResp, error)
 	// 重新支付订单
@@ -66,6 +69,15 @@ type paymentClient struct {
 
 func NewPaymentClient(cc grpc.ClientConnInterface) PaymentClient {
 	return &paymentClient{cc}
+}
+
+func (c *paymentClient) Donate(ctx context.Context, in *DonateReq, opts ...grpc.CallOption) (*DonateResp, error) {
+	out := new(DonateResp)
+	err := c.cc.Invoke(ctx, Payment_Donate_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *paymentClient) CreatePayment(ctx context.Context, in *CreatePaymentReq, opts ...grpc.CallOption) (*CreatePaymentResp, error) {
@@ -171,6 +183,8 @@ func (c *paymentClient) Goods(ctx context.Context, in *GoodsReq, opts ...grpc.Ca
 // All implementations must embed UnimplementedPaymentServer
 // for forward compatibility
 type PaymentServer interface {
+	// 创建捐赠订单
+	Donate(context.Context, *DonateReq) (*DonateResp, error)
 	// 创建支付订单
 	CreatePayment(context.Context, *CreatePaymentReq) (*CreatePaymentResp, error)
 	// 重新支付订单
@@ -200,6 +214,9 @@ type PaymentServer interface {
 type UnimplementedPaymentServer struct {
 }
 
+func (UnimplementedPaymentServer) Donate(context.Context, *DonateReq) (*DonateResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Donate not implemented")
+}
 func (UnimplementedPaymentServer) CreatePayment(context.Context, *CreatePaymentReq) (*CreatePaymentResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePayment not implemented")
 }
@@ -244,6 +261,24 @@ type UnsafePaymentServer interface {
 
 func RegisterPaymentServer(s grpc.ServiceRegistrar, srv PaymentServer) {
 	s.RegisterService(&Payment_ServiceDesc, srv)
+}
+
+func _Payment_Donate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DonateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PaymentServer).Donate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Payment_Donate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PaymentServer).Donate(ctx, req.(*DonateReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Payment_CreatePayment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -451,6 +486,10 @@ var Payment_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "payment.Payment",
 	HandlerType: (*PaymentServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Donate",
+			Handler:    _Payment_Donate_Handler,
+		},
 		{
 			MethodName: "CreatePayment",
 			Handler:    _Payment_CreatePayment_Handler,

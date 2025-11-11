@@ -149,6 +149,26 @@ type CreatePaymentResp struct {
 	PayUrl     string `json:"pay_url"`      // 支付链接
 }
 
+type DonateReq struct {
+	Amount      float64 `json:"amount"`                // 支付金额
+	Subject     string  `json:"subject"`               // 订单标题
+	Body        string  `json:"body,optional"`         // 订单描述
+	ReturnUrl   string  `json:"return_url,optional"`   // 支付成功跳转地址
+	NotifyUrl   string  `json:"notify_url,optional"`   // 支付结果异步通知地址
+	Timeout     string  `json:"timeout,optional"`      // 订单超时时间
+	ProductCode string  `json:"product_code,optional"` // 产品码，默认FAST_INSTANT_TRADE_PAY
+	PayType     int     `json:"pay_type,optional"`     // 支付类型：1:支付宝2:微信3:银行卡
+	BuyType     int     `json:"buy_type,optional"`     // 购买类型：1:捐赠2:购买会员3:商品消费
+	Remark      string  `json:"remark,optional"`       // 备注
+}
+
+type DonateResp struct {
+	PaymentId  string `json:"payment_id"`   // 支付ID
+	OutTradeNo string `json:"out_trade_no"` // 商户订单号
+	OrderSn    string `json:"order_sn"`     // 订单号
+	PayUrl     string `json:"pay_url"`      // 支付链接
+}
+
 type GetMembershipListResp struct {
 	List []*MembershipType `json:"list"`
 }

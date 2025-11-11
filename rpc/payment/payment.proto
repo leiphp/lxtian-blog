@@ -3,6 +3,27 @@ syntax = "proto3";
 package payment;
 option go_package="./payment";
 
+message DonateReq {
+  double amount = 1;            // 支付金额
+  string subject = 2;           // 订单标题
+  string body = 3;              // 订单描述
+  string return_url = 4;        // 支付成功跳转地址
+  string notify_url = 5;        // 支付结果异步通知地址
+  string timeout = 6;           // 订单超时时间
+  uint64 user_id = 7;           // 用户ID
+  string product_code = 8;      // 产品码，默认FAST_INSTANT_TRADE_PAY
+  string client_ip = 9;         // 客户端IP
+  int64 pay_type = 10;          // 支付类型：1:支付宝2:微信3:银行卡
+  int64 buy_type = 11;          // 购买类型：1:捐赠2:购买会员3:商城消费
+  string remark = 12;           // 备注
+}
+
+message DonateResp {
+  string payment_id = 1;        // 支付ID
+  string out_trade_no = 2;      // 商户订单号
+  string order_sn = 3;          // 订单号
+  string pay_url = 4;           // 支付链接
+}
 
 // 创建支付订单请求（一步完成：创建订单+支付）
 message CreatePaymentReq {
@@ -190,6 +211,9 @@ message GoodsResp {
 
 // 支付服务定义
 service Payment {
+  // 创建捐赠订单
+  rpc Donate(DonateReq) returns(DonateResp);
+
   // 创建支付订单
   rpc CreatePayment(CreatePaymentReq) returns(CreatePaymentResp);
 

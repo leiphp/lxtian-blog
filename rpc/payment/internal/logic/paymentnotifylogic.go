@@ -164,37 +164,67 @@ func buildSignContent(rawData string) (string, error) {
 		return "", fmt.Errorf("raw notify data is empty")
 	}
 
-	// 解析原始数据
-	values, err := url.ParseQuery(rawData)
-	if err != nil {
-		return "", fmt.Errorf("parse notify data failed: %w", err)
+	segments := strings.Split(rawData, "&")
+	if len(segments) == 0 {
+		return "", fmt.Errorf("invalid notify data")
 	}
 
-	// 移除sign和sign_type参数
-	values.Del("sign")
-	values.Del("sign_type")
+	values := make(map[string][]string)
+	for _, segment := range segments {
+		if segment == "" {
+			continue
+		}
+
+		kv := strings.SplitN(segment, "=", 2)
+		key := kv[0]
+		var value string
+		if len(kv) == 2 {
+			value = kv[1]
+		}
+
+		if key == "sign" || key == "sign_type" {
+			continue
+		}
+
+		decodedKey, err := url.QueryUnescape(key)
+		if err != nil {
+			decodedKey = key
+		}
+
+		decodedValue, err := url.QueryUnescape(value)
+		if err != nil {
+			decodedValue = value
+		}
+
+		values[decodedKey] = append(values[decodedKey], decodedValue)
+	}
 
 	if len(values) == 0 {
 		return "", fmt.Errorf("no parameters available for sign")
 	}
 
-	// 收集并排序参数
-	var keys []string
-	for key, val := range values {
-		if len(val) > 0 && strings.TrimSpace(val[0]) != "" {
-			keys = append(keys, key)
-		}
+	keys := make([]string, 0, len(values))
+	for key := range values {
+		keys = append(keys, key)
 	}
 	sort.Strings(keys)
 
-	// 构建待验签字符串
-	var parts []string
+	var builder strings.Builder
+	first := true
 	for _, key := range keys {
-		value := values.Get(key)
-		parts = append(parts, fmt.Sprintf("%s=%s", key, value))
+		for _, value := range values[key] {
+			if !first {
+				builder.WriteByte('&')
+			} else {
+				first = false
+			}
+			builder.WriteString(key)
+			builder.WriteByte('=')
+			builder.WriteString(value)
+		}
 	}
 
-	return strings.Join(parts, "&"), nil
+	return builder.String(), nil
 }
 
 // 解析通知数据
