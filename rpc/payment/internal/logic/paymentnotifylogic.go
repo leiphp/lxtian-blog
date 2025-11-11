@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -124,14 +125,76 @@ func (l *PaymentNotifyLogic) verifySign(data, sign string) error {
 	if strings.TrimSpace(sign) == "" {
 		return fmt.Errorf("sign is empty")
 	}
-	if data == "" {
+
+	// 构建待验签内容
+	signContent, err := buildSignContent(data)
+	if err != nil {
+		return fmt.Errorf("failed to build sign content: %w", err)
+	}
+	if signContent == "" {
 		return fmt.Errorf("sign content is empty")
 	}
 
-	l.Infof("Verifying sign, content: %s, sign: %s", data, sign)
+	l.Infof("Verifying sign, content length: %d", len(signContent))
+	l.Infof("Verifying sign, sign length: %d", len(sign))
+	l.Infof("Verifying sign, sign (first 50 chars): %s", safeSubstring(sign, 50))
 
 	// 使用支付宝客户端验证签名
-	return l.svcCtx.AlipayClient.VerifySign(data, sign)
+	err = l.svcCtx.AlipayClient.VerifySign(signContent, sign)
+	if err != nil {
+		l.Errorf("Alipay sign verification failed: %v", err)
+		return fmt.Errorf("alipay sign verification failed: %w", err)
+	}
+
+	l.Infof("Alipay sign verification success")
+	return nil
+}
+
+// 安全截取字符串
+func safeSubstring(s string, length int) string {
+	if len(s) <= length {
+		return s
+	}
+	return s[:length] + "..."
+}
+
+// buildSignContent 构建待验签字符串
+func buildSignContent(rawData string) (string, error) {
+	if strings.TrimSpace(rawData) == "" {
+		return "", fmt.Errorf("raw notify data is empty")
+	}
+
+	// 解析原始数据
+	values, err := url.ParseQuery(rawData)
+	if err != nil {
+		return "", fmt.Errorf("parse notify data failed: %w", err)
+	}
+
+	// 移除sign和sign_type参数
+	values.Del("sign")
+	values.Del("sign_type")
+
+	if len(values) == 0 {
+		return "", fmt.Errorf("no parameters available for sign")
+	}
+
+	// 收集并排序参数
+	var keys []string
+	for key, val := range values {
+		if len(val) > 0 && strings.TrimSpace(val[0]) != "" {
+			keys = append(keys, key)
+		}
+	}
+	sort.Strings(keys)
+
+	// 构建待验签字符串
+	var parts []string
+	for _, key := range keys {
+		value := values.Get(key)
+		parts = append(parts, fmt.Sprintf("%s=%s", key, value))
+	}
+
+	return strings.Join(parts, "&"), nil
 }
 
 // 解析通知数据
