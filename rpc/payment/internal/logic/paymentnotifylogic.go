@@ -131,14 +131,7 @@ func (l *PaymentNotifyLogic) verifySign(data, sign string) error {
 	l.Infof("Verifying sign, content: %s, sign: %s", data, sign)
 
 	// 使用支付宝客户端验证签名
-	err := l.svcCtx.AlipayClient.VerifySign(data, sign)
-	if err != nil {
-		l.Errorf("Alipay sign verification failed: %v", err)
-		return fmt.Errorf("alipay sign verification failed: %w", err)
-	}
-
-	l.Infof("Alipay sign verification success")
-	return nil
+	return l.svcCtx.AlipayClient.VerifySign(data, sign)
 }
 
 // 解析通知数据
