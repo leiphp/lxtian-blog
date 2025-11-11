@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math"
 	"net/url"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -125,17 +124,21 @@ func (l *PaymentNotifyLogic) verifySign(data, sign string) error {
 	if strings.TrimSpace(sign) == "" {
 		return fmt.Errorf("sign is empty")
 	}
-
-	signContent, err := buildSignContent(data)
-	if err != nil {
-		return fmt.Errorf("failed to build sign content: %w", err)
-	}
-	if signContent == "" {
+	if data == "" {
 		return fmt.Errorf("sign content is empty")
 	}
 
+	l.Infof("Verifying sign, content: %s, sign: %s", data, sign)
+
 	// 使用支付宝客户端验证签名
-	return l.svcCtx.AlipayClient.VerifySign(signContent, sign)
+	err := l.svcCtx.AlipayClient.VerifySign(data, sign)
+	if err != nil {
+		l.Errorf("Alipay sign verification failed: %v", err)
+		return fmt.Errorf("alipay sign verification failed: %w", err)
+	}
+
+	l.Infof("Alipay sign verification success")
+	return nil
 }
 
 // 解析通知数据
@@ -438,56 +441,4 @@ func parseFloat(s string) (float64, error) {
 	}
 
 	return value, nil
-}
-
-// buildSignContent 根据支付宝签名规则构建待验签字符串
-func buildSignContent(rawData string) (string, error) {
-	if strings.TrimSpace(rawData) == "" {
-		return "", fmt.Errorf("raw notify data is empty")
-	}
-
-	values, err := url.ParseQuery(rawData)
-	if err != nil {
-		return "", fmt.Errorf("parse notify data failed: %w", err)
-	}
-
-	values.Del("sign")
-	values.Del("sign_type")
-
-	if len(values) == 0 {
-		return "", fmt.Errorf("no parameters available for sign")
-	}
-
-	keys := make([]string, 0, len(values))
-	for key, val := range values {
-		if len(val) == 0 {
-			continue
-		}
-		if strings.TrimSpace(val[0]) == "" {
-			continue
-		}
-		keys = append(keys, key)
-	}
-
-	sort.Strings(keys)
-
-	var builder strings.Builder
-	first := true
-	for _, key := range keys {
-		value := values.Get(key)
-		if strings.TrimSpace(value) == "" {
-			continue
-		}
-
-		if !first {
-			builder.WriteByte('&')
-		} else {
-			first = false
-		}
-		builder.WriteString(key)
-		builder.WriteByte('=')
-		builder.WriteString(value)
-	}
-
-	return builder.String(), nil
 }
