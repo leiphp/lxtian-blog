@@ -213,6 +213,11 @@ func buildSignContent(rawData string) (string, error) {
 	first := true
 	for _, key := range keys {
 		for _, value := range values[key] {
+			// 排除空值参数（支付宝规则：空值参数不参与签名）
+			if value == "" {
+				continue
+			}
+
 			if !first {
 				builder.WriteByte('&')
 			} else {
