@@ -30,3 +30,4 @@ html
 test/
 docs/
 tools/
+rpc/payment/internal/logic/*_test.go
