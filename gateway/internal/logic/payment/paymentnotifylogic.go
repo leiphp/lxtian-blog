@@ -57,8 +57,15 @@ func (l *PaymentNotifyLogic) PaymentNotify(req *types.PaymentNotifyReq) (resp *t
 		return nil, err
 	}
 
+	// 如果回调处理成功，返回 "success" 字符串
+	if rpcResp.Success {
+		return &types.PaymentNotifyResp{
+			Result: "success",
+		}, nil
+	}
+
+	// 如果处理失败，返回错误信息
 	return &types.PaymentNotifyResp{
-		Success: rpcResp.Success,
-		Message: rpcResp.Message,
+		Result: rpcResp.Message,
 	}, nil
 }

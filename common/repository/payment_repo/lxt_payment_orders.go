@@ -123,7 +123,7 @@ func (r *paymentOrderRepository) UpdateTradeInfo(ctx context.Context, paymentId 
 	}
 
 	if gmtPayment != nil {
-		updates["gmt_payment"] = gmtPayment
+		updates["pay_time"] = gmtPayment
 	}
 
 	return r.UpdateByCondition(ctx,

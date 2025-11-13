@@ -135,10 +135,6 @@ func (l *PaymentNotifyLogic) verifySign(data, sign string) error {
 		return fmt.Errorf("sign content is empty")
 	}
 
-	l.Infof("Verifying sign, content length: %d", len(signContent))
-	l.Infof("Verifying sign, sign length: %d", len(sign))
-	l.Infof("Verifying sign, sign (first 50 chars): %s", safeSubstring(sign, 50))
-
 	// 使用支付宝客户端验证签名
 	err = l.svcCtx.AlipayClient.VerifySign(signContent, sign)
 	if err != nil {

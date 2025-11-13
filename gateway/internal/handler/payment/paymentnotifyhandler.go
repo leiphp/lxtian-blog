@@ -38,12 +38,23 @@ func PaymentNotifyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			SignType:   values.Get("sign_type"),
 		}
 
-		logc.Infof(r.Context(), "Passing raw data to rpc, length: %d", len(rawBody))
-		logc.Infof(r.Context(), "Sign: %s", req.Sign)
-		logc.Infof(r.Context(), "SignType: %s", req.SignType)
-
 		l := payment.NewPaymentNotifyLogic(r.Context(), svcCtx)
 		resp, err := l.PaymentNotify(&req)
-		response.Response(r, w, resp, err)
+		if err != nil {
+			logc.Errorf(r.Context(), "PaymentNotifyHandler error: %v", err)
+			response.Response(r, w, nil, err)
+			return
+		}
+
+		// 支付宝回调需要返回纯文本 "success"，而不是 JSON
+		// 注意：需要先执行 goctl api go 生成 types，然后 resp.Result 才能使用
+		result := "success"
+		if resp != nil && resp.Result != "" {
+			result = resp.Result
+		}
+
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(result))
 	}
 }
