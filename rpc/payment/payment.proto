@@ -159,9 +159,10 @@ message PaymentNotifyResp {
 
 // 关闭支付订单请求
 message ClosePaymentReq {
-  string payment_id = 1;        // 支付ID
-  string order_sn = 2;          // 订单SN
-  string out_trade_no = 3;      // 商户订单号
+  int64 user_id = 1;           // 用户ID
+  string payment_id = 2;        // 支付ID
+  string order_sn = 3;          // 订单SN
+  string out_trade_no = 4;      // 商户订单号
 }
 
 // 关闭支付订单响应

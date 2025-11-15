@@ -53,6 +53,15 @@ func (l *ClosePaymentLogic) ClosePayment(in *payment.ClosePaymentReq) (*payment.
 		}, fmt.Errorf("payment order not found: %w", err)
 	}
 
+	// 验证订单是否属于该用户
+	if paymentOrder.UserID != int64(in.UserId) {
+		l.Errorf("User %d attempted to close order %s belonging to user %d", in.UserId, in.OrderSn, paymentOrder.UserID)
+		return &payment.ClosePaymentResp{
+			Success: false,
+			Message: "无权关闭该订单",
+		}, fmt.Errorf("order does not belong to user")
+	}
+
 	// 检查订单状态是否允许关闭
 	if paymentOrder.Status != constant.PaymentStatusPending {
 		return &payment.ClosePaymentResp{
@@ -60,11 +69,9 @@ func (l *ClosePaymentLogic) ClosePayment(in *payment.ClosePaymentReq) (*payment.
 			Message: "订单状态不允许关闭",
 		}, fmt.Errorf("order status does not allow close")
 	}
-
 	// 调用支付宝API关闭订单
 	alipayReq := &alipay.TradeCloseRequest{
 		OutTradeNo: paymentOrder.OutTradeNo,
-		TradeNo:    paymentOrder.TradeNo,
 	}
 
 	alipayResp, err := l.svcCtx.AlipayClient.ClosePayment(alipayReq)

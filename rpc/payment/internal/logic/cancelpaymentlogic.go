@@ -7,7 +7,6 @@ import (
 	"lxtian-blog/common/repository/payment_repo"
 
 	"lxtian-blog/common/model"
-	"lxtian-blog/common/pkg/alipay"
 	"lxtian-blog/rpc/payment/internal/svc"
 	"lxtian-blog/rpc/payment/pb/payment"
 )
@@ -68,20 +67,20 @@ func (l *CancelPaymentLogic) CancelPayment(in *payment.CancelPaymentReq) (*payme
 		}, fmt.Errorf("order status does not allow cancel")
 	}
 
-	// 调用支付宝API取消订单
-	alipayReq := &alipay.TradeCancelRequest{
-		OutTradeNo: paymentOrder.OutTradeNo,
-		TradeNo:    paymentOrder.TradeNo,
-	}
-
-	alipayResp, err := l.svcCtx.AlipayClient.CancelPayment(alipayReq)
-	if err != nil {
-		l.Errorf("Failed to cancel alipay payment: %v", err)
-		return &payment.CancelPaymentResp{
-			Success: false,
-			Message: "取消支付订单失败",
-		}, fmt.Errorf("failed to cancel alipay payment: %w", err)
-	}
+	// 调用支付宝API取消订单 todo 电脑网站支付不支持取消接口
+	//alipayReq := &alipay.TradeCancelRequest{
+	//	OutTradeNo: paymentOrder.OutTradeNo,
+	//	TradeNo:    paymentOrder.TradeNo,
+	//}
+	//
+	//alipayResp, err := l.svcCtx.AlipayClient.CancelPayment(alipayReq)
+	//if err != nil {
+	//	l.Errorf("Failed to cancel alipay payment: %v", err)
+	//	return &payment.CancelPaymentResp{
+	//		Success: false,
+	//		Message: "取消支付订单失败",
+	//	}, fmt.Errorf("failed to cancel alipay payment: %w", err)
+	//}
 
 	// 更新本地订单状态
 	err = paymentService.UpdateStatus(l.ctx, paymentOrder.PaymentID, constant.PaymentStatusCancelled)
@@ -92,7 +91,7 @@ func (l *CancelPaymentLogic) CancelPayment(in *payment.CancelPaymentReq) (*payme
 
 	// 记录日志
 	l.Infof("Cancelled payment order: paymentId=%s, orderSn=%s, outTradeNo=%s",
-		paymentOrder.PaymentID, paymentOrder.OrderSn, alipayResp.OutTradeNo)
+		paymentOrder.PaymentID, paymentOrder.OrderSn, paymentOrder.OutTradeNo)
 
 	return &payment.CancelPaymentResp{
 		Success: true,

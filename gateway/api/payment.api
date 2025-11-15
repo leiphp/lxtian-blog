@@ -153,6 +153,17 @@ type (
 )
 
 type (
+    // 关闭订单请求
+    OrdersCloseReq {
+        OutTradeNo      string `form:"out_trade_no"`   // 商户订单编号
+    }
+    // 关闭订单响应
+    OrdersCloseResp {
+        Message        string  `json:"message"`          // 返回消息
+    }
+)
+
+type (
     // 非登录创建捐赠订单请求
     DonateReq {
         Amount       float64 `json:"amount"`              // 支付金额
@@ -253,6 +264,10 @@ service gateway-api {
     @doc "删除订单"
     @handler OrdersDel
     get /orders/del (OrdersDelReq) returns (OrdersDelResp)
+
+    @doc "关闭订单"
+    @handler OrdersClose
+    get /orders/close (OrdersCloseReq) returns (OrdersCloseResp)
 }
 
 // 支付回调接口 - 公开接口，支付宝回调使用

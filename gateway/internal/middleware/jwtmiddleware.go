@@ -31,7 +31,7 @@ func (m *JwtMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 		authorization := r.Header.Get("Authorization")
 		if authorization == "" {
 			logc.Errorf(r.Context(), "JwtMiddleware error: %s", "请求头中token为空")
-			response.Response(r, w, nil, errors.New("请求头中token为空"))
+			response.Response(r, w, nil, errors.New("请先登录！"))
 			return
 		}
 		parts := strings.Split(authorization, " ")

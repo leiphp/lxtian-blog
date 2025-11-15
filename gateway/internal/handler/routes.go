@@ -38,6 +38,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: payment.OrdersCancelHandler(serverCtx),
 				},
 				{
+					// 关闭订单
+					Method:  http.MethodGet,
+					Path:    "/orders/close",
+					Handler: payment.OrdersCloseHandler(serverCtx),
+				},
+				{
 					// 删除订单
 					Method:  http.MethodGet,
 					Path:    "/orders/del",

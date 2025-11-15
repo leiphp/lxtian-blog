@@ -252,6 +252,14 @@ type OrdersCancelResp struct {
 	Message string `json:"message"` // 返回消息
 }
 
+type OrdersCloseReq struct {
+	OutTradeNo string `form:"out_trade_no"` // 商户订单编号
+}
+
+type OrdersCloseResp struct {
+	Message string `json:"message"` // 返回消息
+}
+
 type OrdersDelReq struct {
 	OrderSn string `form:"order_sn"` // 订单编号
 }
