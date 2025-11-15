@@ -53,7 +53,7 @@ message CreatePaymentResp {
 
 // 重新支付订单请求（针对已存在的未支付订单）
 message RepayOrderReq {
-  string order_id = 1;          // 订单ID
+  string order_sn = 1;          // 订单SN
   string out_trade_no = 2;      // 商户订单号
   uint64 user_id = 3;           // 用户ID
   string return_url = 4;        // 支付成功跳转地址
@@ -72,14 +72,14 @@ message RepayOrderResp {
 // 支付结果查询请求
 message QueryPaymentReq {
   string payment_id = 1;        // 支付ID
-  string order_id = 2;          // 订单ID
+  string order_sn = 2;          // 订单SN
   string out_trade_no = 3;      // 商户订单号
 }
 
 // 支付结果查询响应
 message QueryPaymentResp {
   string payment_id = 1;        // 支付ID
-  string order_id = 2;          // 订单ID
+  string order_sn = 2;          // 订单SN
   string out_trade_no = 3;      // 商户订单号
   string trade_no = 4;          // 支付宝交易号
   string trade_status = 5;      // 交易状态
@@ -95,7 +95,7 @@ message QueryPaymentResp {
 // 支付退款请求
 message RefundPaymentReq {
   string payment_id = 1;        // 支付ID
-  string order_id = 2;          // 订单ID
+  string order_sn = 2;          // 订单SN
   string out_trade_no = 3;      // 商户订单号
   double refund_amount = 4;     // 退款金额
   string refund_reason = 5;     // 退款原因
@@ -138,7 +138,7 @@ message OrdersStatisticsReq {
 // 支付订单统计响应
 message OrdersStatisticsResp {
   int64 total = 1;              // 总数
-  int64 finish = 2;             // 已完成
+  int64 paid = 2;               // 已完成
   int64 pending = 3;            // 待支付
   float pay_amount = 4;         // 支付金额
 }
@@ -160,7 +160,7 @@ message PaymentNotifyResp {
 // 关闭支付订单请求
 message ClosePaymentReq {
   string payment_id = 1;        // 支付ID
-  string order_id = 2;          // 订单ID
+  string order_sn = 2;          // 订单SN
   string out_trade_no = 3;      // 商户订单号
 }
 
@@ -172,13 +172,26 @@ message ClosePaymentResp {
 
 // 取消支付订单请求
 message CancelPaymentReq {
-  string payment_id = 1;        // 支付ID
-  string order_id = 2;          // 订单ID
-  string out_trade_no = 3;      // 商户订单号
+  int64 user_id = 1;           // 用户ID
+  string payment_id = 2;        // 支付ID
+  string order_sn = 3;          // 订单SN
+  string out_trade_no = 4;      // 商户订单号
 }
 
 // 取消支付订单响应
 message CancelPaymentResp {
+  bool success = 1;             // 是否成功
+  string message = 2;           // 返回消息
+}
+
+// 取消支付订单请求
+message DeletePaymentReq {
+  int64 user_id = 1;           // 用户ID
+  string order_sn = 2;          // 订单Sn
+}
+
+// 取消支付订单响应
+message DeletePaymentResp {
   bool success = 1;             // 是否成功
   string message = 2;           // 返回消息
 }
@@ -240,6 +253,9 @@ service Payment {
 
   // 取消支付订单
   rpc CancelPayment(CancelPaymentReq) returns(CancelPaymentResp);
+
+  // 删除支付订单
+  rpc DeletePayment(DeletePaymentReq) returns(DeletePaymentResp);
 
   // 商品列表查询
   rpc GoodsList(GoodsListReq) returns(GoodsListResp);

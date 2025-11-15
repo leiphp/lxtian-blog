@@ -16,7 +16,7 @@ type PaymentOrderRepository interface {
 
 	// 支付订单特有方法
 	GetByPaymentId(ctx context.Context, paymentId string) (*model.LxtPaymentOrder, error)
-	GetByOrderId(ctx context.Context, orderId string) (*model.LxtPaymentOrder, error)
+	GetByOrderSn(ctx context.Context, orderSn string) (*model.LxtPaymentOrder, error)
 	GetByOutTradeNo(ctx context.Context, outTradeNo string) (*model.LxtPaymentOrder, error)
 	GetByUserId(ctx context.Context, userId uint64, page, pageSize int, keywords string) ([]*model.LxtPaymentOrder, int64, error)
 	GetByStatus(ctx context.Context, status string, page, pageSize int, keywords string) ([]*model.LxtPaymentOrder, int64, error)
@@ -26,6 +26,9 @@ type PaymentOrderRepository interface {
 	UpdateStatus(ctx context.Context, paymentId string, status string) error
 	UpdateTradeInfo(ctx context.Context, paymentId string, tradeNo, tradeStatus, buyerUserId, buyerLogonId string, receiptAmount float64, gmtPayment interface{}) error
 	UpdateNotifyInfo(ctx context.Context, paymentId string, notifyData string) error
+
+	// 删除方法
+	SoftDeleteByOrderSn(ctx context.Context, orderSn string) error
 
 	// 统计方法
 	GetCountByUserId(ctx context.Context, userId uint64) (int64, error)
@@ -68,10 +71,10 @@ func (r *paymentOrderRepository) GetByPaymentId(ctx context.Context, paymentId s
 	})
 }
 
-// GetByOrderId 根据订单ID获取支付订单
-func (r *paymentOrderRepository) GetByOrderId(ctx context.Context, orderId string) (*model.LxtPaymentOrder, error) {
+// GetByOrderSn 根据订单Sn获取支付订单
+func (r *paymentOrderRepository) GetByOrderSn(ctx context.Context, orderSn string) (*model.LxtPaymentOrder, error) {
 	return r.GetByCondition(ctx, map[string]interface{}{
-		"order_id": orderId,
+		"order_sn": orderSn,
 	})
 }
 
@@ -303,4 +306,10 @@ func (r *paymentOrderRepository) UpdatePaymentOrderStatus(ctx context.Context, p
 // UpdatePaymentOrderTradeInfo 更新支付订单交易信息
 func (r *paymentOrderRepository) UpdatePaymentOrderTradeInfo(ctx context.Context, paymentId string, tradeNo, tradeStatus, buyerUserId, buyerLogonId string, receiptAmount float64, gmtPayment *time.Time) error {
 	return r.UpdateTradeInfo(ctx, paymentId, tradeNo, tradeStatus, buyerUserId, buyerLogonId, receiptAmount, gmtPayment)
+}
+
+// SoftDeleteByOrderSn 根据订单编号软删除订单（设置deleted_at不为空）
+func (r *paymentOrderRepository) SoftDeleteByOrderSn(ctx context.Context, orderSn string) error {
+	db := r.GetDB(ctx)
+	return db.Where("order_sn = ?", orderSn).Delete(&model.LxtPaymentOrder{}).Error
 }

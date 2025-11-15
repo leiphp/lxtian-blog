@@ -23,7 +23,7 @@ func NewOrdersStatisticsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 
 // 支付订单统计
 func (l *OrdersStatisticsLogic) OrdersStatistics(in *payment.OrdersStatisticsReq) (*payment.OrdersStatisticsResp, error) {
-	var total, finish, pending int64
+	var total, paid, pending int64
 	var payAmount float64
 	var err error
 
@@ -41,7 +41,7 @@ func (l *OrdersStatisticsLogic) OrdersStatistics(in *payment.OrdersStatisticsReq
 			"user_id": uint64(in.UserId),
 			"status":  constant.PaymentStatusPaid,
 		}
-		finish, err = l.paymentService.Count(l.ctx, condition)
+		paid, err = l.paymentService.Count(l.ctx, condition)
 		if err != nil {
 			l.Errorf("Failed to get finish count: %v", err)
 			return nil, err
@@ -74,7 +74,7 @@ func (l *OrdersStatisticsLogic) OrdersStatistics(in *payment.OrdersStatisticsReq
 		}
 
 		// 获取已完成数量（已支付）
-		finish, err = l.paymentService.GetCountByStatus(l.ctx, constant.PaymentStatusPaid)
+		paid, err = l.paymentService.GetCountByStatus(l.ctx, constant.PaymentStatusPaid)
 		if err != nil {
 			l.Errorf("Failed to get finish count: %v", err)
 			return nil, err
@@ -97,7 +97,7 @@ func (l *OrdersStatisticsLogic) OrdersStatistics(in *payment.OrdersStatisticsReq
 
 	return &payment.OrdersStatisticsResp{
 		Total:     total,
-		Finish:    finish,
+		Paid:      paid,
 		Pending:   pending,
 		PayAmount: float32(payAmount),
 	}, nil

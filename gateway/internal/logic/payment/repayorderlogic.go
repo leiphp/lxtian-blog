@@ -42,7 +42,7 @@ func (l *RepayOrderLogic) RepayOrder(req *types.RepayOrderReq, r *http.Request) 
 
 	// 调用 RPC 服务重新支付订单
 	res, err := l.svcCtx.PaymentRpc.RepayOrder(l.ctx, &payment.RepayOrderReq{
-		OrderId:    req.OrderId,
+		OrderSn:    req.OrderId,
 		OutTradeNo: req.OutTradeNo,
 		UserId:     uint64(userId),
 		ReturnUrl:  req.ReturnUrl,

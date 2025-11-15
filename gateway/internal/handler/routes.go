@@ -32,6 +32,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: payment.PaymentHistoryHandler(serverCtx),
 				},
 				{
+					// 取消订单
+					Method:  http.MethodGet,
+					Path:    "/orders/cancel",
+					Handler: payment.OrdersCancelHandler(serverCtx),
+				},
+				{
+					// 删除订单
+					Method:  http.MethodGet,
+					Path:    "/orders/del",
+					Handler: payment.OrdersDelHandler(serverCtx),
+				},
+				{
 					// 支付订单统计
 					Method:  http.MethodGet,
 					Path:    "/orders/statistics",

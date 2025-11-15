@@ -26,7 +26,7 @@ func NewClosePaymentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Clos
 
 func (l *ClosePaymentLogic) ClosePayment(in *payment.ClosePaymentReq) (*payment.ClosePaymentResp, error) {
 	// 参数验证
-	if in.PaymentId == "" && in.OrderId == "" && in.OutTradeNo == "" {
+	if in.PaymentId == "" && in.OrderSn == "" && in.OutTradeNo == "" {
 		return &payment.ClosePaymentResp{
 			Success: false,
 			Message: "支付ID、订单ID或商户订单号至少提供一个",
@@ -39,8 +39,8 @@ func (l *ClosePaymentLogic) ClosePayment(in *payment.ClosePaymentReq) (*payment.
 	// 根据提供的参数查找支付订单
 	if in.PaymentId != "" {
 		paymentOrder, err = l.paymentService.GetByPaymentId(l.ctx, in.PaymentId)
-	} else if in.OrderId != "" {
-		paymentOrder, err = l.paymentService.GetByOrderId(l.ctx, in.OrderId)
+	} else if in.OrderSn != "" {
+		paymentOrder, err = l.paymentService.GetByOrderSn(l.ctx, in.OrderSn)
 	} else if in.OutTradeNo != "" {
 		paymentOrder, err = l.paymentService.GetByOutTradeNo(l.ctx, in.OutTradeNo)
 	}

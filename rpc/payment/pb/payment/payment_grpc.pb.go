@@ -29,6 +29,7 @@ const (
 	Payment_PaymentNotify_FullMethodName    = "/payment.Payment/PaymentNotify"
 	Payment_ClosePayment_FullMethodName     = "/payment.Payment/ClosePayment"
 	Payment_CancelPayment_FullMethodName    = "/payment.Payment/CancelPayment"
+	Payment_DeletePayment_FullMethodName    = "/payment.Payment/DeletePayment"
 	Payment_GoodsList_FullMethodName        = "/payment.Payment/GoodsList"
 	Payment_Goods_FullMethodName            = "/payment.Payment/Goods"
 )
@@ -57,6 +58,8 @@ type PaymentClient interface {
 	ClosePayment(ctx context.Context, in *ClosePaymentReq, opts ...grpc.CallOption) (*ClosePaymentResp, error)
 	// 取消支付订单
 	CancelPayment(ctx context.Context, in *CancelPaymentReq, opts ...grpc.CallOption) (*CancelPaymentResp, error)
+	// 删除支付订单
+	DeletePayment(ctx context.Context, in *DeletePaymentReq, opts ...grpc.CallOption) (*DeletePaymentResp, error)
 	// 商品列表查询
 	GoodsList(ctx context.Context, in *GoodsListReq, opts ...grpc.CallOption) (*GoodsListResp, error)
 	// 商品详情
@@ -161,6 +164,15 @@ func (c *paymentClient) CancelPayment(ctx context.Context, in *CancelPaymentReq,
 	return out, nil
 }
 
+func (c *paymentClient) DeletePayment(ctx context.Context, in *DeletePaymentReq, opts ...grpc.CallOption) (*DeletePaymentResp, error) {
+	out := new(DeletePaymentResp)
+	err := c.cc.Invoke(ctx, Payment_DeletePayment_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *paymentClient) GoodsList(ctx context.Context, in *GoodsListReq, opts ...grpc.CallOption) (*GoodsListResp, error) {
 	out := new(GoodsListResp)
 	err := c.cc.Invoke(ctx, Payment_GoodsList_FullMethodName, in, out, opts...)
@@ -203,6 +215,8 @@ type PaymentServer interface {
 	ClosePayment(context.Context, *ClosePaymentReq) (*ClosePaymentResp, error)
 	// 取消支付订单
 	CancelPayment(context.Context, *CancelPaymentReq) (*CancelPaymentResp, error)
+	// 删除支付订单
+	DeletePayment(context.Context, *DeletePaymentReq) (*DeletePaymentResp, error)
 	// 商品列表查询
 	GoodsList(context.Context, *GoodsListReq) (*GoodsListResp, error)
 	// 商品详情
@@ -243,6 +257,9 @@ func (UnimplementedPaymentServer) ClosePayment(context.Context, *ClosePaymentReq
 }
 func (UnimplementedPaymentServer) CancelPayment(context.Context, *CancelPaymentReq) (*CancelPaymentResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelPayment not implemented")
+}
+func (UnimplementedPaymentServer) DeletePayment(context.Context, *DeletePaymentReq) (*DeletePaymentResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeletePayment not implemented")
 }
 func (UnimplementedPaymentServer) GoodsList(context.Context, *GoodsListReq) (*GoodsListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GoodsList not implemented")
@@ -443,6 +460,24 @@ func _Payment_CancelPayment_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Payment_DeletePayment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeletePaymentReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PaymentServer).DeletePayment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Payment_DeletePayment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PaymentServer).DeletePayment(ctx, req.(*DeletePaymentReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Payment_GoodsList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GoodsListReq)
 	if err := dec(in); err != nil {
@@ -525,6 +560,10 @@ var Payment_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CancelPayment",
 			Handler:    _Payment_CancelPayment_Handler,
+		},
+		{
+			MethodName: "DeletePayment",
+			Handler:    _Payment_DeletePayment_Handler,
 		},
 		{
 			MethodName: "GoodsList",

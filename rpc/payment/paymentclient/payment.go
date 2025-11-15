@@ -20,6 +20,8 @@ type (
 	ClosePaymentResp     = payment.ClosePaymentResp
 	CreatePaymentReq     = payment.CreatePaymentReq
 	CreatePaymentResp    = payment.CreatePaymentResp
+	DeletePaymentReq     = payment.DeletePaymentReq
+	DeletePaymentResp    = payment.DeletePaymentResp
 	DonateReq            = payment.DonateReq
 	DonateResp           = payment.DonateResp
 	GoodsListReq         = payment.GoodsListReq
@@ -60,6 +62,8 @@ type (
 		ClosePayment(ctx context.Context, in *ClosePaymentReq, opts ...grpc.CallOption) (*ClosePaymentResp, error)
 		// 取消支付订单
 		CancelPayment(ctx context.Context, in *CancelPaymentReq, opts ...grpc.CallOption) (*CancelPaymentResp, error)
+		// 删除支付订单
+		DeletePayment(ctx context.Context, in *DeletePaymentReq, opts ...grpc.CallOption) (*DeletePaymentResp, error)
 		// 商品列表查询
 		GoodsList(ctx context.Context, in *GoodsListReq, opts ...grpc.CallOption) (*GoodsListResp, error)
 		// 商品详情
@@ -135,6 +139,12 @@ func (m *defaultPayment) ClosePayment(ctx context.Context, in *ClosePaymentReq, 
 func (m *defaultPayment) CancelPayment(ctx context.Context, in *CancelPaymentReq, opts ...grpc.CallOption) (*CancelPaymentResp, error) {
 	client := payment.NewPaymentClient(m.cli.Conn())
 	return client.CancelPayment(ctx, in, opts...)
+}
+
+// 删除支付订单
+func (m *defaultPayment) DeletePayment(ctx context.Context, in *DeletePaymentReq, opts ...grpc.CallOption) (*DeletePaymentResp, error) {
+	client := payment.NewPaymentClient(m.cli.Conn())
+	return client.DeletePayment(ctx, in, opts...)
 }
 
 // 商品列表查询

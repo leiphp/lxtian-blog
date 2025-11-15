@@ -124,9 +124,31 @@ type (
     // 订单统计响应
     OrdersStatisticsResp {
         Total         int64                    `json:"total"`         // 总数
-        Finish        int64                    `json:"finish"`        // 已完成
+        Paid          int64                    `json:"paid"`          // 已完成
         Pending       int64                    `json:"pending"`       // 待支付
         PayAmount     float64                  `json:"pay_amount"`    // 支付总金额
+    }
+)
+
+type (
+    // 订单取消请求
+    OrdersCancelReq {
+        OrderSn      string `json:"order_sn"`   // 订单编号
+    }
+    // 订单取消响应
+    OrdersCancelResp {
+        Message        string  `json:"message"`          // 返回消息
+    }
+)
+
+type (
+    // 支付结果查询请求
+    OrdersDelReq {
+        OrderSn      string `json:"order_sn"`   // 订单编号
+    }
+    // 支付结果查询响应
+    OrdersDelResp {
+        Message        string  `json:"message"`          // 返回消息
     }
 )
 
@@ -223,6 +245,14 @@ service gateway-api {
     @doc "支付订单统计"
     @handler OrdersStatistics
     get /orders/statistics returns (OrdersStatisticsResp)
+
+    @doc "取消订单"
+    @handler OrdersCancel
+    get /orders/cancel (OrdersCancelReq) returns (OrdersCancelResp)
+
+    @doc "删除订单"
+    @handler OrdersDel
+    get /orders/del (OrdersDelReq) returns (OrdersDelResp)
 }
 
 // 支付回调接口 - 公开接口，支付宝回调使用

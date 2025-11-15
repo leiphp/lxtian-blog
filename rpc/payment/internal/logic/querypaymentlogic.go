@@ -27,7 +27,7 @@ func NewQueryPaymentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Quer
 
 func (l *QueryPaymentLogic) QueryPayment(in *payment.QueryPaymentReq) (*payment.QueryPaymentResp, error) {
 	// 参数验证
-	if in.PaymentId == "" && in.OrderId == "" && in.OutTradeNo == "" {
+	if in.PaymentId == "" && in.OrderSn == "" && in.OutTradeNo == "" {
 		return &payment.QueryPaymentResp{
 			Message: "支付ID、订单ID或商户订单号至少提供一个",
 		}, fmt.Errorf("at least one of payment_id, order_id, out_trade_no is required")
@@ -39,8 +39,8 @@ func (l *QueryPaymentLogic) QueryPayment(in *payment.QueryPaymentReq) (*payment.
 	// 根据提供的参数查找支付订单
 	if in.PaymentId != "" {
 		paymentOrder, err = l.paymentService.GetByPaymentId(l.ctx, in.PaymentId)
-	} else if in.OrderId != "" {
-		paymentOrder, err = l.paymentService.GetByOrderId(l.ctx, in.OrderId)
+	} else if in.OrderSn != "" {
+		paymentOrder, err = l.paymentService.GetByOrderSn(l.ctx, in.OrderSn)
 	} else if in.OutTradeNo != "" {
 		paymentOrder, err = l.paymentService.FindPaymentOrderByOutTradeNo(l.ctx, in.OutTradeNo)
 	}
@@ -137,7 +137,7 @@ func (l *QueryPaymentLogic) updatePaymentStatus(paymentOrder *model.LxtPaymentOr
 func (l *QueryPaymentLogic) buildQueryResponse(paymentOrder *model.LxtPaymentOrder) *payment.QueryPaymentResp {
 	resp := &payment.QueryPaymentResp{
 		PaymentId:    paymentOrder.PaymentID,
-		OrderId:      paymentOrder.OrderSn,
+		OrderSn:      paymentOrder.OrderSn,
 		OutTradeNo:   paymentOrder.OutTradeNo,
 		TradeNo:      paymentOrder.TradeNo,
 		TradeStatus:  paymentOrder.TradeStatus,

@@ -244,9 +244,25 @@ type OrderListResp struct {
 	Total    uint64                   `json:"total"`
 }
 
+type OrdersCancelReq struct {
+	OrderSn string `json:"order_sn"` // 订单编号
+}
+
+type OrdersCancelResp struct {
+	Message string `json:"message"` // 返回消息
+}
+
+type OrdersDelReq struct {
+	OrderSn string `json:"order_sn"` // 订单编号
+}
+
+type OrdersDelResp struct {
+	Message string `json:"message"` // 返回消息
+}
+
 type OrdersStatisticsResp struct {
 	Total     int64   `json:"total"`      // 总数
-	Finish    int64   `json:"finish"`     // 已完成
+	Paid      int64   `json:"paid"`       // 已完成
 	Pending   int64   `json:"pending"`    // 待支付
 	PayAmount float64 `json:"pay_amount"` // 支付总金额
 }

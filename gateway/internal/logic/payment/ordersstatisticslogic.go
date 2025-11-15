@@ -41,7 +41,7 @@ func (l *OrdersStatisticsLogic) OrdersStatistics() (resp *types.OrdersStatistics
 
 	return &types.OrdersStatisticsResp{
 		Total:     res.Total,
-		Finish:    res.Finish,
+		Paid:      res.Paid,
 		Pending:   res.Pending,
 		PayAmount: float64(res.PayAmount),
 	}, nil

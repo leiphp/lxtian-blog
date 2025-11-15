@@ -26,7 +26,7 @@ func NewRepayOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *RepayO
 // RepayOrder 重新支付订单（针对已存在的未支付订单）
 func (l *RepayOrderLogic) RepayOrder(in *payment.RepayOrderReq) (*payment.RepayOrderResp, error) {
 	// 参数验证：order_id 和 out_trade_no 至少提供一个
-	if in.OrderId == "" && in.OutTradeNo == "" {
+	if in.OrderSn == "" && in.OutTradeNo == "" {
 		return nil, fmt.Errorf("订单ID或商户订单号至少提供一个")
 	}
 
@@ -38,8 +38,8 @@ func (l *RepayOrderLogic) RepayOrder(in *payment.RepayOrderReq) (*payment.RepayO
 	var paymentOrder model.LxtPaymentOrder
 	query := l.svcCtx.DB.WithContext(l.ctx)
 
-	if in.OrderId != "" {
-		query = query.Where("order_sn = ?", in.OrderId)
+	if in.OrderSn != "" {
+		query = query.Where("order_sn = ?", in.OrderSn)
 	} else {
 		query = query.Where("out_trade_no = ?", in.OutTradeNo)
 	}

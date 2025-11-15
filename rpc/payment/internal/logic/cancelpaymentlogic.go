@@ -24,7 +24,7 @@ func NewCancelPaymentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Can
 
 func (l *CancelPaymentLogic) CancelPayment(in *payment.CancelPaymentReq) (*payment.CancelPaymentResp, error) {
 	// 参数验证
-	if in.PaymentId == "" && in.OrderId == "" && in.OutTradeNo == "" {
+	if in.PaymentId == "" && in.OrderSn == "" && in.OutTradeNo == "" {
 		return &payment.CancelPaymentResp{
 			Success: false,
 			Message: "支付ID、订单ID或商户订单号至少提供一个",
@@ -37,8 +37,8 @@ func (l *CancelPaymentLogic) CancelPayment(in *payment.CancelPaymentReq) (*payme
 	// 根据提供的参数查找支付订单
 	if in.PaymentId != "" {
 		paymentOrder, err = paymentService.GetByPaymentId(l.ctx, in.PaymentId)
-	} else if in.OrderId != "" {
-		paymentOrder, err = paymentService.GetByOrderId(l.ctx, in.OrderId)
+	} else if in.OrderSn != "" {
+		paymentOrder, err = paymentService.GetByOrderSn(l.ctx, in.OrderSn)
 	} else if in.OutTradeNo != "" {
 		paymentOrder, err = paymentService.GetByOutTradeNo(l.ctx, in.OutTradeNo)
 	}

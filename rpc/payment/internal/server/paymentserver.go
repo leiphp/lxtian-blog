@@ -83,6 +83,12 @@ func (s *PaymentServer) CancelPayment(ctx context.Context, in *payment.CancelPay
 	return l.CancelPayment(in)
 }
 
+// 删除支付订单
+func (s *PaymentServer) DeletePayment(ctx context.Context, in *payment.DeletePaymentReq) (*payment.DeletePaymentResp, error) {
+	l := logic.NewDeletePaymentLogic(ctx, s.svcCtx)
+	return l.DeletePayment(in)
+}
+
 // 商品列表查询
 func (s *PaymentServer) GoodsList(ctx context.Context, in *payment.GoodsListReq) (*payment.GoodsListResp, error) {
 	l := logic.NewGoodsListLogic(ctx, s.svcCtx)
