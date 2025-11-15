@@ -27,12 +27,13 @@ func NewOrdersCancelLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Orde
 }
 
 func (l *OrdersCancelLogic) OrdersCancel(req *types.OrdersCancelReq) (resp *types.OrdersCancelResp, err error) {
-	userId, ok := l.ctx.Value("user_id").(int64)
+	userId, ok := l.ctx.Value("user_id").(uint)
 	if !ok {
+		logx.Errorf("OrdersCancel user_id not found in context")
 		return nil, errors.New("user_id not found in context")
 	}
 	res, err := l.svcCtx.PaymentRpc.CancelPayment(l.ctx, &payment.CancelPaymentReq{
-		UserId:  userId,
+		UserId:  int64(userId),
 		OrderSn: req.OrderSn,
 	})
 	if err != nil {

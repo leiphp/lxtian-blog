@@ -27,12 +27,13 @@ func NewOrdersDelLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OrdersD
 }
 
 func (l *OrdersDelLogic) OrdersDel(req *types.OrdersDelReq) (resp *types.OrdersDelResp, err error) {
-	userId, ok := l.ctx.Value("user_id").(int64)
+	userId, ok := l.ctx.Value("user_id").(uint)
 	if !ok {
+		logx.Errorf("OrdersDel user_id not found in context")
 		return nil, errors.New("user_id not found in context")
 	}
 	res, err := l.svcCtx.PaymentRpc.DeletePayment(l.ctx, &payment.DeletePaymentReq{
-		UserId:  userId,
+		UserId:  int64(userId),
 		OrderSn: req.OrderSn,
 	})
 	if err != nil {
