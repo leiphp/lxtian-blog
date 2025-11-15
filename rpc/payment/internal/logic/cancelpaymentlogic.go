@@ -51,6 +51,15 @@ func (l *CancelPaymentLogic) CancelPayment(in *payment.CancelPaymentReq) (*payme
 		}, fmt.Errorf("payment order not found: %w", err)
 	}
 
+	// 验证订单是否属于该用户
+	if paymentOrder.UserID != int64(in.UserId) {
+		l.Errorf("User %d attempted to cancel order %s belonging to user %d", in.UserId, in.OrderSn, paymentOrder.UserID)
+		return &payment.CancelPaymentResp{
+			Success: false,
+			Message: "无权取消该订单",
+		}, fmt.Errorf("order does not belong to user")
+	}
+
 	// 检查订单状态是否允许取消
 	if paymentOrder.Status != constant.PaymentStatusPending {
 		return &payment.CancelPaymentResp{

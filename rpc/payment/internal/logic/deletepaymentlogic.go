@@ -48,6 +48,15 @@ func (l *DeletePaymentLogic) DeletePayment(in *payment.DeletePaymentReq) (*payme
 		}, fmt.Errorf("payment order not found: %w", err)
 	}
 
+	// 验证订单是否属于该用户
+	if paymentOrder.UserID != int64(in.UserId) {
+		l.Errorf("User %d attempted to delete order %s belonging to user %d", in.UserId, in.OrderSn, paymentOrder.UserID)
+		return &payment.DeletePaymentResp{
+			Success: false,
+			Message: "无权删除该订单",
+		}, fmt.Errorf("order does not belong to user")
+	}
+
 	// 更新本地订单状态
 	err = paymentService.SoftDeleteByOrderSn(l.ctx, in.OrderSn)
 	if err != nil {

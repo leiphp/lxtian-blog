@@ -7,6 +7,8 @@ import (
 	"lxtian-blog/common/repository/payment_repo"
 	"lxtian-blog/rpc/payment/internal/svc"
 	"lxtian-blog/rpc/payment/pb/payment"
+
+	"github.com/shopspring/decimal"
 )
 
 type OrdersStatisticsLogic struct {
@@ -95,10 +97,15 @@ func (l *OrdersStatisticsLogic) OrdersStatistics(in *payment.OrdersStatisticsReq
 		}
 	}
 
+	// 使用 decimal 库进行精确计算，避免浮点数精度问题
+	// 将 float64 转换为 decimal，保留2位小数，然后转换回 float32
+	payAmountDecimal := decimal.NewFromFloat(payAmount).Round(2)
+	payAmountFloat32, _ := payAmountDecimal.Float64()
+
 	return &payment.OrdersStatisticsResp{
 		Total:     total,
 		Paid:      paid,
 		Pending:   pending,
-		PayAmount: float32(payAmount),
+		PayAmount: float32(payAmountFloat32),
 	}, nil
 }

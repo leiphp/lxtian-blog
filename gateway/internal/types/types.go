@@ -245,7 +245,7 @@ type OrderListResp struct {
 }
 
 type OrdersCancelReq struct {
-	OrderSn string `json:"order_sn"` // 订单编号
+	OrderSn string `form:"order_sn"` // 订单编号
 }
 
 type OrdersCancelResp struct {
@@ -253,7 +253,7 @@ type OrdersCancelResp struct {
 }
 
 type OrdersDelReq struct {
-	OrderSn string `json:"order_sn"` // 订单编号
+	OrderSn string `form:"order_sn"` // 订单编号
 }
 
 type OrdersDelResp struct {
@@ -261,10 +261,10 @@ type OrdersDelResp struct {
 }
 
 type OrdersStatisticsResp struct {
-	Total     int64   `json:"total"`      // 总数
-	Paid      int64   `json:"paid"`       // 已完成
-	Pending   int64   `json:"pending"`    // 待支付
-	PayAmount float64 `json:"pay_amount"` // 支付总金额
+	Total       int64   `json:"total"`        // 总数
+	Paid        int64   `json:"paid"`         // 已完成
+	Pending     int64   `json:"pending"`      // 待支付
+	TotalAmount float64 `json:"total_amount"` // 支付总金额
 }
 
 type PaymentHistoryReq struct {
@@ -301,9 +301,9 @@ type QrStatusResp struct {
 }
 
 type QueryPaymentReq struct {
-	PaymentId  string `json:"payment_id,optional"`   // 支付ID
-	OrderId    string `json:"order_id,optional"`     // 订单ID
-	OutTradeNo string `json:"out_trade_no,optional"` // 商户订单号
+	PaymentId  string `form:"payment_id,optional"`   // 支付ID
+	OrderId    string `form:"order_id,optional"`     // 订单ID
+	OutTradeNo string `form:"out_trade_no,optional"` // 商户订单号
 }
 
 type QueryPaymentResp struct {
