@@ -1,8 +1,10 @@
 package response
 
 import (
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"net/http"
+
+	"github.com/zeromicro/go-zero/rest/httpx"
+	"google.golang.org/grpc/status"
 )
 
 type Body struct {
@@ -33,8 +35,13 @@ func Response(r *http.Request, w http.ResponseWriter, resp interface{}, err erro
 	if httpErr, ok := err.(*HttpError); ok {
 		statusCode = httpErr.StatusCode
 		errMsg = httpErr.Message
-	} else if err.Error() != "" {
-		errMsg = err.Error()
+	} else {
+		// 尝试提取 gRPC 错误描述，避免返回 "rpc error: code = Unknown desc = " 前缀
+		if st, ok := status.FromError(err); ok {
+			errMsg = st.Message()
+		} else if err.Error() != "" {
+			errMsg = err.Error()
+		}
 	}
 
 	httpx.WriteJson(w, statusCode, &Body{

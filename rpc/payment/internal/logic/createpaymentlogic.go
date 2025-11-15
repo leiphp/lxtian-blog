@@ -7,6 +7,7 @@ import (
 	"lxtian-blog/common/model"
 	"lxtian-blog/common/pkg/alipay"
 	"lxtian-blog/common/pkg/utils"
+	"lxtian-blog/common/repository/payment_repo"
 	"lxtian-blog/rpc/payment/internal/svc"
 	"lxtian-blog/rpc/payment/pb/payment"
 	"strconv"
@@ -34,6 +35,20 @@ func (l *CreatePaymentLogic) CreatePayment(in *payment.CreatePaymentReq) (*payme
 
 	if in.UserId == 0 {
 		return nil, fmt.Errorf("用户ID不能为空")
+	}
+
+	// 检查用户是否有待支付的订单
+	paymentService := payment_repo.NewPaymentOrderRepository(l.svcCtx.DB)
+	pendingCount, err := paymentService.Count(l.ctx, map[string]interface{}{
+		"user_id": uint64(in.UserId),
+		"status":  constant.PaymentStatusPending,
+	})
+	if err != nil {
+		l.Errorf("Failed to check pending orders: %v", err)
+		return nil, fmt.Errorf("检查待支付订单失败: %w", err)
+	}
+	if pendingCount > 0 {
+		return nil, fmt.Errorf("您有待支付的订单，请先处理（取消或关闭）后再创建新订单")
 	}
 
 	// 生成订单ID、支付ID和商户订单号
@@ -83,7 +98,7 @@ func (l *CreatePaymentLogic) CreatePayment(in *payment.CreatePaymentReq) (*payme
 	}
 
 	// 使用GORM保存支付订单到数据库
-	err := l.svcCtx.DB.WithContext(l.ctx).Create(paymentOrder).Error
+	err = l.svcCtx.DB.WithContext(l.ctx).Create(paymentOrder).Error
 	if err != nil {
 		l.Errorf("Failed to insert payment_repo order: %v", err)
 		return nil, fmt.Errorf("创建支付订单失败: %w", err)
