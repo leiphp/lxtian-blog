@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 	"errors"
 	"gorm.io/gorm"
+	"lxtian-blog/common/model"
 	encrypt "lxtian-blog/common/pkg/utils"
 	"lxtian-blog/rpc/user/internal/svc"
-	"lxtian-blog/rpc/user/model"
 	"lxtian-blog/rpc/user/user"
 	"time"
 
@@ -39,7 +39,7 @@ func (l *RegisterLogic) Register(in *user.RegisterReq) (*user.RegisterResp, erro
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
-	if txyUser.Id > 0 {
+	if txyUser.ID > 0 {
 		return nil, errors.New("用户名已存在！")
 	}
 	// 插入数据
@@ -49,17 +49,18 @@ func (l *RegisterLogic) Register(in *user.RegisterReq) (*user.RegisterResp, erro
 		return nil, err
 	}
 	passwordStr := base64.StdEncoding.EncodeToString(encryptPassword)
+	now := time.Now()
 	userRes := model.TxyUser{
-		Username:  in.Username,
+		Username:  &in.Username,
 		Password:  passwordStr,
-		CreatedAt: time.Now().Format("2006-01-02 15:04:05"),
+		CreatedAt: &now,
 	}
 	res := l.svcCtx.DB.Create(&userRes)
 	if res.Error != nil {
 		return nil, res.Error
 	}
 	var userInfo = make(map[string]interface{}, 3)
-	userInfo["id"] = userRes.Id
+	userInfo["id"] = userRes.ID
 	userInfo["username"] = userRes.Username
 	userInfo["nickname"] = userRes.Nickname
 	// json格式化

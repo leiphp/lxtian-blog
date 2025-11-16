@@ -2,9 +2,12 @@ package svc
 
 import (
 	"fmt"
+	"github.com/zeromicro/go-zero/core/logx"
+	"lxtian-blog/common/pkg/initcache"
 	"lxtian-blog/common/pkg/initdb"
 	"lxtian-blog/rpc/user/internal/config"
 
+	"github.com/zeromicro/go-zero/core/collection"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"gorm.io/gorm"
 )
@@ -12,8 +15,8 @@ import (
 type ServiceContext struct {
 	Config config.Config
 	DB     *gorm.DB
-	//Cache  *collection.Cache
-	Rds *redis.Redis
+	Cache  *collection.Cache
+	Rds    *redis.Redis
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -25,15 +28,18 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		c.Mysql.DATABASE,
 	)
 	mysqlDb := initdb.InitDB(dataSource)
-	//cache, err := initcache.InitCache(60*24, "user.rpc")
-	//if err != nil {
-	//	logc.Errorf(context.Background(), "InitCache error: %s", err)
-	//}
+
+	// 初始化本地缓存（30 分钟过期），整个 user.rpc 进程共享
+	cache, err := initcache.InitCache(30, "user.rpc")
+	if err != nil {
+		logx.Errorf("InitCache error: %s", err)
+	}
+
 	rds := initdb.InitRedis(c.RedisConfig.Host, c.RedisConfig.Type, c.RedisConfig.Pass, c.RedisConfig.Tls)
 	return &ServiceContext{
 		Config: c,
 		DB:     mysqlDb,
-		//Cache:  cache,
-		Rds: rds,
+		Cache:  cache,
+		Rds:    rds,
 	}
 }

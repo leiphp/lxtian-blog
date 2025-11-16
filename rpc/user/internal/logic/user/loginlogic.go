@@ -6,11 +6,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"lxtian-blog/common/model"
 	"lxtian-blog/common/pkg/define"
 	"lxtian-blog/common/pkg/oauth"
 	"lxtian-blog/common/pkg/utils"
 	"lxtian-blog/rpc/user/internal/svc"
-	"lxtian-blog/rpc/user/model"
 	"lxtian-blog/rpc/user/user"
 	"time"
 
@@ -59,6 +59,7 @@ func (l *LoginLogic) Login(in *user.LoginReq) (*user.LoginResp, error) {
 		err = l.svcCtx.DB.First(&txyUser, "openid=? and type =?", userInfo.Openid, define.MiniAppLogin).Debug().Error
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
+				now := time.Now()
 				nickname, err := utils.GenerateNickname(l.svcCtx.DB, 1)
 				if err != nil {
 					return nil, err
@@ -67,7 +68,8 @@ func (l *LoginLogic) Login(in *user.LoginReq) (*user.LoginResp, error) {
 				if err != nil {
 					return nil, err
 				}
-				txyUser.Username = "user" + utils.RandomString(8)
+				username := "user" + utils.RandomString(8)
+				txyUser.Username = &username
 				txyUser.Password = l.getPassword("123456")
 				txyUser.Nickname = nickname
 				txyUser.HeadImg = headImg
@@ -75,7 +77,7 @@ func (l *LoginLogic) Login(in *user.LoginReq) (*user.LoginResp, error) {
 				txyUser.SessionKey = userInfo.Session
 				txyUser.MiniappOpenid = userInfo.Appid
 				txyUser.Unionid = userInfo.Unionid
-				txyUser.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+				txyUser.CreatedAt = &now
 				txyUser.Type = 4
 				result := l.svcCtx.DB.Create(&txyUser)
 				fmt.Println("Id:", result.RowsAffected)
@@ -125,7 +127,7 @@ func (l *LoginLogic) accountLogin(in *user.LoginReq) (*string, error) {
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
-	if txyUser.Id == 0 {
+	if txyUser.ID == 0 {
 		return nil, errors.New("用户名错误")
 	}
 	// 数据库密码解密
@@ -249,15 +251,17 @@ func (l *LoginLogic) createOAuthUser(oauthUserInfo *oauth.OAuthUserInfo, loginTy
 	}
 
 	// 填充用户信息
-	txyUser.Username = "user" + utils.RandomString(8)
+	now := time.Now()
+	username := "user" + utils.RandomString(8)
+	txyUser.Username = &username
 	txyUser.Password = l.getPassword("123456") // 默认密码
 	txyUser.Nickname = nickname
 	txyUser.HeadImg = headImg
 	txyUser.Openid = oauthUserInfo.OpenID
 	txyUser.AccessToken = oauthUserInfo.AccessToken
 	txyUser.Email = oauthUserInfo.Email
-	txyUser.Type = uint64(loginType)
-	txyUser.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+	txyUser.Type = int32(loginType)
+	txyUser.CreatedAt = &now
 	txyUser.Status = 1 // 激活状态
 
 	// 微信特有的UnionID
@@ -271,7 +275,7 @@ func (l *LoginLogic) createOAuthUser(oauthUserInfo *oauth.OAuthUserInfo, loginTy
 		return txyUser, result.Error
 	}
 
-	l.Logger.Infof("创建OAuth用户成功, OpenID: %s, Type: %d, ID: %d", oauthUserInfo.OpenID, loginType, txyUser.Id)
+	l.Logger.Infof("创建OAuth用户成功, OpenID: %s, Type: %d, ID: %d", oauthUserInfo.OpenID, loginType, txyUser.ID)
 
 	return txyUser, nil
 }
