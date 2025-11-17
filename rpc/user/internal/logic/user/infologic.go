@@ -2,7 +2,6 @@ package userlogic
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"lxtian-blog/common/model"
 	"lxtian-blog/common/pkg/utils"
@@ -30,6 +29,7 @@ func NewInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *InfoLogic {
 func (l *InfoLogic) Info(in *user.InfoReq) (*user.InfoResp, error) {
 	// 使用全局 ServiceContext 中的本地缓存（30 分钟过期）
 	cache := l.svcCtx.Cache
+
 	// 查询并处理会员信息（优先从 Redis 获取，未命中再查 DB）
 	membershipRepo := user_repo.NewUserMembershipRepository(l.svcCtx.DB, l.svcCtx.Rds)
 	membershipInfo, err := membershipRepo.GetActiveMembershipByUserId(l.ctx, int64(in.Id))
@@ -40,12 +40,23 @@ func (l *InfoLogic) Info(in *user.InfoReq) (*user.InfoResp, error) {
 	}
 
 	// 尝试从缓存获取用户信息
-	v, exist := cache.Get(fmt.Sprintf("userInfo:%d", in.Id))
+	cacheKey := fmt.Sprintf("userInfo:%d", in.Id)
+	v, exist := cache.Get(cacheKey)
 	if exist {
 		l.Infof("从缓存中获取用户信息: %v", v)
-		// 缓存中存在数据，合并最新的会员信息后返回
-		res := l.mergeUserAndMembership(v, membershipInfo)
-		return l.returnData(res)
+		// 缓存中存在数据，转换为 UserInfo 并合并最新的会员信息后返回
+		userInfo, err := l.convertCacheToUserInfo(v)
+		if err != nil {
+			l.Errorf("Failed to convert cache data to UserInfo: %v", err)
+			// 转换失败，继续从数据库获取
+		} else {
+			// 构建会员信息
+			membershipInfoProto := l.buildMembershipInfo(membershipInfo)
+			return &user.InfoResp{
+				User:       userInfo,
+				Membership: membershipInfoProto,
+			}, nil
+		}
 	}
 
 	// 如果缓存中没有，查询数据库
@@ -53,26 +64,28 @@ func (l *InfoLogic) Info(in *user.InfoReq) (*user.InfoResp, error) {
 	if err != nil {
 		return nil, err
 	}
-	// 转换为JSON小写标签格式
-	userData, err := utils.ConvertToLowercaseJSONTags(txyUser)
-	if err != nil {
-		return nil, err
-	}
-	l.Infof("从DB中获取用户信息: %v", userData)
-	// 合并用户信息和会员信息
-	res := l.mergeUserAndMembership(userData, membershipInfo)
+
+	// 构建用户信息
+	userInfo := l.buildUserInfo(txyUser)
 
 	// 设置缓存
-	cache.Set(fmt.Sprintf("userInfo:%d", in.Id), res)
-	// 返回结果
-	return l.returnData(res)
+	cache.Set(cacheKey, txyUser)
+
+	// 构建会员信息
+	membershipInfoProto := l.buildMembershipInfo(membershipInfo)
+
+	// 返回结构化的响应
+	return &user.InfoResp{
+		User:       userInfo,
+		Membership: membershipInfoProto,
+	}, nil
 }
 
 // 从数据库获取用户信息
 func (l *InfoLogic) getUserFromDB(id uint32) (*model.TxyUser, error) {
 	var txyUser model.TxyUser
 	if err := l.svcCtx.DB.
-		Select("id", "username", "nickname", "head_img", "email", "gold", "score", "type", "status").
+		Select("id", "uid", "username", "nickname", "head_img", "email", "gold", "score", "type", "status").
 		Where("id = ?", id).
 		First(&txyUser).Error; err != nil {
 		return nil, err
@@ -89,32 +102,48 @@ func (l *InfoLogic) getAllUserFromDB(id uint32) (*model.TxyUser, error) {
 	return &txyUser, nil
 }
 
-// 合并用户信息和会员信息
-func (l *InfoLogic) mergeUserAndMembership(userData interface{}, membershipInfo map[string]interface{}) map[string]interface{} {
-	// 将用户数据转换为 map
-	userBytes, _ := json.Marshal(userData)
-	var userMap map[string]interface{}
-	json.Unmarshal(userBytes, &userMap)
-
-	// 如果会员信息存在，添加到用户信息中
-	if membershipInfo != nil {
-		userMap["membership"] = membershipInfo
-	} else {
-		// 如果没有会员信息，返回 null
-		userMap["membership"] = nil
+// buildUserInfo 从 TxyUser 构建 UserInfo
+func (l *InfoLogic) buildUserInfo(txyUser *model.TxyUser) *user.UserInfo {
+	username := ""
+	if txyUser.Username != nil {
+		username = *txyUser.Username
 	}
-
-	return userMap
+	return &user.UserInfo{
+		Id:       uint64(txyUser.ID),
+		Uid:      uint64(txyUser.UID),
+		Username: username,
+		Nickname: txyUser.Nickname,
+		Email:    txyUser.Email,
+		HeadImg:  txyUser.HeadImg,
+		Gold:     uint64(txyUser.Gold),
+		Score:    uint64(txyUser.Score),
+		Type:     uint64(txyUser.Type),
+		Status:   uint64(txyUser.Status),
+	}
 }
 
-// 返回InfoResp
-func (l *InfoLogic) returnData(data interface{}) (*user.InfoResp, error) {
-	// 转换缓存中的数据为JSON
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return nil, err
+// convertCacheToUserInfo 将缓存中的数据转换为 UserInfo
+func (l *InfoLogic) convertCacheToUserInfo(v interface{}) (*user.UserInfo, error) {
+	// 尝试类型断言为 TxyUser
+	if txyUser, ok := v.(*model.TxyUser); ok {
+		return l.buildUserInfo(txyUser), nil
 	}
-	return &user.InfoResp{
-		Data: string(jsonData),
-	}, nil
+	// 如果不是 TxyUser 类型，返回错误
+	return nil, fmt.Errorf("cache data is not *model.TxyUser type")
+}
+
+// buildMembershipInfo 构建会员信息
+func (l *InfoLogic) buildMembershipInfo(membershipInfo map[string]interface{}) *user.MembershipInfo {
+	if membershipInfo == nil {
+		return nil
+	}
+	return &user.MembershipInfo{
+		IsValid:   utils.GetBoolValue(membershipInfo, "is_valid"),
+		IsActive:  utils.GetInt32Value(membershipInfo, "is_active"),
+		Level:     utils.GetInt32Value(membershipInfo, "level"),
+		StartTime: utils.GetStringValue(membershipInfo, "start_time"),
+		EndTime:   utils.GetStringValue(membershipInfo, "end_time"),
+		TypeId:    utils.GetInt64Value(membershipInfo, "type_id"),
+		TotalDays: utils.GetInt32Value(membershipInfo, "total_days"),
+	}
 }

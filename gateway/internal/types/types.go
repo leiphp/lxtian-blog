@@ -202,7 +202,19 @@ type GoodsResp struct {
 }
 
 type InfoResp struct {
-	Data map[string]interface{} `json:"data"`
+	Id       int64       `json:"id"`
+	Uid      int64       `json:"uid"`
+	Username string      `json:"username"`
+	Nickname string      `json:"nickname"`
+	Email    string      `json:"email"`
+	HeadImg  string      `json:"head_img"`
+	Gold     int         `json:"gold"`
+	Score    int         `json:"score"`
+	Conscore int         `json:"conscore"`
+	Type     int         `json:"type"`
+	Status   int         `json:"status"`
+	CreatedA string      `json:"created_at"`
+	Vip      *MemberShip `json:"vip"`
 }
 
 type LoginReq struct {
@@ -218,6 +230,15 @@ type LoginResp struct {
 	AccessToken string                 `json:"access_token"`
 	ExpiresIn   uint64                 `json:"expires_in"`
 	User        map[string]interface{} `json:"user"`
+}
+
+type MemberShip struct {
+	Is_valid   bool   `json:"is_valid"`
+	Is_active  int    `json:"is_active"`
+	Levle      int    `json:"levle"`
+	Start_time string `json:"start_time"`
+	End_time   string `json:"end_time"`
+	Type_id    int    `json:"type_id"`
 }
 
 type MembershipType struct {

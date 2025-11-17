@@ -44,8 +44,35 @@ message LoginResp{
 message InfoReq {
   uint32 id = 1;
 }
+
+// 会员信息
+message MembershipInfo {
+  bool is_valid = 1;      // 是否有效
+  int32 is_active = 2;    // 是否激活：1是0否
+  int32 level = 3;        // 当前等级
+  string start_time = 4;  // 会员开始时间
+  string end_time = 5;    // 会员结束时间
+  int64 type_id = 6;      // 会员类型ID
+  int32 total_days = 7;   // 累计会员总天数
+}
+
+// 用户信息
+message UserInfo {
+  uint64 id = 1;          // 主键id
+  uint64 uid = 2;         // 关联的本站用户id
+  string username = 3;    // 用户名
+  string nickname = 4;    // 昵称
+  string email = 5;       // 邮箱
+  string head_img = 6;    // 头像
+  uint64 gold = 7;        // 金币
+  uint64 score = 8;       // 可用积分
+  uint64 type = 9;        // 类型 0：账号1：QQ  2：新浪微博 3：微信 4：小程序
+  uint64 status = 10;     // 状态
+}
+
 message InfoResp {
-  string data = 1;
+  UserInfo user = 1;              // 用户信息
+  MembershipInfo membership = 2;  // 会员信息（可选）
 }
 
 message UpdateInfoReq{

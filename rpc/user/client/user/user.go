@@ -22,6 +22,7 @@ type (
 	InfoResp              = user.InfoResp
 	LoginReq              = user.LoginReq
 	LoginResp             = user.LoginResp
+	MembershipInfo        = user.MembershipInfo
 	MembershipType        = user.MembershipType
 	QrStatusReq           = user.QrStatusReq
 	QrStatusResp          = user.QrStatusResp
@@ -31,6 +32,7 @@ type (
 	UpdateInfoResp        = user.UpdateInfoResp
 	UpgradeMembershipReq  = user.UpgradeMembershipReq
 	UpgradeMembershipResp = user.UpgradeMembershipResp
+	UserInfo              = user.UserInfo
 
 	User interface {
 		Getqr(ctx context.Context, in *GetqrReq, opts ...grpc.CallOption) (*GetqrResp, error)

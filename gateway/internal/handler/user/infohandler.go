@@ -15,7 +15,7 @@ func InfoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		if err != nil {
 			response.Response(r, w, nil, err)
 		} else {
-			response.Response(r, w, resp.Data, err)
+			response.Response(r, w, resp, err)
 		}
 	}
 }

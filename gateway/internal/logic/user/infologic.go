@@ -2,10 +2,10 @@ package user
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"github.com/zeromicro/go-zero/core/logc"
 	"lxtian-blog/rpc/user/user"
+
+	"github.com/zeromicro/go-zero/core/logc"
 
 	"lxtian-blog/gateway/internal/svc"
 	"lxtian-blog/gateway/internal/types"
@@ -47,11 +47,42 @@ func (l *InfoLogic) Info() (resp *types.InfoResp, err error) {
 		logc.Errorf(l.ctx, "Info error: %s", err)
 		return nil, err
 	}
-	var result map[string]interface{}
-	if err := json.Unmarshal([]byte(res.Data), &result); err != nil {
-		return nil, err
+
+	// 检查返回结果
+	if res == nil {
+		logc.Errorf(l.ctx, "Info response is nil")
+		return nil, errors.New("info response is nil")
 	}
-	return &types.InfoResp{
-		Data: result,
-	}, nil
+	if res.User == nil {
+		logc.Errorf(l.ctx, "Info response User is nil")
+		return nil, errors.New("info response user is nil")
+	}
+
+	// 映射用户信息
+	infoResp := &types.InfoResp{
+		Id:       int64(res.User.Id),
+		Uid:      int64(res.User.Uid),
+		Username: res.User.Username,
+		Nickname: res.User.Nickname,
+		Email:    res.User.Email,
+		HeadImg:  res.User.HeadImg,
+		Gold:     int(res.User.Gold),
+		Score:    int(res.User.Score),
+		Type:     int(res.User.Type),
+		Status:   int(res.User.Status),
+	}
+
+	// 映射会员信息
+	if res.Membership != nil {
+		infoResp.Vip = &types.MemberShip{
+			Is_valid:   res.Membership.IsValid,
+			Is_active:  int(res.Membership.IsActive),
+			Levle:      int(res.Membership.Level),
+			Start_time: res.Membership.StartTime,
+			End_time:   res.Membership.EndTime,
+			Type_id:    int(res.Membership.TypeId),
+		}
+	}
+
+	return infoResp, nil
 }

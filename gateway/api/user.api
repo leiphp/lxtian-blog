@@ -58,7 +58,28 @@ type (
 
 type (
     InfoResp {
-        Data        map[string]interface{} `json:"data"`
+        Id           int64  `json:"id"`
+        Uid          int64  `json:"uid"`
+        Username     string `json:"username"`
+        Nickname     string `json:"nickname"`
+        Email        string `json:"email"`
+        HeadImg      string `json:"head_img"`
+        Gold         int    `json:"gold"`
+        Score        int    `json:"score"`
+        Conscore     int    `json:"conscore"`
+        Type         int    `json:"type"`
+        Status       int    `json:"status"`
+        CreatedA     string `json:"created_at"`
+        Vip          *MemberShip `json:"vip"`
+    }
+    // membership - 会员详情
+    MemberShip {
+        is_valid         bool   `json:"is_valid"`
+        is_active        int    `json:"is_active"`
+        levle            int    `json:"levle"`
+        start_time       string `json:"start_time"`
+        end_time         string `json:"end_time"`
+        type_id          int    `json:"type_id"`
     }
 )
 
