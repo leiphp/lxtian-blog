@@ -8,33 +8,37 @@ import (
 const KeyPrefix = "blog:"
 
 const (
-	ApiWebStringCategory    = 1  //全量分类
-	ApiWebStringTags        = 2  //全量tag
-	ApiUserStringUser       = 3  //全量用户
-	UserTokenString         = 4  //用户token
-	UserScanString          = 5  //用户扫码
-	WsUserIdString          = 6  //wx用户ID
-	ApiWebStringColumn      = 7  //全量column
-	ApiWebStringBook        = 8  //图书book
-	ApiWebStringBookChapter = 9  //图书章节
-	ArticleViewString       = 10 //文章浏览次数记录
-	OAuthStateString        = 11 //OAuth state
-	UserMemberShipString    = 12
+	ApiWebStringCategory     = 1  //全量分类
+	ApiWebStringTags         = 2  //全量tag
+	ApiUserStringUser        = 3  //全量用户
+	UserTokenString          = 4  //用户token
+	UserScanString           = 5  //用户扫码
+	WsUserIdString           = 6  //wx用户ID
+	ApiWebStringColumn       = 7  //全量column
+	ApiWebStringBook         = 8  //图书book
+	ApiWebStringBookChapter  = 9  //图书章节
+	ArticleViewString        = 10 //文章浏览次数记录
+	OAuthStateString         = 11 //OAuth state
+	UserMemberShipString     = 12 //用户会员
+	DonatePendingOrderString = 13 //捐赠待支付订单
+	DonatePendingOrderSet    = 14 //捐赠订单集合
 )
 
 var apiCacheKeys = map[int]string{
-	ApiWebStringCategory:    "web:category",
-	ApiWebStringTags:        "web:tags",
-	ApiUserStringUser:       "user:list",
-	UserTokenString:         "user:token",
-	UserScanString:          "user:scan",
-	WsUserIdString:          "user:ws",
-	UserMemberShipString:    "user:membership",
-	ApiWebStringColumn:      "web:column",
-	ApiWebStringBook:        "web:book",
-	ApiWebStringBookChapter: "web:book:chapter",
-	ArticleViewString:       "article:view",
-	OAuthStateString:        "oauth:state",
+	ApiWebStringCategory:     "web:category",
+	ApiWebStringTags:         "web:tags",
+	ApiUserStringUser:        "user:list",
+	UserTokenString:          "user:token",
+	UserScanString:           "user:scan",
+	WsUserIdString:           "user:ws",
+	UserMemberShipString:     "user:membership",
+	ApiWebStringColumn:       "web:column",
+	ApiWebStringBook:         "web:book",
+	ApiWebStringBookChapter:  "web:book:chapter",
+	ArticleViewString:        "article:view",
+	OAuthStateString:         "oauth:state",
+	DonatePendingOrderString: "donate:order",
+	DonatePendingOrderSet:    "donate:pending",
 }
 
 /**

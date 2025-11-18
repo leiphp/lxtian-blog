@@ -22,7 +22,7 @@ type TxyOrderRepository interface {
 	GetOrdersByTimeRange(ctx context.Context, startTime, endTime int64, page, pageSize int) ([]*mysql.TxyOrder, int64, error)
 
 	// 更新方法
-	UpdateStatus(ctx context.Context, orderId uint64, status int64) error
+	UpdateStatus(ctx context.Context, paymentId string, status int64) error
 	UpdatePayInfo(ctx context.Context, orderId uint64, payMoney float64, payTime int64) error
 	UpdateRemark(ctx context.Context, orderId uint64, remark string) error
 
@@ -113,9 +113,9 @@ func (r *txyOrderRepository) GetOrdersByTimeRange(ctx context.Context, startTime
 }
 
 // UpdateStatus 更新订单状态
-func (r *txyOrderRepository) UpdateStatus(ctx context.Context, orderId uint64, status int64) error {
+func (r *txyOrderRepository) UpdateStatus(ctx context.Context, paymentId string, status int64) error {
 	return r.UpdateByCondition(ctx,
-		map[string]interface{}{"id": orderId},
+		map[string]interface{}{"payment_id": paymentId},
 		map[string]interface{}{"status": status},
 	)
 }

@@ -188,7 +188,21 @@ type (
 )
 
 type (
-    // 支付回调通知处理请求（内部使用）
+    // 捐赠支付回调通知处理请求
+    DonateNotifyReq {
+        SignType       string `form:"sign_type"`                 // 签名类型
+        Sign           string `form:"sign"`                      // 签名
+        NotifyData     string `form:"notify_data,optional"`      // notify原数据
+    }
+
+    // 捐赠支付回调通知处理响应
+    DonateNotifyResp {
+        Result        string `json:"result"`             // 返回结果，成功返回"success"
+    }
+)
+
+type (
+    // 支付回调通知处理请求
     PaymentNotifyReq {
         SignType       string `form:"sign_type"`                 // 签名类型
         Sign           string `form:"sign"`                      // 签名
@@ -279,6 +293,10 @@ service gateway-api {
     @doc "在线捐赠"
     @handler Donate
     post /donate (DonateReq) returns (DonateResp)
+
+    @doc "捐赠支付结果异步通知"
+    @handler DonateNotify
+    post /donate/notify (DonateNotifyReq) returns (DonateNotifyResp)
 
     @doc "支付结果异步通知"
     @handler PaymentNotify

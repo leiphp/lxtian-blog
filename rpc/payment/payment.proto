@@ -25,6 +25,20 @@ message DonateResp {
   string pay_url = 4;           // 支付链接
 }
 
+// 捐赠支付回调通知处理请求
+message DonateNotifyReq {
+  string notify_data = 1;       // 通知数据
+  string sign = 2;              // 签名
+  string sign_type = 3;         // 签名类型
+  string client_ip = 4;         // 客户端IP
+}
+
+// 捐赠支付回调通知处理响应
+message DonateNotifyResp {
+  bool success = 1;             // 处理是否成功
+  string message = 2;           // 返回消息
+}
+
 // 创建支付订单请求（一步完成：创建订单+支付）
 message CreatePaymentReq {
   double amount = 1;            // 支付金额
@@ -227,6 +241,9 @@ message GoodsResp {
 service Payment {
   // 创建捐赠订单
   rpc Donate(DonateReq) returns(DonateResp);
+
+  // 捐赠支付回调通知处理
+  rpc DonateNotify(DonateNotifyReq) returns(DonateNotifyResp);
 
   // 创建支付订单
   rpc CreatePayment(CreatePaymentReq) returns(CreatePaymentResp);
