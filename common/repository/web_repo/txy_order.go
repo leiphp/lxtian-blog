@@ -22,7 +22,7 @@ type TxyOrderRepository interface {
 	GetOrdersByTimeRange(ctx context.Context, startTime, endTime int64, page, pageSize int) ([]*mysql.TxyOrder, int64, error)
 
 	// 更新方法
-	UpdateStatus(ctx context.Context, paymentId string, status int64) error
+	UpdateStatus(ctx context.Context, paymentId string, status string) error
 	UpdatePayInfo(ctx context.Context, orderId uint64, payMoney float64, payTime int64) error
 	UpdateRemark(ctx context.Context, orderId uint64, remark string) error
 
@@ -112,12 +112,25 @@ func (r *txyOrderRepository) GetOrdersByTimeRange(ctx context.Context, startTime
 	return orders, total, nil
 }
 
-// UpdateStatus 更新订单状态
-func (r *txyOrderRepository) UpdateStatus(ctx context.Context, paymentId string, status int64) error {
-	return r.UpdateByCondition(ctx,
-		map[string]interface{}{"payment_id": paymentId},
-		map[string]interface{}{"status": status},
-	)
+// UpdateStatus 根据payment_id唯一索引更新订单状态
+func (r *txyOrderRepository) UpdateStatus(ctx context.Context, paymentId string, status string) error {
+	db := r.GetDB(ctx)
+
+	// 使用payment_id唯一索引直接更新，提高查询效率
+	result := db.Model(&mysql.TxyOrder{}).
+		Where("payment_id = ?", paymentId).
+		Update("status", status)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	// 检查是否真的更新了记录（payment_id不存在时不会报错，但RowsAffected为0）
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
 }
 
 // UpdatePayInfo 更新支付信息

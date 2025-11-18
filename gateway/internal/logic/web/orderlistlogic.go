@@ -3,12 +3,12 @@ package web
 import (
 	"context"
 	"encoding/json"
-	"github.com/zeromicro/go-zero/core/logc"
+	"lxtian-blog/gateway/internal/svc"
+	"lxtian-blog/gateway/internal/types"
 	"lxtian-blog/rpc/web/web"
 	"time"
 
-	"lxtian-blog/gateway/internal/svc"
-	"lxtian-blog/gateway/internal/types"
+	"github.com/zeromicro/go-zero/core/logc"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -42,11 +42,17 @@ func (l *OrderListLogic) OrderList(req *types.OrderListReq) (resp *types.OrderLi
 		return nil, err
 	}
 	for k, item := range result {
-		if ctimeFloat, ok := item["ctime"].(float64); ok {
-			// 将 float64 转为 int64
-			ctime := int64(ctimeFloat)
-			// 将时间戳转换为 time.Time 类型
-			t := time.Unix(ctime, 0)
+		if createdAtStr, ok := item["created_at"].(string); ok {
+			// 解析 ISO 8601 格式的时间字符串，如 "2020-02-03T20:26:35+08:00"
+			t, err := time.Parse(time.RFC3339, createdAtStr)
+			if err != nil {
+				// 如果解析失败，尝试其他常见格式
+				t, err = time.Parse("2006-01-02T15:04:05Z07:00", createdAtStr)
+				if err != nil {
+					l.Errorf("Failed to parse created_at '%s': %v", createdAtStr, err)
+					continue
+				}
+			}
 			// 格式化为 yyyy-mm-dd
 			result[k]["date"] = t.Format("2006-01-02")
 		}

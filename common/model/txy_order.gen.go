@@ -4,22 +4,30 @@
 
 package model
 
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
+
 const TableNameTxyOrder = "txy_order"
 
 // TxyOrder mapped from table <txy_order>
 type TxyOrder struct {
-	ID         int32   `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	PaymentID  string  `gorm:"column:payment_id;not null;comment:支付ID" json:"payment_id"`           // 支付ID
-	OutTradeNo string  `gorm:"column:out_trade_no;not null;comment:商户订单号" json:"out_trade_no"`      // 商户订单号
-	OrderSn    string  `gorm:"column:order_sn;not null;comment:订单号" json:"order_sn"`                // 订单号
-	PayMoney   float64 `gorm:"column:pay_money;not null;comment:支付金额" json:"pay_money"`             // 支付金额
-	PayType    int32   `gorm:"column:pay_type;not null;comment:1:捐赠2:购买模板3:直接消费" json:"pay_type"`   // 1:捐赠2:购买模板3:直接消费
-	UserID     int32   `gorm:"column:user_id;not null;comment:用户id" json:"user_id"`                 // 用户id
-	Status     int32   `gorm:"column:status;not null;comment:支付状态：0待支付1已支付2已发货3交易完成" json:"status"` // 支付状态：0待支付1已支付2已发货3交易完成
-	GoodsName  string  `gorm:"column:goods_name;not null;comment:商品名称" json:"goods_name"`           // 商品名称
-	Ctime      int32   `gorm:"column:ctime;not null;comment:创建时间" json:"ctime"`                     // 创建时间
-	Remark     *string `gorm:"column:remark" json:"remark"`
-	IP         string  `gorm:"column:ip;not null;comment:ip地址" json:"ip"` // ip地址
+	ID         int32          `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
+	PaymentID  string         `gorm:"column:payment_id;not null;comment:支付ID" json:"payment_id"`                           // 支付ID
+	OutTradeNo string         `gorm:"column:out_trade_no;not null;comment:商户订单号" json:"out_trade_no"`                      // 商户订单号
+	OrderSn    string         `gorm:"column:order_sn;not null;comment:订单号" json:"order_sn"`                                // 订单号
+	Amount     float64        `gorm:"column:amount;not null;comment:支付金额" json:"amount"`                                   // 支付金额
+	PayType    int32          `gorm:"column:pay_type;not null;comment:1:支付宝2:微信3:银行卡" json:"pay_type"`                     // 1:支付宝2:微信3:银行卡
+	UserID     int32          `gorm:"column:user_id;not null;comment:用户ID" json:"user_id"`                                 // 用户ID
+	Status     string         `gorm:"column:status;not null;default:PENDING;comment:支付状态" json:"status"`                   // 支付状态
+	Subject    string         `gorm:"column:subject;not null;comment:商品名称" json:"subject"`                                 // 商品名称
+	Remark     string         `gorm:"column:remark;not null;comment:备注" json:"remark"`                                     // 备注
+	IP         string         `gorm:"column:ip;not null;comment:ip地址" json:"ip"`                                           // ip地址
+	CreatedAt  time.Time      `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"` // 创建时间
+	UpdatedAt  time.Time      `gorm:"column:updated_at;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updated_at"` // 更新时间
+	DeletedAt  gorm.DeletedAt `gorm:"column:deleted_at;comment:删除时间" json:"deleted_at"`                                    // 删除时间
 }
 
 // TableName TxyOrder's table name

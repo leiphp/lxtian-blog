@@ -26,7 +26,7 @@ func NewOrderListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OrderLi
 
 func (l *OrderListLogic) OrderList(in *web.OrderListReq) (*web.OrderListResp, error) {
 	where := map[string]interface{}{}
-	where["status"] = consts.OrderStatusActive
+	where["status"] = consts.PaymentStatusPaid
 	if in.Page == 0 {
 		in.Page = 1
 	}
@@ -37,7 +37,7 @@ func (l *OrderListLogic) OrderList(in *web.OrderListReq) (*web.OrderListResp, er
 	var results []map[string]interface{}
 	err := l.svcCtx.DB.
 		Table("txy_order as o").
-		Select("o.id,o.pay_money,o.pay_type,o.user_id,o.status,o.ctime,o.remark,u.nickname,u.head_img").
+		Select("o.id,o.amount,o.pay_type,o.user_id,o.status,o.created_at,o.remark,u.nickname,u.head_img").
 		Joins("left join txy_user u on u.id = o.user_id").
 		Where(where).
 		Limit(int(in.PageSize)).

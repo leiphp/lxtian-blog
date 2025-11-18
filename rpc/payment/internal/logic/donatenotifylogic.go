@@ -2,17 +2,18 @@ package logic
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"lxtian-blog/common/constant"
 	"lxtian-blog/common/model"
+	redisutil "lxtian-blog/common/pkg/redis"
 	paymentSvc "lxtian-blog/common/repository/payment_repo"
 	"lxtian-blog/common/repository/web_repo"
+	"lxtian-blog/rpc/payment/internal/svc"
+	"lxtian-blog/rpc/payment/pb/payment"
 	"net/url"
 	"strings"
 	"time"
-
-	"lxtian-blog/rpc/payment/internal/svc"
-	"lxtian-blog/rpc/payment/pb/payment"
 )
 
 type DonateNotifyLogic struct {
@@ -190,8 +191,8 @@ func (l *DonateNotifyLogic) processNotify(notifyData map[string]string, notifyId
 	outTradeNo := notifyData["out_trade_no"]
 	tradeStatus := notifyData["trade_status"]
 
-	// 查找支付订单 todo 改成从redis获取数据
-	paymentOrder, err := l.paymentService.FindPaymentOrderByOutTradeNo(l.ctx, outTradeNo)
+	// 从Redis获取支付订单
+	txyOrder, err := l.getTxyOrderFromRedis(outTradeNo)
 	if err != nil {
 		return fmt.Errorf("payment order not found: %w", err)
 	}
@@ -199,7 +200,7 @@ func (l *DonateNotifyLogic) processNotify(notifyData map[string]string, notifyId
 	// 更新通知记录的支付ID
 	notify, err := l.paymentService.FindPaymentNotifyByNotifyId(l.ctx, notifyId)
 	if err == nil {
-		notify.PaymentID = paymentOrder.PaymentID
+		notify.PaymentID = txyOrder.PaymentID
 		if err := l.paymentService.UpdatePaymentNotify(l.ctx, notify); err != nil {
 			l.Errorf("Failed to update payment notify record: %v", err)
 		}
@@ -208,62 +209,22 @@ func (l *DonateNotifyLogic) processNotify(notifyData map[string]string, notifyId
 	// 根据交易状态处理
 	switch tradeStatus {
 	case constant.TradeStatusSuccess, constant.TradeStatusFinished:
-		// 支付成功
-		if paymentOrder.Status == constant.PaymentStatusPaid {
-			// 已经处理过，直接返回成功
-			return nil
-		}
+		// 支付成功，插入订单状态为已支付
+		txyOrder.Status = constant.PaymentStatusPaid
+		txyOrder.UpdatedAt = time.Now()
 
-		// 解析支付时间
-		var gmtPayment *time.Time
-		if notifyData["gmt_payment"] != "" {
-			if t, err := time.Parse("2006-01-02 15:04:05", notifyData["gmt_payment"]); err == nil {
-				gmtPayment = &t
-			} else {
-				l.Errorf("Failed to parse gmt_payment '%s': %v", notifyData["gmt_payment"], err)
-			}
-		}
-
-		// 解析金额
-		var receiptAmount float64
-		if notifyData["receipt_amount"] != "" {
-			if amount, err := parseFloat(notifyData["receipt_amount"]); err == nil {
-				receiptAmount = amount
-			} else {
-				l.Errorf("Failed to parse receipt_amount '%s': %v", notifyData["receipt_amount"], err)
-			}
-		}
-
-		// 插入捐赠订单信息
-		err = l.webService.UpdatePaymentOrderTradeInfo(
-			l.ctx,
-			paymentOrder.PaymentID,
-			notifyData["trade_no"],
-			tradeStatus,
-			notifyData["buyer_id"],
-			notifyData["buyer_logon_id"],
-			receiptAmount,
-			gmtPayment,
-		)
+		// 使用GORM保存支付订单到数据库
+		err = l.svcCtx.DB.WithContext(l.ctx).Save(txyOrder).Error
 		if err != nil {
-			return fmt.Errorf("failed to update trade info: %w", err)
+			l.Errorf("Failed to update web_repo order: %v", err)
+			return fmt.Errorf("更新捐赠支付订单失败: %w", err)
 		}
-
-		// 同步更新内存对象，便于后续逻辑使用
-		paymentOrder.TradeNo = notifyData["trade_no"]
-		paymentOrder.TradeStatus = tradeStatus
-		paymentOrder.BuyerUserID = notifyData["buyer_id"]
-		paymentOrder.BuyerLogonID = notifyData["buyer_logon_id"]
-		paymentOrder.ReceiptAmount = receiptAmount
-		paymentOrder.Status = constant.PaymentStatusPaid
-		if gmtPayment != nil {
-			paymentOrder.PayTime = gmtPayment
-		}
+		return nil
 
 	case constant.TradeStatusClosed:
 		// 交易关闭
-		if paymentOrder.Status != constant.PaymentStatusClosed {
-			err = l.webService.UpdateStatus(l.ctx, paymentOrder.PaymentID, constant.PaymentStatusClosed)
+		if txyOrder.Status != constant.PaymentStatusClosed {
+			err = l.webService.UpdateStatus(l.ctx, txyOrder.PaymentID, constant.PaymentStatusClosed)
 			if err != nil {
 				return fmt.Errorf("failed to update status to closed: %w", err)
 			}
@@ -278,4 +239,32 @@ func (l *DonateNotifyLogic) processNotify(notifyData map[string]string, notifyId
 	}
 
 	return nil
+}
+
+// getTxyOrderFromRedis 从Redis获取支付订单
+func (l *DonateNotifyLogic) getTxyOrderFromRedis(outTradeNo string) (*model.TxyOrder, error) {
+	if l.svcCtx.Rds == nil {
+		return nil, fmt.Errorf("redis client is nil")
+	}
+
+	// 生成Redis key
+	redisKey := redisutil.ReturnRedisKey(redisutil.DonatePendingOrderString, outTradeNo)
+
+	// 从Redis获取订单数据
+	orderJson, err := l.svcCtx.Rds.Get(redisKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get order from redis: %w", err)
+	}
+
+	if orderJson == "" {
+		return nil, fmt.Errorf("order not found in redis")
+	}
+
+	// 反序列化为TxyOrder
+	var txyOrder model.TxyOrder
+	if err := json.Unmarshal([]byte(orderJson), &txyOrder); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal order from redis: %w", err)
+	}
+
+	return &txyOrder, nil
 }

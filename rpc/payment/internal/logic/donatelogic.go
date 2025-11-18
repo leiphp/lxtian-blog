@@ -10,6 +10,7 @@ import (
 	redisutil "lxtian-blog/common/pkg/redis"
 	"lxtian-blog/common/pkg/utils"
 	"strconv"
+	"time"
 
 	"lxtian-blog/rpc/payment/internal/svc"
 	"lxtian-blog/rpc/payment/pb/payment"
@@ -59,7 +60,7 @@ func (l *DonateLogic) Donate(in *payment.DonateReq) (*payment.DonateResp, error)
 
 	// 如果已有3单未支付订单，不允许再创建
 	if count >= 3 {
-		return nil, fmt.Errorf("您已有3单待支付的捐赠订单，请先完成支付后再创建新订单")
+		return nil, fmt.Errorf("您已有3单待支付的捐赠订单，请勿频繁创建新订单")
 	}
 
 	// 生成订单ID、支付ID和商户订单号
@@ -77,11 +78,11 @@ func (l *DonateLogic) Donate(in *payment.DonateReq) (*payment.DonateResp, error)
 	}
 	// 设置默认值（需要重新生成protobuf后启用）
 	if in.PayType == 0 {
-		in.PayType = 1 // 默认直接消费
+		in.PayType = 1 // 支付宝
 	}
 	// 设置默认值（需要重新生成protobuf后启用）
 	if in.BuyType == 0 {
-		in.PayType = 3 // 默认直接消费
+		in.BuyType = 1 // 默认捐赠
 	}
 
 	// 2. 创建支付订单记录（txy_orders表）
@@ -90,11 +91,14 @@ func (l *DonateLogic) Donate(in *payment.DonateReq) (*payment.DonateResp, error)
 		OrderSn:    orderSn,
 		OutTradeNo: outTradeNo,
 		UserID:     int32(in.UserId),
-		PayMoney:   in.Amount,
-		GoodsName:  in.Subject,
-		Status:     0,
+		Amount:     in.Amount,
+		Subject:    in.Subject,
+		Status:     constant.PaymentStatusPending,
 		PayType:    int32(in.PayType),
+		Remark:     in.Remark,
 		IP:         in.ClientIp,
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
 	}
 
 	// 使用GORM保存支付订单到数据库 todo 待支付不入库
@@ -156,16 +160,16 @@ func (l *DonateLogic) Donate(in *payment.DonateReq) (*payment.DonateResp, error)
 
 // getDonatePendingCount 获取待支付捐赠订单数量
 // userIdentifier格式：user:{userId} 或 ip:{ip}
-// 使用模糊查询统计：donate:order:{userIdentifier}:*
-// 通过检查Set中的订单数量来统计（Set的key为donate:orders:{userIdentifier}）
+// 通过检查Set中的订单数量来统计（Set的key为blog:donate:pending:{userIdentifier}）
 // 当订单过期时，需要从Set中移除对应的订单号
 func (l *DonateLogic) getDonatePendingCount(userIdentifier string) (int, error) {
 	if l.svcCtx.Rds == nil {
 		return 0, nil
 	}
 
-	// 使用Set来存储订单列表，key格式：donate:orders:{userIdentifier}
-	setKey := fmt.Sprintf("donate:orders:%s", userIdentifier)
+	// 使用Set来存储订单列表，key格式：blog:donate:pending:{userIdentifier}
+	// 必须与savePaymentOrderToRedis中使用的key格式一致
+	setKey := redisutil.ReturnRedisKey(redisutil.DonatePendingOrderSet, userIdentifier)
 
 	// 获取Set的大小（订单数量）
 	count, err := l.svcCtx.Rds.ScardCtx(l.ctx, setKey)
@@ -177,7 +181,7 @@ func (l *DonateLogic) getDonatePendingCount(userIdentifier string) (int, error) 
 
 	// 清理Set中已过期的订单（通过检查订单key是否存在）
 	// 这样可以确保计数准确
-	l.cleanExpiredOrdersFromSet(userIdentifier, setKey)
+	l.cleanExpiredOrdersFromSet(setKey)
 
 	// 重新获取清理后的数量
 	count, err = l.svcCtx.Rds.ScardCtx(l.ctx, setKey)
@@ -189,16 +193,17 @@ func (l *DonateLogic) getDonatePendingCount(userIdentifier string) (int, error) 
 }
 
 // cleanExpiredOrdersFromSet 清理Set中已过期的订单
-func (l *DonateLogic) cleanExpiredOrdersFromSet(userIdentifier, setKey string) {
+func (l *DonateLogic) cleanExpiredOrdersFromSet(setKey string) {
 	// 获取Set中的所有订单号
 	orderNos, err := l.svcCtx.Rds.SmembersCtx(l.ctx, setKey)
 	if err != nil {
+		l.Errorf("Failed to get order nos from set: %v", err)
 		return
 	}
 
 	// 检查每个订单是否存在
 	for _, orderNo := range orderNos {
-		orderKey := fmt.Sprintf("donate:order:%s:%s", userIdentifier, orderNo)
+		orderKey := redisutil.ReturnRedisKey(redisutil.DonatePendingOrderString, orderNo)
 		exists, err := l.svcCtx.Rds.ExistsCtx(l.ctx, orderKey)
 		if err != nil {
 			continue
