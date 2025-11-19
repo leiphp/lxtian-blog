@@ -252,4 +252,31 @@ if !ok {
     return nil, errors.New("deal with type error:数据类型错误")
 }
 fmt.Println("value:", value)
+
+// 使用全局 ServiceContext 中的本地缓存（30 分钟过期）
+// cache := l.svcCtx.Cache
+
+// 尝试从缓存获取用户信息
+	cacheKey := fmt.Sprintf("userInfo:%d", in.Id)
+	v, exist := cache.Get(cacheKey)
+	if exist {
+		l.Infof("从缓存中获取用户信息: %v", v)
+		// 缓存中存在数据，转换为 UserInfo 并合并最新的会员信息后返回
+		userInfo, err := l.convertCacheToUserInfo(v)
+		if err != nil {
+			l.Errorf("Failed to convert cache data to UserInfo: %v", err)
+			// 转换失败，继续从数据库获取
+		} else {
+			// 构建会员信息
+			membershipInfoProto := l.buildMembershipInfo(membershipInfo)
+			return &user.InfoResp{
+				User:       userInfo,
+				Membership: membershipInfoProto,
+			}, nil
+		}
+	}
+	
+	
+// 设置缓存
+cache.Set(cacheKey, txyUser)
 ```

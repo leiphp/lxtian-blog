@@ -46,7 +46,7 @@ func (l *DonateNotifyLogic) DonateNotify(req *types.DonateNotifyReq) (resp *type
 		clientIP = v
 	}
 
-	rpcResp, err := l.svcCtx.PaymentRpc.PaymentNotify(l.ctx, &payment.PaymentNotifyReq{
+	rpcResp, err := l.svcCtx.PaymentRpc.DonateNotify(l.ctx, &payment.DonateNotifyReq{
 		NotifyData: notifyData,
 		Sign:       sign,
 		SignType:   signType,

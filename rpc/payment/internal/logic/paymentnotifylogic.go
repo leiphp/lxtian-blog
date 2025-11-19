@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/leiphp/unit-go-sdk/pkg/gconv"
 	"net/url"
 	"sort"
 	"strconv"
@@ -12,6 +13,7 @@ import (
 
 	"lxtian-blog/common/constant"
 	"lxtian-blog/common/model"
+	redisutil "lxtian-blog/common/pkg/redis"
 	paymentSvc "lxtian-blog/common/repository/payment_repo"
 
 	"lxtian-blog/rpc/payment/internal/svc"
@@ -520,8 +522,42 @@ func (l *PaymentNotifyLogic) activateMembership(paymentOrder *model.LxtPaymentOr
 			return fmt.Errorf("create membership renewal failed: %w", err)
 		}
 
+		// 会员续费成功后，删除相关缓存
+		// 注意：这里在事务提交后执行，确保数据已持久化
+		// 如果事务回滚，这些操作也不会执行（因为函数会返回错误）
+		l.clearUserCacheAfterMembershipUpdate(paymentOrder.UserID)
+
 		return nil
 	})
+}
+
+// clearUserCacheAfterMembershipUpdate 清除用户相关缓存
+// 包括：会员 Redis 缓存和用户信息缓存
+// 注意：用户信息本地缓存（userInfo:{userId}）在 user 服务中，payment 服务无法直接删除
+// 通过删除 Redis 缓存和发布事件来通知 user 服务清除本地缓存
+func (l *PaymentNotifyLogic) clearUserCacheAfterMembershipUpdate(userID int64) {
+	if l.svcCtx.Rds == nil {
+		return
+	}
+
+	// 1. 删除会员 Redis 缓存
+	membershipCacheKey := redisutil.ReturnRedisKey(redisutil.UserMemberShipString, userID)
+	_, err := l.svcCtx.Rds.DelCtx(l.ctx, membershipCacheKey)
+	if err != nil {
+		l.Errorf("Failed to delete membership cache for user %d: %v", userID, err)
+	} else {
+		l.Infof("Deleted membership cache for user %d", userID)
+	}
+
+	// 2. 删除用户信息 Redis 缓存（如果存在）
+	userInfoCacheKey := redisutil.ReturnRedisKey(redisutil.ApiUserInfoSet, nil)
+	_, err = l.svcCtx.Rds.Hdel(userInfoCacheKey, gconv.String(userID))
+	if err != nil {
+		l.Errorf("从Redis hash删除用户信息失败：userID=%d, err=%v", userID, err)
+	} else {
+		l.Infof("从Redis hash删除用户信息成功: userId=%d", userID)
+	}
+
 }
 
 // calculateMembershipLevel 按累计月数计算会员等级

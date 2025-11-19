@@ -98,13 +98,13 @@ func (r *userMembershipRepository) GetActiveMembershipByUserId(ctx context.Conte
 
 	// 转换为 map
 	membershipData := map[string]interface{}{
-		"end_time":   membership.EndTime.Format("2006-01-02 15:04:05"),
-		"level":      membership.Level,
-		"is_valid":   isValid,
-		"is_active":  membership.IsActive,
-		"start_time": membership.StartTime.Format("2006-01-02 15:04:05"),
-		"total_days": membership.TotalDays,
-		"type_id":    membership.MembershipTypeID,
+		"end_time":     membership.EndTime.Format("2006-01-02 15:04:05"),
+		"level":        membership.Level,
+		"is_valid":     isValid,
+		"is_active":    membership.IsActive,
+		"start_time":   membership.StartTime.Format("2006-01-02 15:04:05"),
+		"total_months": membership.TotalMonths,
+		"type_id":      membership.MembershipTypeID,
 	}
 
 	// 3. 将结果写入 Redis，方便下次直接读取

@@ -22,6 +22,7 @@ const (
 	UserMemberShipString     = 12 //用户会员
 	DonatePendingOrderString = 13 //捐赠待支付订单
 	DonatePendingOrderSet    = 14 //捐赠订单集合
+	ApiUserInfoSet           = 15 //用户详情
 )
 
 var apiCacheKeys = map[int]string{
@@ -39,6 +40,7 @@ var apiCacheKeys = map[int]string{
 	OAuthStateString:         "oauth:state",
 	DonatePendingOrderString: "donate:order",
 	DonatePendingOrderSet:    "donate:pending",
+	ApiUserInfoSet:           "user:info:set",
 }
 
 /**

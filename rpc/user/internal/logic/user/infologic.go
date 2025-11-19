@@ -2,14 +2,16 @@ package userlogic
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/leiphp/unit-go-sdk/pkg/gconv"
+	"github.com/zeromicro/go-zero/core/logx"
 	"lxtian-blog/common/model"
+	"lxtian-blog/common/pkg/redis"
 	"lxtian-blog/common/pkg/utils"
 	"lxtian-blog/common/repository/user_repo"
 	"lxtian-blog/rpc/user/internal/svc"
 	"lxtian-blog/rpc/user/user"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type InfoLogic struct {
@@ -27,9 +29,6 @@ func NewInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *InfoLogic {
 }
 
 func (l *InfoLogic) Info(in *user.InfoReq) (*user.InfoResp, error) {
-	// 使用全局 ServiceContext 中的本地缓存（30 分钟过期）
-	cache := l.svcCtx.Cache
-
 	// 查询并处理会员信息（优先从 Redis 获取，未命中再查 DB）
 	membershipRepo := user_repo.NewUserMembershipRepository(l.svcCtx.DB, l.svcCtx.Rds)
 	membershipInfo, err := membershipRepo.GetActiveMembershipByUserId(l.ctx, int64(in.Id))
@@ -39,15 +38,17 @@ func (l *InfoLogic) Info(in *user.InfoReq) (*user.InfoResp, error) {
 		membershipInfo = nil
 	}
 
-	// 尝试从缓存获取用户信息
-	cacheKey := fmt.Sprintf("userInfo:%d", in.Id)
-	v, exist := cache.Get(cacheKey)
-	if exist {
-		l.Infof("从缓存中获取用户信息: %v", v)
+	cacheKey := redis.ReturnRedisKey(redis.ApiUserInfoSet, nil)
+	value, err := l.svcCtx.Rds.Hget(cacheKey, gconv.String(in.Id))
+	if err != nil {
+		l.Errorf("Failed to get user info: %v", err)
+		return nil, err
+	}
+	if value != "" {
 		// 缓存中存在数据，转换为 UserInfo 并合并最新的会员信息后返回
-		userInfo, err := l.convertCacheToUserInfo(v)
+		userInfo, err := l.convertCacheToUserInfo(value)
 		if err != nil {
-			l.Errorf("Failed to convert cache data to UserInfo: %v", err)
+			l.Errorf("Failed to convert redis data to UserInfo: %v", err)
 			// 转换失败，继续从数据库获取
 		} else {
 			// 构建会员信息
@@ -68,9 +69,15 @@ func (l *InfoLogic) Info(in *user.InfoReq) (*user.InfoResp, error) {
 	// 构建用户信息
 	userInfo := l.buildUserInfo(txyUser)
 
-	// 设置缓存
-	cache.Set(cacheKey, txyUser)
+	// userInfo转成json数据
+	hashData := l.userInfoToHash(userInfo)
 
+	// 设置缓存
+	if err := l.svcCtx.Rds.Hset(cacheKey, gconv.String(in.Id), hashData); err != nil {
+		l.Errorf("Failed to set user info: %v", err)
+	} else {
+		l.Infof("Set user info to hash: %v", hashData)
+	}
 	// 构建会员信息
 	membershipInfoProto := l.buildMembershipInfo(membershipInfo)
 
@@ -146,4 +153,26 @@ func (l *InfoLogic) buildMembershipInfo(membershipInfo map[string]interface{}) *
 		TypeId:    utils.GetInt64Value(membershipInfo, "type_id"),
 		TotalDays: utils.GetInt32Value(membershipInfo, "total_days"),
 	}
+}
+
+// userInfoToHash 将 UserInfo 转换为 Redis Hash 数据
+func (l *InfoLogic) userInfoToHash(userInfo *user.UserInfo) string {
+	hashData := make(map[string]interface{})
+	hashData["id"] = userInfo.Id
+	hashData["uid"] = userInfo.Uid
+	hashData["username"] = userInfo.Username
+	hashData["email"] = userInfo.Email
+	hashData["nickname"] = userInfo.Nickname
+	hashData["head_img"] = userInfo.HeadImg
+	hashData["type"] = userInfo.Type
+	hashData["status"] = userInfo.Status
+	hashData["gold"] = userInfo.Gold
+	hashData["score"] = userInfo.Score
+	// 转换为 JSON 字符串
+	jsonStr, err := json.Marshal(hashData)
+	if err != nil {
+		fmt.Println("userInfoToHash JSON 编码错误:", err)
+		return ""
+	}
+	return string(jsonStr)
 }
