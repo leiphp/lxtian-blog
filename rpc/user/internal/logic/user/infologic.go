@@ -40,11 +40,7 @@ func (l *InfoLogic) Info(in *user.InfoReq) (*user.InfoResp, error) {
 
 	cacheKey := redis.ReturnRedisKey(redis.ApiUserInfoSet, nil)
 	value, err := l.svcCtx.Rds.Hget(cacheKey, gconv.String(in.Id))
-	if err != nil {
-		l.Errorf("Failed to get user info: %v", err)
-		return nil, err
-	}
-	if value != "" {
+	if err == nil && value != "" {
 		// 缓存中存在数据，转换为 UserInfo 并合并最新的会员信息后返回
 		userInfo, err := l.convertCacheToUserInfo(value)
 		if err != nil {
