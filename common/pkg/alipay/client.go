@@ -72,6 +72,7 @@ type TradeCreateRequest struct {
 	ProductCode string `json:"product_code"`              // 产品码（固定值FAST_INSTANT_TRADE_PAY）
 	Timeout     string `json:"timeout_express,omitempty"` // 订单超时时间
 	ReturnUrl   string `json:"return_url,omitempty"`      // 支付成功跳转地址
+	NotifyUrl   string `json:"notify_url,omitempty"`      // 异步通知地址
 }
 
 // TradeCreateResponse 创建支付订单响应
@@ -159,7 +160,9 @@ func (c *AlipayClient) CreatePayment(req *TradeCreateRequest) (string, error) {
 	params.Set("version", c.config.Version)
 	params.Set("biz_content", string(bizContent))
 
-	if c.config.NotifyUrl != "" {
+	if req.NotifyUrl != "" {
+		params.Set("notify_url", req.NotifyUrl)
+	} else {
 		params.Set("notify_url", c.config.NotifyUrl)
 	}
 

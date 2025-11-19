@@ -133,6 +133,7 @@ func (l *DonateLogic) Donate(in *payment.DonateReq) (*payment.DonateResp, error)
 		ProductCode: in.ProductCode,
 		Timeout:     timeout,
 		ReturnUrl:   in.ReturnUrl,
+		NotifyUrl:   in.NotifyUrl,
 	}
 
 	// 调用支付宝API创建支付URL
@@ -140,14 +141,14 @@ func (l *DonateLogic) Donate(in *payment.DonateReq) (*payment.DonateResp, error)
 	if err != nil {
 		l.Errorf("Failed to create alipay payment_repo: %v", err)
 		// 使用GORM更新订单状态为失败
-		l.svcCtx.DB.WithContext(l.ctx).Model(&model.LxtPaymentOrder{}).
+		l.svcCtx.DB.WithContext(l.ctx).Model(&model.TxyOrder{}).
 			Where("payment_id = ?", paymentId).
 			Update("status", constant.VerifyStatusFailed)
-		return nil, fmt.Errorf("创建支付订单失败: %w", err)
+		return nil, fmt.Errorf("创建捐赠订单失败: %w", err)
 	}
 
 	// 记录日志
-	l.Infof("Created payment_repo order: paymentId=%s, orderSn=%s, outTradeNo=%s, amount=%.2f, payUrl=%s",
+	l.Infof("Created txy_order: paymentId=%s, orderSn=%s, outTradeNo=%s, amount=%.2f, payUrl=%s",
 		paymentId, orderSn, outTradeNo, in.Amount, payUrl)
 
 	return &payment.DonateResp{

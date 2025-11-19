@@ -29,6 +29,7 @@ func NewCreatePaymentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cre
 }
 
 func (l *CreatePaymentLogic) CreatePayment(req *types.CreatePaymentReq, r *http.Request) (resp *types.CreatePaymentResp, err error) {
+	l.Infof("CreatePayment logic: req=%v", req)
 	//从中间件获取用户信息
 	userId, ok := l.ctx.Value("user_id").(uint)
 	if !ok {
