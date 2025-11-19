@@ -20,7 +20,7 @@ type LxtUserMembership struct {
 	StartTime        time.Time      `gorm:"column:start_time;not null;comment:会员开始时间" json:"start_time"`                         // 会员开始时间
 	EndTime          time.Time      `gorm:"column:end_time;not null;comment:会员结束时间" json:"end_time"`                             // 会员结束时间
 	IsActive         int32          `gorm:"column:is_active;not null;default:1;comment:是否激活：1是0否" json:"is_active"`              // 是否激活：1是0否
-	TotalDays        int32          `gorm:"column:total_days;not null;comment:累计会员总天数（用于等级计算）" json:"total_days"`                // 累计会员总天数（用于等级计算）
+	TotalMonths      int32          `gorm:"column:total_months;not null;comment:累计会员总月数（用于等级计算）" json:"total_months"`            // 累计会员总月数（用于等级计算）
 	Level            int32          `gorm:"column:level;not null;default:1;comment:当前等级" json:"level"`                           // 当前等级
 	CreatedAt        time.Time      `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"` // 创建时间
 	UpdatedAt        time.Time      `gorm:"column:updated_at;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updated_at"` // 更新时间

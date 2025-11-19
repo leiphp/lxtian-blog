@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math"
 	"net/url"
 	"sort"
 	"strconv"
@@ -390,6 +389,31 @@ func (l *PaymentNotifyLogic) handlePaymentSuccess(paymentOrder *model.LxtPayment
 	return nil
 }
 
+// calculateRemainingMonths 计算剩余月数
+// 计算从原到期时间到当前时间的剩余月数（向上取整）
+func calculateRemainingMonths(endTime, now time.Time) int32 {
+	if endTime.Before(now) || endTime.Equal(now) {
+		return 0
+	}
+
+	// 计算月份差
+	years := endTime.Year() - now.Year()
+	months := int(endTime.Month()) - int(now.Month())
+	totalMonths := years*12 + months
+
+	// 如果天数差超过15天，向上取整加1个月
+	daysDiff := int(endTime.Sub(now).Hours() / 24)
+	if daysDiff%30 > 15 {
+		totalMonths++
+	}
+
+	if totalMonths < 0 {
+		return 0
+	}
+
+	return int32(totalMonths)
+}
+
 // activateMembership 为会员订单开通或续费会员
 func (l *PaymentNotifyLogic) activateMembership(paymentOrder *model.LxtPaymentOrder) error {
 	if paymentOrder == nil {
@@ -405,9 +429,9 @@ func (l *PaymentNotifyLogic) activateMembership(paymentOrder *model.LxtPaymentOr
 			return fmt.Errorf("query membership type failed: %w", err)
 		}
 
-		daysToAdd := int(membershipType.Days)
-		if daysToAdd <= 0 {
-			return fmt.Errorf("invalid membership days for type %d", membershipType.ID)
+		monthsToAdd := int(membershipType.Months)
+		if monthsToAdd <= 0 {
+			return fmt.Errorf("invalid membership months for type %d", membershipType.ID)
 		}
 
 		now := time.Now()
@@ -416,11 +440,11 @@ func (l *PaymentNotifyLogic) activateMembership(paymentOrder *model.LxtPaymentOr
 		err := tx.Where("user_id = ?", paymentOrder.UserID).First(&membership).Error
 
 		var (
-			beforeStart      *time.Time
-			beforeEnd        *time.Time
-			fromTypeID       *int64
-			remainingDaysPtr *int32
-			renewalType      int32 = constant.MembershipRenewalTypeRenewal
+			beforeStart        *time.Time
+			beforeEnd          *time.Time
+			fromTypeID         *int64
+			remainingMonthsPtr *int32
+			renewalType        int32 = constant.MembershipRenewalTypeRenewal
 		)
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -428,10 +452,10 @@ func (l *PaymentNotifyLogic) activateMembership(paymentOrder *model.LxtPaymentOr
 				UserID:           paymentOrder.UserID,
 				MembershipTypeID: membershipType.ID,
 				StartTime:        now,
-				EndTime:          now.AddDate(0, 0, daysToAdd),
+				EndTime:          now.AddDate(0, monthsToAdd, 0),
 				IsActive:         1,
-				TotalDays:        int32(daysToAdd),
-				Level:            calculateMembershipLevel(int(daysToAdd)),
+				TotalMonths:      int32(monthsToAdd),
+				Level:            calculateMembershipLevel(int(monthsToAdd)),
 			}
 
 			if err := tx.Create(&membership).Error; err != nil {
@@ -452,22 +476,23 @@ func (l *PaymentNotifyLogic) activateMembership(paymentOrder *model.LxtPaymentOr
 			}
 
 			if membership.EndTime.Before(now) {
+				// 会员已过期，从当前时间重新开始
 				membership.StartTime = now
-				membership.EndTime = now.AddDate(0, 0, daysToAdd)
+				membership.EndTime = now.AddDate(0, monthsToAdd, 0)
 			} else {
-				membership.EndTime = membership.EndTime.AddDate(0, 0, daysToAdd)
-				remaining := int32(math.Ceil(origEnd.Sub(now).Hours() / 24))
-				if remaining < 0 {
-					remaining = 0
-				}
-				remainingCopy := remaining
-				remainingDaysPtr = &remainingCopy
+				// 会员未过期，在原有到期时间基础上续费
+				membership.EndTime = membership.EndTime.AddDate(0, monthsToAdd, 0)
+
+				// 计算剩余月数：原到期时间到当前时间的剩余月数
+				// 用于记录续费前还有多少个月剩余（升级时计算用）
+				remainingMonths := calculateRemainingMonths(origEnd, now)
+				remainingMonthsPtr = &remainingMonths
 			}
 
 			membership.MembershipTypeID = membershipType.ID
 			membership.IsActive = 1
-			newTotal := membership.TotalDays + int32(daysToAdd)
-			membership.TotalDays = newTotal
+			newTotal := membership.TotalMonths + int32(monthsToAdd)
+			membership.TotalMonths = newTotal
 			membership.Level = calculateMembershipLevel(int(newTotal))
 
 			if err := tx.Save(&membership).Error; err != nil {
@@ -486,8 +511,8 @@ func (l *PaymentNotifyLogic) activateMembership(paymentOrder *model.LxtPaymentOr
 			BeforeEndTime:        beforeEnd,
 			AfterStartTime:       membership.StartTime,
 			AfterEndTime:         membership.EndTime,
-			RemainingDays:        remainingDaysPtr,
-			CalculatedDays:       membership.TotalDays,
+			RemainingMonths:      remainingMonthsPtr,
+			CalculatedMonths:     membership.TotalMonths,
 			Amount:               paymentOrder.Amount,
 		}
 
@@ -499,16 +524,16 @@ func (l *PaymentNotifyLogic) activateMembership(paymentOrder *model.LxtPaymentOr
 	})
 }
 
-// calculateMembershipLevel 按累计天数计算会员等级
-func calculateMembershipLevel(totalDays int) int32 {
+// calculateMembershipLevel 按累计月数计算会员等级
+func calculateMembershipLevel(totalMonths int) int32 {
 	switch {
-	case totalDays <= 90:
+	case totalMonths <= 3:
 		return 1
-	case totalDays <= 180:
+	case totalMonths <= 6:
 		return 2
-	case totalDays <= 365:
+	case totalMonths <= 12:
 		return 3
-	case totalDays <= 730:
+	case totalMonths <= 24:
 		return 4
 	default:
 		return 5

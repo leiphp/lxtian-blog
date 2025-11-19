@@ -17,7 +17,7 @@ type LxtUserMembershipType struct {
 	ID            int64          `gorm:"column:id;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                      // 主键ID
 	Name          string         `gorm:"column:name;not null;comment:会员类型名称（月度会员、季度会员、年度会员）" json:"name"`                     // 会员类型名称（月度会员、季度会员、年度会员）
 	Key           string         `gorm:"column:key;not null;comment:会员类型标识（monthly, quarterly, yearly）" json:"key"`           // 会员类型标识（monthly, quarterly, yearly）
-	Days          int32          `gorm:"column:days;not null;comment:会员天数" json:"days"`                                       // 会员天数
+	Months        int32          `gorm:"column:months;not null;comment:会员天数" json:"months"`                                   // 会员天数
 	Price         float64        `gorm:"column:price;not null;comment:价格" json:"price"`                                       // 价格
 	OriginalPrice float64        `gorm:"column:original_price;not null;comment:原价" json:"original_price"`                     // 原价
 	Discount      float64        `gorm:"column:discount;not null;comment:折扣价" json:"discount"`                                // 折扣价

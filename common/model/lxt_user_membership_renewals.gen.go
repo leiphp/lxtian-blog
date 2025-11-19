@@ -24,8 +24,8 @@ type LxtUserMembershipRenewal struct {
 	BeforeEndTime        *time.Time     `gorm:"column:before_end_time;comment:续费前结束时间" json:"before_end_time"`                        // 续费前结束时间
 	AfterStartTime       time.Time      `gorm:"column:after_start_time;not null;comment:续费后开始时间" json:"after_start_time"`             // 续费后开始时间
 	AfterEndTime         time.Time      `gorm:"column:after_end_time;not null;comment:续费后结束时间" json:"after_end_time"`                 // 续费后结束时间
-	RemainingDays        *int32         `gorm:"column:remaining_days;comment:剩余天数（升级时计算用）" json:"remaining_days"`                     // 剩余天数（升级时计算用）
-	CalculatedDays       int32          `gorm:"column:calculated_days;not null;comment:计算后的总天数" json:"calculated_days"`               // 计算后的总天数
+	RemainingMonths      *int32         `gorm:"column:remaining_months;comment:剩余月数（升级时计算用）" json:"remaining_months"`                 // 剩余月数（升级时计算用）
+	CalculatedMonths     int32          `gorm:"column:calculated_months;not null;comment:计算后的总月数" json:"calculated_months"`           // 计算后的总月数
 	Amount               float64        `gorm:"column:amount;not null;comment:支付金额" json:"amount"`                                    // 支付金额
 	CreatedAt            time.Time      `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"`  // 创建时间
 	UpdatedAt            time.Time      `gorm:"column:updated_at;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updated_at"`  // 更新时间
