@@ -55,6 +55,7 @@ message CreatePaymentReq {
   int64 goods_id = 12;          // 商品名称
   string remark = 13;           // 备注
   uint32 quantity = 14;         // 商品数量
+  int64 vip_id = 15;           // 会员id
 }
 
 // 创建支付订单响应

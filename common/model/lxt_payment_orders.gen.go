@@ -19,7 +19,9 @@ type LxtPaymentOrder struct {
 	OrderSn       string         `gorm:"column:order_sn;not null;comment:订单编号" json:"order_sn"`                               // 订单编号
 	OutTradeNo    string         `gorm:"column:out_trade_no;not null;comment:商户订单号" json:"out_trade_no"`                      // 商户订单号
 	GoodsID       int32          `gorm:"column:goods_id;not null;comment:商品ID" json:"goods_id"`                               // 商品ID
-	BuyType       int32          `gorm:"column:buy_type;not null;comment:购买类型：1:捐赠2:购买会员3:商品消费" json:"buy_type"`              // 购买类型：1:捐赠2:购买会员3:商品消费
+	Quantity      int32          `gorm:"column:quantity;not null;default:1;comment:商品数量" json:"quantity"`                     // 商品数量
+	VipID         int32          `gorm:"column:vip_id;not null;comment:会员id" json:"vip_id"`                                   // 会员id
+	BuyType       int32          `gorm:"column:buy_type;not null;comment:购买类型：1:商品消费2:购买会员" json:"buy_type"`                  // 购买类型：1:商品消费2:购买会员
 	UserID        int64          `gorm:"column:user_id;not null;comment:用户ID" json:"user_id"`                                 // 用户ID
 	Amount        float64        `gorm:"column:amount;not null;comment:支付金额" json:"amount"`                                   // 支付金额
 	Subject       string         `gorm:"column:subject;not null;comment:订单标题" json:"subject"`                                 // 订单标题
@@ -36,6 +38,7 @@ type LxtPaymentOrder struct {
 	NotifyURL     string         `gorm:"column:notify_url;not null;comment:支付结果异步通知地址" json:"notify_url"`                     // 支付结果异步通知地址
 	Timeout       string         `gorm:"column:timeout;not null;comment:订单超时时间" json:"timeout"`                               // 订单超时时间
 	ClientIP      string         `gorm:"column:client_ip;not null;comment:客户端IP" json:"client_ip"`                            // 客户端IP
+	Remark        string         `gorm:"column:remark;not null;comment:备注" json:"remark"`                                     // 备注
 	PayTime       *time.Time     `gorm:"column:pay_time;comment:支付时间" json:"pay_time"`                                        // 支付时间
 	CloseTime     *time.Time     `gorm:"column:close_time;comment:交易关闭时间" json:"close_time"`                                  // 交易关闭时间
 	CreatedAt     time.Time      `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"` // 创建时间

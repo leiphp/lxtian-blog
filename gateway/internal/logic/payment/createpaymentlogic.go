@@ -38,6 +38,7 @@ func (l *CreatePaymentLogic) CreatePayment(req *types.CreatePaymentReq, r *http.
 	res, err := l.svcCtx.PaymentRpc.CreatePayment(l.ctx, &payment.CreatePaymentReq{
 		GoodsId:   int64(req.GoodsId),
 		Quantity:  req.Quantity,
+		VipId:     int64(req.VipId),
 		UserId:    uint64(userId),
 		Amount:    req.Amount,
 		Subject:   req.Subject,
