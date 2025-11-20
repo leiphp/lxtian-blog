@@ -107,9 +107,12 @@ func (l *LoginLogic) Login(in *user.LoginReq) (*user.LoginResp, error) {
 			// 会员信息查询失败不影响用户信息返回，继续执行
 			membershipInfo = nil
 		}
-		memberRes, err := utils.ConvertToLowercaseJSONTags(membershipInfo)
-		if err != nil {
-			return nil, err
+		var memberRes map[string]interface{}
+		if membershipInfo != nil {
+			memberRes, err = utils.ConvertToLowercaseJSONTags(membershipInfo)
+			if err != nil {
+				return nil, err
+			}
 		}
 		// 组装用户json数据
 		res, err := utils.ConvertToLowercaseJSONTags(txyUser)
