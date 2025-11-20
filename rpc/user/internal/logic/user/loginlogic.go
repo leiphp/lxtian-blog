@@ -10,6 +10,7 @@ import (
 	"lxtian-blog/common/pkg/define"
 	"lxtian-blog/common/pkg/oauth"
 	"lxtian-blog/common/pkg/utils"
+	"lxtian-blog/common/repository/user_repo"
 	"lxtian-blog/rpc/user/internal/svc"
 	"lxtian-blog/rpc/user/user"
 	"time"
@@ -98,10 +99,24 @@ func (l *LoginLogic) Login(in *user.LoginReq) (*user.LoginResp, error) {
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err
 		}
+		// 查询并处理会员信息（优先从 Redis 获取，未命中再查 DB）
+		membershipRepo := user_repo.NewUserMembershipRepository(l.svcCtx.DB, l.svcCtx.Rds)
+		membershipInfo, err := membershipRepo.GetActiveMembershipByUserId(l.ctx, int64(txyUser.ID))
+		if err != nil {
+			l.Errorf("Failed to get membership info: %v", err)
+			// 会员信息查询失败不影响用户信息返回，继续执行
+			membershipInfo = nil
+		}
+		memberRes, err := utils.ConvertToLowercaseJSONTags(membershipInfo)
+		if err != nil {
+			return nil, err
+		}
+		// 组装用户json数据
 		res, err := utils.ConvertToLowercaseJSONTags(txyUser)
 		if err != nil {
 			return nil, err
 		}
+		res["vip"] = memberRes
 		jsonData, err := json.Marshal(res)
 		if err != nil {
 			return nil, err

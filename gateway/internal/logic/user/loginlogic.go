@@ -92,6 +92,7 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 				HeadImg:  gconv.String(result["head_img"]),
 				Gold:     gconv.Uint64(result["gold"]),
 				Score:    gconv.Uint64(result["score"]),
+				Vip:      gconv.Map(result["vip"]),
 			}
 			message, err = utils.GetSocketMessage(token, "登录成功", userinfo)
 			if err != nil {
