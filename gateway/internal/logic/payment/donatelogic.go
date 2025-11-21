@@ -29,11 +29,9 @@ func NewDonateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DonateLogi
 
 func (l *DonateLogic) Donate(req *types.DonateReq, r *http.Request) (resp *types.DonateResp, err error) {
 	l.Infof("Donate logic: req=%v", req)
-	//从中间件获取用户信息
-	userId, _ := l.ctx.Value("user_id").(uint)
-
 	res, err := l.svcCtx.PaymentRpc.Donate(l.ctx, &payment.DonateReq{
-		UserId:    uint64(userId),
+		UserId:    uint64(req.UserId),
+		Nickname:  req.Nickname,
 		Amount:    req.Amount,
 		Subject:   req.Subject,
 		ClientIp:  utils.GetClientIp(r),

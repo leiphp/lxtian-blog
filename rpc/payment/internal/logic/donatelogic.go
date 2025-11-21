@@ -91,6 +91,7 @@ func (l *DonateLogic) Donate(in *payment.DonateReq) (*payment.DonateResp, error)
 		OrderSn:    orderSn,
 		OutTradeNo: outTradeNo,
 		UserID:     int32(in.UserId),
+		Nickname:   in.Nickname,
 		Amount:     in.Amount,
 		Subject:    in.Subject,
 		Status:     constant.PaymentStatusPending,

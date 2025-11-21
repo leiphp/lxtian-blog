@@ -21,6 +21,7 @@ type TxyOrder struct {
 	Amount     float64        `gorm:"column:amount;not null;comment:支付金额" json:"amount"`                                   // 支付金额
 	PayType    int32          `gorm:"column:pay_type;not null;comment:1:支付宝2:微信3:银行卡" json:"pay_type"`                     // 1:支付宝2:微信3:银行卡
 	UserID     int32          `gorm:"column:user_id;not null;comment:用户ID" json:"user_id"`                                 // 用户ID
+	Nickname   string         `gorm:"column:nickname;not null;comment:用户昵称" json:"nickname"`                               // 用户昵称
 	Status     string         `gorm:"column:status;not null;default:PENDING;comment:支付状态" json:"status"`                   // 支付状态
 	Subject    string         `gorm:"column:subject;not null;comment:商品名称" json:"subject"`                                 // 商品名称
 	Remark     string         `gorm:"column:remark;not null;comment:备注" json:"remark"`                                     // 备注

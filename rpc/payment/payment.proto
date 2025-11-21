@@ -16,6 +16,7 @@ message DonateReq {
   int64 pay_type = 10;          // 支付类型：1:支付宝2:微信3:银行卡
   int64 buy_type = 11;          // 购买类型：1:捐赠2:购买会员3:商城消费
   string remark = 12;           // 备注
+  string nickname = 13;         // 用户昵称
 }
 
 message DonateResp {
