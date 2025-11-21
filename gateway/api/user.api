@@ -76,7 +76,7 @@ type (
     MemberShip {
         is_valid         bool   `json:"is_valid"`
         is_active        int    `json:"is_active"`
-        levle            int    `json:"levle"`
+        level            int    `json:"level"`
         start_time       string `json:"start_time"`
         end_time         string `json:"end_time"`
         type_id          int    `json:"type_id"`

@@ -248,7 +248,7 @@ type LoginResp struct {
 type MemberShip struct {
 	Is_valid   bool   `json:"is_valid"`
 	Is_active  int    `json:"is_active"`
-	Levle      int    `json:"levle"`
+	Level      int    `json:"level"`
 	Start_time string `json:"start_time"`
 	End_time   string `json:"end_time"`
 	Type_id    int    `json:"type_id"`

@@ -77,7 +77,7 @@ func (l *InfoLogic) Info() (resp *types.InfoResp, err error) {
 		infoResp.Vip = &types.MemberShip{
 			Is_valid:   res.Membership.IsValid,
 			Is_active:  int(res.Membership.IsActive),
-			Levle:      int(res.Membership.Level),
+			Level:      int(res.Membership.Level),
 			Start_time: res.Membership.StartTime,
 			End_time:   res.Membership.EndTime,
 			Type_id:    int(res.Membership.TypeId),
