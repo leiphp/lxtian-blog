@@ -141,6 +141,92 @@ type (
     }
 )
 
+type (
+    DocsListReq {
+        CategoryId   int `form:"category_id,optional"`
+        Level        string `form:"level,optional"`
+        SortBy       string `form:"sort_by,optional"`
+        SortOrder    string `form:"sort_order,optional"`
+        Keywords     string `form:"keywords,optional"`
+        Tag          string `form:"tag,optional"`
+        Page         int `form:"page"`
+        PageSize     int `form:"page_size"`
+    }
+    DocsListResp {
+        Page       int `json:"page"`
+        PageSize   int `json:"page_size"`
+        List       [] *DocsItem `json:"list"`
+        Total      int64 `json:"total"`
+    }
+    DocsItem {
+        Id             int64  `json:"id"`
+        CategoryId     int64  `json:"category_id"`
+        CategoryName   string `json:"category_name"`
+        Title          string `json:"title"`
+        Description    string `json:"description"`
+        Level          string `json:"level"`
+        Tags           []string `json:"tags"`
+        Cover          string `json:"cover"`
+        CreatedAt      string `json:"created_at"`
+        View           int64  `json:"view"`
+        Like           int64  `json:"like"`
+        Comment        int64  `json:"comment"`
+        ReadingTime    int    `json:"reading_time"`
+    }
+)
+
+type (
+    DocsCategoriesResp {
+        List       [] *CategoryItem `json:"list"`
+    }
+    CategoryItem {
+        Id            int64  `json:"id"`
+        Name          string `json:"name"`
+        Icon          string `json:"icon"`
+        Color         string `json:"color"`
+        Status        int    `json:"status"`
+        Sort          int    `json:"sort"`
+        Count         int64  `json:"count"`
+    }
+)
+
+type (
+    DocsStatsResp {
+        TotalDocs        int64  `json:"total_docs"`
+        TotalCategories  int64  `json:"total_categories"`
+        TotalViews       int64  `json:"total_views"`
+        TotalLikes       int64  `json:"total_likes"`
+    }
+)
+
+type (
+    DocsPopularReq {
+        Limit         int `form:"limit"`
+    }
+    DocsPopularResp {
+        List       [] *DocsItem `json:"list"`
+    }
+)
+
+type (
+    DocsLatestReq {
+        Limit         int `form:"limit"`
+    }
+    DocsLatestResp {
+        List       [] *DocsItem `json:"list"`
+    }
+)
+
+type (
+    DocsTagsResp {
+        List       [] *TagItem `json:"list"`
+    }
+    TagItem {
+        Name          string `json:"name"`
+        Count         int64  `json:"count"`
+    }
+)
+
 // 文章相关接口 - 使用文章限流配置
 @server (
     middleware: AntiSpamMiddleware,RateLimitMiddleware
@@ -211,4 +297,28 @@ service gateway-api {
     @doc "章节详情"
     @handler BookChapter
     get /book/chapter/:id (BookChapterReq) returns (BookChapterResp)
+
+    @doc "教程列表"
+    @handler DocsList
+    get /docs/list (DocsListReq) returns (DocsListResp)
+
+    @doc "教程分类"
+    @handler DocsCategories
+    get /docs/categories returns (DocsCategoriesResp)
+
+    @doc "教程统计"
+    @handler DocsStats
+    get /docs/stats returns (DocsStatsResp)
+
+    @doc "热门文档"
+    @handler DocsPopular
+    get /docs/popular (DocsPopularReq) returns (DocsPopularResp)
+
+    @doc "最新文档"
+    @handler DocsLatest
+    get /docs/latest (DocsLatestReq) returns (DocsLatestResp)
+
+    @doc "热门标签"
+    @handler DocsTags
+    get /docs/tags returns (DocsTagsResp)
 }

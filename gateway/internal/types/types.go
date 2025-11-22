@@ -86,6 +86,16 @@ type BookResp struct {
 	Data map[string]interface{} `json:"data"`
 }
 
+type CategoryItem struct {
+	Id     int64  `json:"id"`
+	Name   string `json:"name"`
+	Icon   string `json:"icon"`
+	Color  string `json:"color"`
+	Status int    `json:"status"`
+	Sort   int    `json:"sort"`
+	Count  int64  `json:"count"`
+}
+
 type CategoryListReq struct {
 	Page     uint32 `form:"page,optional"`
 	PageSize uint32 `form:"page_size,optional"`
@@ -148,6 +158,71 @@ type CreatePaymentResp struct {
 	OutTradeNo string `json:"out_trade_no"` // 商户订单号
 	OrderSn    string `json:"order_sn"`     // 订单号
 	PayUrl     string `json:"pay_url"`      // 支付链接
+}
+
+type DocsCategoriesResp struct {
+	List []*CategoryItem `json:"list"`
+}
+
+type DocsItem struct {
+	Id           int64    `json:"id"`
+	CategoryId   int64    `json:"category_id"`
+	CategoryName string   `json:"category_name"`
+	Title        string   `json:"title"`
+	Description  string   `json:"description"`
+	Level        string   `json:"level"`
+	Tags         []string `json:"tags"`
+	Cover        string   `json:"cover"`
+	CreatedAt    string   `json:"created_at"`
+	View         int64    `json:"view"`
+	Like         int64    `json:"like"`
+	Comment      int64    `json:"comment"`
+	ReadingTime  int      `json:"reading_time"`
+}
+
+type DocsLatestReq struct {
+	Limit int `form:"limit"`
+}
+
+type DocsLatestResp struct {
+	List []*DocsItem `json:"list"`
+}
+
+type DocsListReq struct {
+	CategoryId int    `form:"category_id,optional"`
+	Level      string `form:"level,optional"`
+	SortBy     string `form:"sort_by,optional"`
+	SortOrder  string `form:"sort_order,optional"`
+	Keywords   string `form:"keywords,optional"`
+	Tag        string `form:"tag,optional"`
+	Page       int    `form:"page"`
+	PageSize   int    `form:"page_size"`
+}
+
+type DocsListResp struct {
+	Page     int         `json:"page"`
+	PageSize int         `json:"page_size"`
+	List     []*DocsItem `json:"list"`
+	Total    int64       `json:"total"`
+}
+
+type DocsPopularReq struct {
+	Limit int `form:"limit"`
+}
+
+type DocsPopularResp struct {
+	List []*DocsItem `json:"list"`
+}
+
+type DocsStatsResp struct {
+	TotalDocs       int64 `json:"total_docs"`
+	TotalCategories int64 `json:"total_categories"`
+	TotalViews      int64 `json:"total_views"`
+	TotalLikes      int64 `json:"total_likes"`
+}
+
+type DocsTagsResp struct {
+	List []*TagItem `json:"list"`
 }
 
 type DonateNotifyReq struct {
@@ -404,6 +479,11 @@ type RepayOrderResp struct {
 	OutTradeNo string `json:"out_trade_no"` // 商户订单号
 	OrderSn    string `json:"order_sn"`     // 订单号
 	PayUrl     string `json:"pay_url"`      // 支付链接
+}
+
+type TagItem struct {
+	Name  string `json:"name"`
+	Count int64  `json:"count"`
 }
 
 type TagsListResp struct {

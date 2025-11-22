@@ -281,6 +281,42 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: web.CommentListHandler(serverCtx),
 				},
 				{
+					// 教程分类
+					Method:  http.MethodGet,
+					Path:    "/docs/categories",
+					Handler: web.DocsCategoriesHandler(serverCtx),
+				},
+				{
+					// 最新文档
+					Method:  http.MethodGet,
+					Path:    "/docs/latest",
+					Handler: web.DocsLatestHandler(serverCtx),
+				},
+				{
+					// 教程列表
+					Method:  http.MethodGet,
+					Path:    "/docs/list",
+					Handler: web.DocsListHandler(serverCtx),
+				},
+				{
+					// 热门文档
+					Method:  http.MethodGet,
+					Path:    "/docs/popular",
+					Handler: web.DocsPopularHandler(serverCtx),
+				},
+				{
+					// 教程统计
+					Method:  http.MethodGet,
+					Path:    "/docs/stats",
+					Handler: web.DocsStatsHandler(serverCtx),
+				},
+				{
+					// 热门标签
+					Method:  http.MethodGet,
+					Path:    "/docs/tags",
+					Handler: web.DocsTagsHandler(serverCtx),
+				},
+				{
 					// 订单列表
 					Method:  http.MethodGet,
 					Path:    "/order/list",

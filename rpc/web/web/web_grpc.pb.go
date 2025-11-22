@@ -19,18 +19,24 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Web_ArticleList_FullMethodName  = "/web.Web/ArticleList"
-	Web_Article_FullMethodName      = "/web.Web/Article"
-	Web_ArticleLike_FullMethodName  = "/web.Web/ArticleLike"
-	Web_CategoryList_FullMethodName = "/web.Web/CategoryList"
-	Web_ChatList_FullMethodName     = "/web.Web/ChatList"
-	Web_CommentList_FullMethodName  = "/web.Web/CommentList"
-	Web_OrderList_FullMethodName    = "/web.Web/OrderList"
-	Web_TagsList_FullMethodName     = "/web.Web/TagsList"
-	Web_ColumnList_FullMethodName   = "/web.Web/ColumnList"
-	Web_BookList_FullMethodName     = "/web.Web/BookList"
-	Web_Book_FullMethodName         = "/web.Web/Book"
-	Web_BookChapter_FullMethodName  = "/web.Web/BookChapter"
+	Web_ArticleList_FullMethodName    = "/web.Web/ArticleList"
+	Web_Article_FullMethodName        = "/web.Web/Article"
+	Web_ArticleLike_FullMethodName    = "/web.Web/ArticleLike"
+	Web_CategoryList_FullMethodName   = "/web.Web/CategoryList"
+	Web_ChatList_FullMethodName       = "/web.Web/ChatList"
+	Web_CommentList_FullMethodName    = "/web.Web/CommentList"
+	Web_OrderList_FullMethodName      = "/web.Web/OrderList"
+	Web_TagsList_FullMethodName       = "/web.Web/TagsList"
+	Web_ColumnList_FullMethodName     = "/web.Web/ColumnList"
+	Web_BookList_FullMethodName       = "/web.Web/BookList"
+	Web_Book_FullMethodName           = "/web.Web/Book"
+	Web_BookChapter_FullMethodName    = "/web.Web/BookChapter"
+	Web_DocsList_FullMethodName       = "/web.Web/DocsList"
+	Web_DocsCategories_FullMethodName = "/web.Web/DocsCategories"
+	Web_DocsStats_FullMethodName      = "/web.Web/DocsStats"
+	Web_DocsPopular_FullMethodName    = "/web.Web/DocsPopular"
+	Web_DocsLatest_FullMethodName     = "/web.Web/DocsLatest"
+	Web_DocsTags_FullMethodName       = "/web.Web/DocsTags"
 )
 
 // WebClient is the client API for Web service.
@@ -49,6 +55,12 @@ type WebClient interface {
 	BookList(ctx context.Context, in *BookListReq, opts ...grpc.CallOption) (*BookListResp, error)
 	Book(ctx context.Context, in *BookReq, opts ...grpc.CallOption) (*BookResp, error)
 	BookChapter(ctx context.Context, in *BookChapterReq, opts ...grpc.CallOption) (*BookChapterResp, error)
+	DocsList(ctx context.Context, in *DocsListReq, opts ...grpc.CallOption) (*DocsListResp, error)
+	DocsCategories(ctx context.Context, in *DocsCategoriesReq, opts ...grpc.CallOption) (*DocsCategoriesResp, error)
+	DocsStats(ctx context.Context, in *DocsStatsReq, opts ...grpc.CallOption) (*DocsStatsResp, error)
+	DocsPopular(ctx context.Context, in *DocsPopularReq, opts ...grpc.CallOption) (*DocsPopularResp, error)
+	DocsLatest(ctx context.Context, in *DocsLatestReq, opts ...grpc.CallOption) (*DocsLatestResp, error)
+	DocsTags(ctx context.Context, in *DocsTagsReq, opts ...grpc.CallOption) (*DocsTagsResp, error)
 }
 
 type webClient struct {
@@ -167,6 +179,60 @@ func (c *webClient) BookChapter(ctx context.Context, in *BookChapterReq, opts ..
 	return out, nil
 }
 
+func (c *webClient) DocsList(ctx context.Context, in *DocsListReq, opts ...grpc.CallOption) (*DocsListResp, error) {
+	out := new(DocsListResp)
+	err := c.cc.Invoke(ctx, Web_DocsList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *webClient) DocsCategories(ctx context.Context, in *DocsCategoriesReq, opts ...grpc.CallOption) (*DocsCategoriesResp, error) {
+	out := new(DocsCategoriesResp)
+	err := c.cc.Invoke(ctx, Web_DocsCategories_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *webClient) DocsStats(ctx context.Context, in *DocsStatsReq, opts ...grpc.CallOption) (*DocsStatsResp, error) {
+	out := new(DocsStatsResp)
+	err := c.cc.Invoke(ctx, Web_DocsStats_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *webClient) DocsPopular(ctx context.Context, in *DocsPopularReq, opts ...grpc.CallOption) (*DocsPopularResp, error) {
+	out := new(DocsPopularResp)
+	err := c.cc.Invoke(ctx, Web_DocsPopular_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *webClient) DocsLatest(ctx context.Context, in *DocsLatestReq, opts ...grpc.CallOption) (*DocsLatestResp, error) {
+	out := new(DocsLatestResp)
+	err := c.cc.Invoke(ctx, Web_DocsLatest_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *webClient) DocsTags(ctx context.Context, in *DocsTagsReq, opts ...grpc.CallOption) (*DocsTagsResp, error) {
+	out := new(DocsTagsResp)
+	err := c.cc.Invoke(ctx, Web_DocsTags_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // WebServer is the server API for Web service.
 // All implementations must embed UnimplementedWebServer
 // for forward compatibility
@@ -183,6 +249,12 @@ type WebServer interface {
 	BookList(context.Context, *BookListReq) (*BookListResp, error)
 	Book(context.Context, *BookReq) (*BookResp, error)
 	BookChapter(context.Context, *BookChapterReq) (*BookChapterResp, error)
+	DocsList(context.Context, *DocsListReq) (*DocsListResp, error)
+	DocsCategories(context.Context, *DocsCategoriesReq) (*DocsCategoriesResp, error)
+	DocsStats(context.Context, *DocsStatsReq) (*DocsStatsResp, error)
+	DocsPopular(context.Context, *DocsPopularReq) (*DocsPopularResp, error)
+	DocsLatest(context.Context, *DocsLatestReq) (*DocsLatestResp, error)
+	DocsTags(context.Context, *DocsTagsReq) (*DocsTagsResp, error)
 	mustEmbedUnimplementedWebServer()
 }
 
@@ -225,6 +297,24 @@ func (UnimplementedWebServer) Book(context.Context, *BookReq) (*BookResp, error)
 }
 func (UnimplementedWebServer) BookChapter(context.Context, *BookChapterReq) (*BookChapterResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BookChapter not implemented")
+}
+func (UnimplementedWebServer) DocsList(context.Context, *DocsListReq) (*DocsListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DocsList not implemented")
+}
+func (UnimplementedWebServer) DocsCategories(context.Context, *DocsCategoriesReq) (*DocsCategoriesResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DocsCategories not implemented")
+}
+func (UnimplementedWebServer) DocsStats(context.Context, *DocsStatsReq) (*DocsStatsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DocsStats not implemented")
+}
+func (UnimplementedWebServer) DocsPopular(context.Context, *DocsPopularReq) (*DocsPopularResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DocsPopular not implemented")
+}
+func (UnimplementedWebServer) DocsLatest(context.Context, *DocsLatestReq) (*DocsLatestResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DocsLatest not implemented")
+}
+func (UnimplementedWebServer) DocsTags(context.Context, *DocsTagsReq) (*DocsTagsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DocsTags not implemented")
 }
 func (UnimplementedWebServer) mustEmbedUnimplementedWebServer() {}
 
@@ -455,6 +545,114 @@ func _Web_BookChapter_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Web_DocsList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DocsListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebServer).DocsList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Web_DocsList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebServer).DocsList(ctx, req.(*DocsListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Web_DocsCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DocsCategoriesReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebServer).DocsCategories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Web_DocsCategories_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebServer).DocsCategories(ctx, req.(*DocsCategoriesReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Web_DocsStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DocsStatsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebServer).DocsStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Web_DocsStats_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebServer).DocsStats(ctx, req.(*DocsStatsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Web_DocsPopular_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DocsPopularReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebServer).DocsPopular(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Web_DocsPopular_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebServer).DocsPopular(ctx, req.(*DocsPopularReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Web_DocsLatest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DocsLatestReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebServer).DocsLatest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Web_DocsLatest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebServer).DocsLatest(ctx, req.(*DocsLatestReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Web_DocsTags_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DocsTagsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebServer).DocsTags(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Web_DocsTags_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebServer).DocsTags(ctx, req.(*DocsTagsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Web_ServiceDesc is the grpc.ServiceDesc for Web service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -509,6 +707,30 @@ var Web_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BookChapter",
 			Handler:    _Web_BookChapter_Handler,
+		},
+		{
+			MethodName: "DocsList",
+			Handler:    _Web_DocsList_Handler,
+		},
+		{
+			MethodName: "DocsCategories",
+			Handler:    _Web_DocsCategories_Handler,
+		},
+		{
+			MethodName: "DocsStats",
+			Handler:    _Web_DocsStats_Handler,
+		},
+		{
+			MethodName: "DocsPopular",
+			Handler:    _Web_DocsPopular_Handler,
+		},
+		{
+			MethodName: "DocsLatest",
+			Handler:    _Web_DocsLatest_Handler,
+		},
+		{
+			MethodName: "DocsTags",
+			Handler:    _Web_DocsTags_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

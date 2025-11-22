@@ -82,3 +82,33 @@ func (s *WebServer) BookChapter(ctx context.Context, in *web.BookChapterReq) (*w
 	l := weblogic.NewBookChapterLogic(ctx, s.svcCtx)
 	return l.BookChapter(in)
 }
+
+func (s *WebServer) DocsList(ctx context.Context, in *web.DocsListReq) (*web.DocsListResp, error) {
+	l := weblogic.NewDocsListLogic(ctx, s.svcCtx)
+	return l.DocsList(in)
+}
+
+func (s *WebServer) DocsCategories(ctx context.Context, in *web.DocsCategoriesReq) (*web.DocsCategoriesResp, error) {
+	l := weblogic.NewDocsCategoriesLogic(ctx, s.svcCtx)
+	return l.DocsCategories(in)
+}
+
+func (s *WebServer) DocsStats(ctx context.Context, in *web.DocsStatsReq) (*web.DocsStatsResp, error) {
+	l := weblogic.NewDocsStatsLogic(ctx, s.svcCtx)
+	return l.DocsStats(in)
+}
+
+func (s *WebServer) DocsPopular(ctx context.Context, in *web.DocsPopularReq) (*web.DocsPopularResp, error) {
+	l := weblogic.NewDocsPopularLogic(ctx, s.svcCtx)
+	return l.DocsPopular(in)
+}
+
+func (s *WebServer) DocsLatest(ctx context.Context, in *web.DocsLatestReq) (*web.DocsLatestResp, error) {
+	l := weblogic.NewDocsLatestLogic(ctx, s.svcCtx)
+	return l.DocsLatest(in)
+}
+
+func (s *WebServer) DocsTags(ctx context.Context, in *web.DocsTagsReq) (*web.DocsTagsResp, error) {
+	l := weblogic.NewDocsTagsLogic(ctx, s.svcCtx)
+	return l.DocsTags(in)
+}

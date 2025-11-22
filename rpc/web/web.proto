@@ -116,6 +116,58 @@ message BookChapterResp {
   string data = 1;
 }
 
+message DocsListReq {
+  int32 category_id = 1;
+  string level = 2;
+  string sort_by = 3;
+  string sort_order = 4;
+  string keywords = 5;
+  int32 page = 6;
+  int32 page_size = 7;
+  string tag = 8;
+}
+message DocsListResp {
+  int32 page = 1;
+  int32 page_size = 2;
+  string list = 3;
+  int64 total = 4;
+}
+
+message DocsCategoriesReq {
+}
+message DocsCategoriesResp {
+  string list = 1;
+}
+
+message DocsStatsReq {
+}
+message DocsStatsResp {
+  int64 total_docs = 1;
+  int64 total_categories = 2;
+  int64 total_views = 3;
+  int64 total_likes = 4;
+}
+
+message DocsPopularReq {
+  int32 limit = 1;
+}
+message DocsPopularResp {
+  string list = 1;
+}
+
+message DocsLatestReq {
+  int32 limit = 1;
+}
+message DocsLatestResp {
+  string list = 1;
+}
+
+message DocsTagsReq {
+}
+message DocsTagsResp {
+  string list = 1;
+}
+
 service Web {
   rpc ArticleList(ArticleListReq) returns(ArticleListResp);
   rpc Article(ArticleReq) returns(ArticleResp);
@@ -129,6 +181,13 @@ service Web {
   rpc BookList(BookListReq) returns(BookListResp);
   rpc Book(BookReq) returns(BookResp);
   rpc BookChapter(BookChapterReq) returns(BookChapterResp);
+
+  rpc DocsList(DocsListReq) returns(DocsListResp);
+  rpc DocsCategories(DocsCategoriesReq) returns(DocsCategoriesResp);
+  rpc DocsStats(DocsStatsReq) returns(DocsStatsResp);
+  rpc DocsPopular(DocsPopularReq) returns(DocsPopularResp);
+  rpc DocsLatest(DocsLatestReq) returns(DocsLatestResp);
+  rpc DocsTags(DocsTagsReq) returns(DocsTagsResp);
 }
 
 //goctl rpc protoc web.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m

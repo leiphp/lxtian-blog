@@ -14,30 +14,42 @@ import (
 )
 
 type (
-	ArticleLikeReq   = web.ArticleLikeReq
-	ArticleLikeResp  = web.ArticleLikeResp
-	ArticleListReq   = web.ArticleListReq
-	ArticleListResp  = web.ArticleListResp
-	ArticleReq       = web.ArticleReq
-	ArticleResp      = web.ArticleResp
-	BookChapterReq   = web.BookChapterReq
-	BookChapterResp  = web.BookChapterResp
-	BookListReq      = web.BookListReq
-	BookListResp     = web.BookListResp
-	BookReq          = web.BookReq
-	BookResp         = web.BookResp
-	CategoryListReq  = web.CategoryListReq
-	CategoryListResp = web.CategoryListResp
-	ChatListReq      = web.ChatListReq
-	ChatListResp     = web.ChatListResp
-	ColumnListReq    = web.ColumnListReq
-	ColumnListResp   = web.ColumnListResp
-	CommentListReq   = web.CommentListReq
-	CommentListResp  = web.CommentListResp
-	OrderListReq     = web.OrderListReq
-	OrderListResp    = web.OrderListResp
-	TagsListReq      = web.TagsListReq
-	TagsListResp     = web.TagsListResp
+	ArticleLikeReq     = web.ArticleLikeReq
+	ArticleLikeResp    = web.ArticleLikeResp
+	ArticleListReq     = web.ArticleListReq
+	ArticleListResp    = web.ArticleListResp
+	ArticleReq         = web.ArticleReq
+	ArticleResp        = web.ArticleResp
+	BookChapterReq     = web.BookChapterReq
+	BookChapterResp    = web.BookChapterResp
+	BookListReq        = web.BookListReq
+	BookListResp       = web.BookListResp
+	BookReq            = web.BookReq
+	BookResp           = web.BookResp
+	CategoryListReq    = web.CategoryListReq
+	CategoryListResp   = web.CategoryListResp
+	ChatListReq        = web.ChatListReq
+	ChatListResp       = web.ChatListResp
+	ColumnListReq      = web.ColumnListReq
+	ColumnListResp     = web.ColumnListResp
+	CommentListReq     = web.CommentListReq
+	CommentListResp    = web.CommentListResp
+	DocsCategoriesReq  = web.DocsCategoriesReq
+	DocsCategoriesResp = web.DocsCategoriesResp
+	DocsLatestReq      = web.DocsLatestReq
+	DocsLatestResp     = web.DocsLatestResp
+	DocsListReq        = web.DocsListReq
+	DocsListResp       = web.DocsListResp
+	DocsPopularReq     = web.DocsPopularReq
+	DocsPopularResp    = web.DocsPopularResp
+	DocsStatsReq       = web.DocsStatsReq
+	DocsStatsResp      = web.DocsStatsResp
+	DocsTagsReq        = web.DocsTagsReq
+	DocsTagsResp       = web.DocsTagsResp
+	OrderListReq       = web.OrderListReq
+	OrderListResp      = web.OrderListResp
+	TagsListReq        = web.TagsListReq
+	TagsListResp       = web.TagsListResp
 
 	Web interface {
 		ArticleList(ctx context.Context, in *ArticleListReq, opts ...grpc.CallOption) (*ArticleListResp, error)
@@ -52,6 +64,12 @@ type (
 		BookList(ctx context.Context, in *BookListReq, opts ...grpc.CallOption) (*BookListResp, error)
 		Book(ctx context.Context, in *BookReq, opts ...grpc.CallOption) (*BookResp, error)
 		BookChapter(ctx context.Context, in *BookChapterReq, opts ...grpc.CallOption) (*BookChapterResp, error)
+		DocsList(ctx context.Context, in *DocsListReq, opts ...grpc.CallOption) (*DocsListResp, error)
+		DocsCategories(ctx context.Context, in *DocsCategoriesReq, opts ...grpc.CallOption) (*DocsCategoriesResp, error)
+		DocsStats(ctx context.Context, in *DocsStatsReq, opts ...grpc.CallOption) (*DocsStatsResp, error)
+		DocsPopular(ctx context.Context, in *DocsPopularReq, opts ...grpc.CallOption) (*DocsPopularResp, error)
+		DocsLatest(ctx context.Context, in *DocsLatestReq, opts ...grpc.CallOption) (*DocsLatestResp, error)
+		DocsTags(ctx context.Context, in *DocsTagsReq, opts ...grpc.CallOption) (*DocsTagsResp, error)
 	}
 
 	defaultWeb struct {
@@ -123,4 +141,34 @@ func (m *defaultWeb) Book(ctx context.Context, in *BookReq, opts ...grpc.CallOpt
 func (m *defaultWeb) BookChapter(ctx context.Context, in *BookChapterReq, opts ...grpc.CallOption) (*BookChapterResp, error) {
 	client := web.NewWebClient(m.cli.Conn())
 	return client.BookChapter(ctx, in, opts...)
+}
+
+func (m *defaultWeb) DocsList(ctx context.Context, in *DocsListReq, opts ...grpc.CallOption) (*DocsListResp, error) {
+	client := web.NewWebClient(m.cli.Conn())
+	return client.DocsList(ctx, in, opts...)
+}
+
+func (m *defaultWeb) DocsCategories(ctx context.Context, in *DocsCategoriesReq, opts ...grpc.CallOption) (*DocsCategoriesResp, error) {
+	client := web.NewWebClient(m.cli.Conn())
+	return client.DocsCategories(ctx, in, opts...)
+}
+
+func (m *defaultWeb) DocsStats(ctx context.Context, in *DocsStatsReq, opts ...grpc.CallOption) (*DocsStatsResp, error) {
+	client := web.NewWebClient(m.cli.Conn())
+	return client.DocsStats(ctx, in, opts...)
+}
+
+func (m *defaultWeb) DocsPopular(ctx context.Context, in *DocsPopularReq, opts ...grpc.CallOption) (*DocsPopularResp, error) {
+	client := web.NewWebClient(m.cli.Conn())
+	return client.DocsPopular(ctx, in, opts...)
+}
+
+func (m *defaultWeb) DocsLatest(ctx context.Context, in *DocsLatestReq, opts ...grpc.CallOption) (*DocsLatestResp, error) {
+	client := web.NewWebClient(m.cli.Conn())
+	return client.DocsLatest(ctx, in, opts...)
+}
+
+func (m *defaultWeb) DocsTags(ctx context.Context, in *DocsTagsReq, opts ...grpc.CallOption) (*DocsTagsResp, error) {
+	client := web.NewWebClient(m.cli.Conn())
+	return client.DocsTags(ctx, in, opts...)
 }
