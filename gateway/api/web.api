@@ -96,6 +96,12 @@ type (
 )
 
 type (
+    OrderStatResp {
+        Data       map[string]interface{} `json:"list"`
+    }
+)
+
+type (
     TagsListResp {
         Data       [] map[string]interface{} `json:"list"`
     }
@@ -290,6 +296,10 @@ service gateway-api {
     @doc "订单列表"
     @handler OrderList
     get /order/list (OrderListReq) returns (OrderListResp)
+
+    @doc "订单统计"
+    @handler OrderStat
+    get /order/stat returns (OrderStatResp)
 
     @doc "专栏列表"
     @handler ColumnList
