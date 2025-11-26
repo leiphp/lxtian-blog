@@ -227,6 +227,15 @@ type (
     }
 )
 
+type (
+    DocsReq {
+        Id      int64 `path:"id"`
+    }
+    DocsResp {
+        Data       map[string]interface{} `json:"data"`
+    }
+)
+
 // 文章相关接口 - 使用文章限流配置
 @server (
     middleware: AntiSpamMiddleware,RateLimitMiddleware
@@ -318,7 +327,11 @@ service gateway-api {
     @handler DocsLatest
     get /docs/latest (DocsLatestReq) returns (DocsLatestResp)
 
-    @doc "热门标签"
+    @doc "文档标签"
     @handler DocsTags
     get /docs/tags returns (DocsTagsResp)
+
+    @doc "文档详情"
+    @handler Docs
+    get /docs/:id (DocsReq) returns (DocsResp)
 }

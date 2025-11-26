@@ -1,30 +1,28 @@
 package web
 
 import (
+	"github.com/zeromicro/go-zero/core/logc"
 	"lxtian-blog/common/restful/response"
 	"net/http"
 
-	"github.com/zeromicro/go-zero/core/logc"
-
+	"github.com/zeromicro/go-zero/rest/httpx"
 	"lxtian-blog/gateway/internal/logic/web"
 	"lxtian-blog/gateway/internal/svc"
 	"lxtian-blog/gateway/internal/types"
-
-	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-// 文章详情
-func ArticleHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+// 文档详情
+func DocsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.ArticleReq
+		var req types.DocsReq
 		if err := httpx.Parse(r, &req); err != nil {
-			logc.Errorf(r.Context(), "ArticleHandler error message: %s", err)
+			logc.Errorf(r.Context(), "DocsHandler error message: %s", err)
 			response.Response(r, w, nil, err)
 			return
 		}
 
-		l := web.NewArticleLogic(r.Context(), svcCtx)
-		resp, err := l.Article(&req, r)
+		l := web.NewDocsLogic(r.Context(), svcCtx)
+		resp, err := l.Docs(&req, r)
 		if err != nil {
 			response.Response(r, w, nil, err)
 		} else {

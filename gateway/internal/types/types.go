@@ -214,6 +214,14 @@ type DocsPopularResp struct {
 	List []*DocsItem `json:"list"`
 }
 
+type DocsReq struct {
+	Id int64 `path:"id"`
+}
+
+type DocsResp struct {
+	Data map[string]interface{} `json:"data"`
+}
+
 type DocsStatsResp struct {
 	TotalDocs       int64 `json:"total_docs"`
 	TotalCategories int64 `json:"total_categories"`

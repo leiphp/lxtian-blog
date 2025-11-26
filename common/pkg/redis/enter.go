@@ -23,6 +23,8 @@ const (
 	DonatePendingOrderString = 13 //捐赠待支付订单
 	DonatePendingOrderSet    = 14 //捐赠订单集合
 	ApiUserInfoSet           = 15 //用户详情
+	DocViewString            = 16 //文档浏览次数记录
+	ApiWebStringDocDetail    = 17 //文档详情
 )
 
 var apiCacheKeys = map[int]string{
@@ -41,6 +43,8 @@ var apiCacheKeys = map[int]string{
 	DonatePendingOrderString: "donate:order",
 	DonatePendingOrderSet:    "donate:pending",
 	ApiUserInfoSet:           "user:info:set",
+	DocViewString:            "doc:view",
+	ApiWebStringDocDetail:    "web:doc:detail",
 }
 
 /**
@@ -71,4 +75,21 @@ func GetArticleViewKey(articleID uint32, clientIP, date string) string {
 func GetArticleViewKeyToday(articleID uint32, clientIP string) string {
 	today := time.Now().Format("2006-01-02")
 	return GetArticleViewKey(articleID, clientIP, today)
+}
+
+/**
+ * 获取文档浏览次数的Redis Key
+ * 格式: blog:doc:view:{doc_id}:{ip}:{date}
+ */
+func GetDocViewKey(docID int32, clientIP, date string) string {
+	return fmt.Sprintf("%s%s:%d:%s:%s", KeyPrefix, apiCacheKeys[DocViewString], docID, clientIP, date)
+}
+
+/**
+ * 获取文档浏览次数的Redis Key（使用当前日期）
+ * 格式: blog:doc:view:{doc_id}:{ip}:{today}
+ */
+func GetDocViewKeyToday(docID int32, clientIP string) string {
+	today := time.Now().Format("2006-01-02")
+	return GetDocViewKey(docID, clientIP, today)
 }

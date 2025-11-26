@@ -281,6 +281,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: web.CommentListHandler(serverCtx),
 				},
 				{
+					// 文档详情
+					Method:  http.MethodGet,
+					Path:    "/docs/:id",
+					Handler: web.DocsHandler(serverCtx),
+				},
+				{
 					// 教程分类
 					Method:  http.MethodGet,
 					Path:    "/docs/categories",
@@ -311,7 +317,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: web.DocsStatsHandler(serverCtx),
 				},
 				{
-					// 热门标签
+					// 文档标签
 					Method:  http.MethodGet,
 					Path:    "/docs/tags",
 					Handler: web.DocsTagsHandler(serverCtx),

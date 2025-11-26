@@ -42,6 +42,8 @@ type (
 	DocsListResp       = web.DocsListResp
 	DocsPopularReq     = web.DocsPopularReq
 	DocsPopularResp    = web.DocsPopularResp
+	DocsReq            = web.DocsReq
+	DocsResp           = web.DocsResp
 	DocsStatsReq       = web.DocsStatsReq
 	DocsStatsResp      = web.DocsStatsResp
 	DocsTagsReq        = web.DocsTagsReq
@@ -70,6 +72,7 @@ type (
 		DocsPopular(ctx context.Context, in *DocsPopularReq, opts ...grpc.CallOption) (*DocsPopularResp, error)
 		DocsLatest(ctx context.Context, in *DocsLatestReq, opts ...grpc.CallOption) (*DocsLatestResp, error)
 		DocsTags(ctx context.Context, in *DocsTagsReq, opts ...grpc.CallOption) (*DocsTagsResp, error)
+		Docs(ctx context.Context, in *DocsReq, opts ...grpc.CallOption) (*DocsResp, error)
 	}
 
 	defaultWeb struct {
@@ -171,4 +174,9 @@ func (m *defaultWeb) DocsLatest(ctx context.Context, in *DocsLatestReq, opts ...
 func (m *defaultWeb) DocsTags(ctx context.Context, in *DocsTagsReq, opts ...grpc.CallOption) (*DocsTagsResp, error) {
 	client := web.NewWebClient(m.cli.Conn())
 	return client.DocsTags(ctx, in, opts...)
+}
+
+func (m *defaultWeb) Docs(ctx context.Context, in *DocsReq, opts ...grpc.CallOption) (*DocsResp, error) {
+	client := web.NewWebClient(m.cli.Conn())
+	return client.Docs(ctx, in, opts...)
 }

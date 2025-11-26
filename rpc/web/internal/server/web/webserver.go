@@ -112,3 +112,8 @@ func (s *WebServer) DocsTags(ctx context.Context, in *web.DocsTagsReq) (*web.Doc
 	l := weblogic.NewDocsTagsLogic(ctx, s.svcCtx)
 	return l.DocsTags(in)
 }
+
+func (s *WebServer) Docs(ctx context.Context, in *web.DocsReq) (*web.DocsResp, error) {
+	l := weblogic.NewDocsLogic(ctx, s.svcCtx)
+	return l.Docs(in)
+}

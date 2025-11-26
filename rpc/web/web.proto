@@ -168,6 +168,14 @@ message DocsTagsResp {
   string list = 1;
 }
 
+message DocsReq {
+  int64 id = 1;
+  string client_ip = 2; // 客户端IP，用于浏览次数记录
+}
+message DocsResp {
+  string data = 1;
+}
+
 service Web {
   rpc ArticleList(ArticleListReq) returns(ArticleListResp);
   rpc Article(ArticleReq) returns(ArticleResp);
@@ -188,6 +196,7 @@ service Web {
   rpc DocsPopular(DocsPopularReq) returns(DocsPopularResp);
   rpc DocsLatest(DocsLatestReq) returns(DocsLatestResp);
   rpc DocsTags(DocsTagsReq) returns(DocsTagsResp);
+  rpc Docs(DocsReq) returns(DocsResp);
 }
 
 //goctl rpc protoc web.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m

@@ -2,12 +2,13 @@ package initdb
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/zeromicro/go-zero/core/stores/mon"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
-	"time"
 )
 
 // InitDB gorm初始化
