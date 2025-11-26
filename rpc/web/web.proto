@@ -77,6 +77,14 @@ message OrderListResp {
   uint32 total = 4;
 }
 
+message OrderStatReq {
+}
+message OrderStatResp {
+  float total_amount = 1;
+  int64 count = 2;
+  float month_amount = 3;
+}
+
 message TagsListReq {
 }
 message TagsListResp {
@@ -176,6 +184,7 @@ service Web {
   rpc ChatList(ChatListReq) returns(ChatListResp);
   rpc CommentList(CommentListReq) returns(CommentListResp);
   rpc OrderList(OrderListReq) returns(OrderListResp);
+  rpc OrderStat(OrderStatReq) returns(OrderStatResp);
   rpc TagsList(TagsListReq) returns(TagsListResp);
   rpc ColumnList(ColumnListReq) returns(ColumnListResp);
   rpc BookList(BookListReq) returns(BookListResp);
