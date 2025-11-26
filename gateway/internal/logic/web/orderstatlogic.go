@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"fmt"
 	"lxtian-blog/rpc/web/web"
 
 	"github.com/zeromicro/go-zero/core/logc"
@@ -36,9 +37,9 @@ func (l *OrderStatLogic) OrderStat() (resp *types.OrderStatResp, err error) {
 
 	resp = &types.OrderStatResp{
 		Data: map[string]interface{}{
-			"total_amount": res.GetTotalAmount(),
+			"total_amount": fmt.Sprintf("%.2f", res.GetTotalAmount()),
 			"count":        res.GetCount(),
-			"month_amount": res.GetMonthAmount(),
+			"month_amount": fmt.Sprintf("%.2f", res.GetMonthAmount()),
 		},
 	}
 

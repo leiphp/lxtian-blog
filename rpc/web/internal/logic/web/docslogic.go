@@ -48,8 +48,31 @@ func (l *DocsLogic) Docs(in *web.DocsReq) (*web.DocsResp, error) {
 	}
 	if doc != nil {
 		logx.Infof("获取文档详情: %d", docID)
+		// 将文档转换为 map，以便修改 tags 字段类型
+		var docMap map[string]interface{}
+		docBytes, err := json.Marshal(doc)
+		if err != nil {
+			return nil, err
+		}
+		if err := json.Unmarshal(docBytes, &docMap); err != nil {
+			return nil, err
+		}
+		// 将 tags 字段从 JSON 字符串转换为数组
+		if tagsStr, ok := docMap["tags"].(string); ok && tagsStr != "" {
+			var tagsArray []string
+			if err := json.Unmarshal([]byte(tagsStr), &tagsArray); err == nil {
+				docMap["tags"] = tagsArray
+			} else {
+				// 如果解析失败，设置为空数组
+				docMap["tags"] = []string{}
+				logx.Errorf("解析 tags 失败: %v", err)
+			}
+		} else {
+			// 如果 tags 为空或不存在，设置为空数组
+			docMap["tags"] = []string{}
+		}
 		// 将文档数据转换为JSON字符串
-		jsonData, err := json.Marshal(doc)
+		jsonData, err := json.Marshal(docMap)
 		if err != nil {
 			return nil, err
 		}
