@@ -194,6 +194,21 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 
 	server.AddRoutes(
 		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AntiSpamMiddleware, serverCtx.RateLimitMiddleware, serverCtx.JwtMiddleware},
+			[]rest.Route{
+				{
+					// 文档更新
+					Method:  http.MethodPut,
+					Path:    "/docs/:id",
+					Handler: web.DocsUpdateHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/web"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
 			[]rest.Middleware{serverCtx.AntiSpamMiddleware, serverCtx.RateLimitMiddleware},
 			[]rest.Route{
 				{
@@ -214,15 +229,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/article/list",
 					Handler: web.ArticleListHandler(serverCtx),
 				},
-			}...,
-		),
-		rest.WithPrefix("/web"),
-	)
-
-	server.AddRoutes(
-		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.AntiSpamMiddleware, serverCtx.RateLimitMiddleware},
-			[]rest.Route{
 				{
 					// 分类列表
 					Method:  http.MethodGet,

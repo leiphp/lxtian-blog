@@ -68,6 +68,7 @@ message UserInfo {
   uint64 score = 8;       // 可用积分
   uint64 type = 9;        // 类型 0：账号1：QQ  2：新浪微博 3：微信 4：小程序
   uint64 status = 10;     // 状态
+  string Role = 11;       // 角色
 }
 
 message InfoResp {

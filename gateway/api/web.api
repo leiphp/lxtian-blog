@@ -242,7 +242,30 @@ type (
     }
 )
 
+type (
+    DocsUpdateReq {
+        Id           int64 `path:"id"`
+        Content      string `json:"content"`
+    }
+    DocsUpdateResp {
+        Status         string `json:"status"`
+        Id             int64  `json:"id"`
+    }
+)
+
 // 文章相关接口 - 使用文章限流配置
+@server (
+    middleware: AntiSpamMiddleware,RateLimitMiddleware,JwtMiddleware
+    prefix:     /web
+    group:      web
+)
+service gateway-api {
+    @doc "文档更新"
+    @handler DocsUpdate
+    put /docs/:id (DocsUpdateReq) returns (DocsUpdateResp)
+}
+
+// 分类相关接口 - 使用分类限流配置
 @server (
     middleware: AntiSpamMiddleware,RateLimitMiddleware
     prefix:     /web
@@ -260,15 +283,7 @@ service gateway-api {
     @doc "文章喜欢"
     @handler ArticleLike
     get /article/like/:id (ArticleLikeReq) returns (ArticleLikeResp)
-}
 
-// 分类相关接口 - 使用分类限流配置
-@server (
-    middleware: AntiSpamMiddleware,RateLimitMiddleware
-    prefix:     /web
-    group:      web
-)
-service gateway-api {
     @doc "分类列表"
     @handler CategoryList
     get /category/list (CategoryListReq) returns (CategoryListResp)

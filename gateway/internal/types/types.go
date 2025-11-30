@@ -233,6 +233,16 @@ type DocsTagsResp struct {
 	List []*TagItem `json:"list"`
 }
 
+type DocsUpdateReq struct {
+	Id      int64  `path:"id"`
+	Content string `json:"content"`
+}
+
+type DocsUpdateResp struct {
+	Status string `json:"status"`
+	Id     int64  `json:"id"`
+}
+
 type DonateNotifyReq struct {
 	SignType   string `form:"sign_type"`            // 签名类型
 	Sign       string `form:"sign"`                 // 签名
@@ -309,6 +319,7 @@ type InfoResp struct {
 	Conscore int         `json:"conscore"`
 	Type     int         `json:"type"`
 	Status   int         `json:"status"`
+	Role     string      `json:"role"`
 	CreatedA string      `json:"created_at"`
 	Vip      *MemberShip `json:"vip"`
 }

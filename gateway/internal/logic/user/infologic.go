@@ -70,6 +70,7 @@ func (l *InfoLogic) Info() (resp *types.InfoResp, err error) {
 		Score:    int(res.User.Score),
 		Type:     int(res.User.Type),
 		Status:   int(res.User.Status),
+		Role:     res.User.Role,
 	}
 
 	// 映射会员信息

@@ -39,6 +39,7 @@ const (
 	Web_DocsLatest_FullMethodName     = "/web.Web/DocsLatest"
 	Web_DocsTags_FullMethodName       = "/web.Web/DocsTags"
 	Web_Docs_FullMethodName           = "/web.Web/Docs"
+	Web_DocsUpdate_FullMethodName     = "/web.Web/DocsUpdate"
 )
 
 // WebClient is the client API for Web service.
@@ -65,6 +66,7 @@ type WebClient interface {
 	DocsLatest(ctx context.Context, in *DocsLatestReq, opts ...grpc.CallOption) (*DocsLatestResp, error)
 	DocsTags(ctx context.Context, in *DocsTagsReq, opts ...grpc.CallOption) (*DocsTagsResp, error)
 	Docs(ctx context.Context, in *DocsReq, opts ...grpc.CallOption) (*DocsResp, error)
+	DocsUpdate(ctx context.Context, in *DocsUpdateReq, opts ...grpc.CallOption) (*DocsUpdateResp, error)
 }
 
 type webClient struct {
@@ -255,6 +257,15 @@ func (c *webClient) Docs(ctx context.Context, in *DocsReq, opts ...grpc.CallOpti
 	return out, nil
 }
 
+func (c *webClient) DocsUpdate(ctx context.Context, in *DocsUpdateReq, opts ...grpc.CallOption) (*DocsUpdateResp, error) {
+	out := new(DocsUpdateResp)
+	err := c.cc.Invoke(ctx, Web_DocsUpdate_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // WebServer is the server API for Web service.
 // All implementations must embed UnimplementedWebServer
 // for forward compatibility
@@ -279,6 +290,7 @@ type WebServer interface {
 	DocsLatest(context.Context, *DocsLatestReq) (*DocsLatestResp, error)
 	DocsTags(context.Context, *DocsTagsReq) (*DocsTagsResp, error)
 	Docs(context.Context, *DocsReq) (*DocsResp, error)
+	DocsUpdate(context.Context, *DocsUpdateReq) (*DocsUpdateResp, error)
 	mustEmbedUnimplementedWebServer()
 }
 
@@ -345,6 +357,9 @@ func (UnimplementedWebServer) DocsTags(context.Context, *DocsTagsReq) (*DocsTags
 }
 func (UnimplementedWebServer) Docs(context.Context, *DocsReq) (*DocsResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Docs not implemented")
+}
+func (UnimplementedWebServer) DocsUpdate(context.Context, *DocsUpdateReq) (*DocsUpdateResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DocsUpdate not implemented")
 }
 func (UnimplementedWebServer) mustEmbedUnimplementedWebServer() {}
 
@@ -719,6 +734,24 @@ func _Web_Docs_Handler(srv interface{}, ctx context.Context, dec func(interface{
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Web_DocsUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DocsUpdateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WebServer).DocsUpdate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Web_DocsUpdate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WebServer).DocsUpdate(ctx, req.(*DocsUpdateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Web_ServiceDesc is the grpc.ServiceDesc for Web service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -805,6 +838,10 @@ var Web_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Docs",
 			Handler:    _Web_Docs_Handler,
+		},
+		{
+			MethodName: "DocsUpdate",
+			Handler:    _Web_DocsUpdate_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

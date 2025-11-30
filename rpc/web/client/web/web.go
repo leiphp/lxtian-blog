@@ -48,6 +48,8 @@ type (
 	DocsStatsResp      = web.DocsStatsResp
 	DocsTagsReq        = web.DocsTagsReq
 	DocsTagsResp       = web.DocsTagsResp
+	DocsUpdateReq      = web.DocsUpdateReq
+	DocsUpdateResp     = web.DocsUpdateResp
 	OrderListReq       = web.OrderListReq
 	OrderListResp      = web.OrderListResp
 	OrderStatReq       = web.OrderStatReq
@@ -76,6 +78,7 @@ type (
 		DocsLatest(ctx context.Context, in *DocsLatestReq, opts ...grpc.CallOption) (*DocsLatestResp, error)
 		DocsTags(ctx context.Context, in *DocsTagsReq, opts ...grpc.CallOption) (*DocsTagsResp, error)
 		Docs(ctx context.Context, in *DocsReq, opts ...grpc.CallOption) (*DocsResp, error)
+		DocsUpdate(ctx context.Context, in *DocsUpdateReq, opts ...grpc.CallOption) (*DocsUpdateResp, error)
 	}
 
 	defaultWeb struct {
@@ -187,4 +190,9 @@ func (m *defaultWeb) DocsTags(ctx context.Context, in *DocsTagsReq, opts ...grpc
 func (m *defaultWeb) Docs(ctx context.Context, in *DocsReq, opts ...grpc.CallOption) (*DocsResp, error) {
 	client := web.NewWebClient(m.cli.Conn())
 	return client.Docs(ctx, in, opts...)
+}
+
+func (m *defaultWeb) DocsUpdate(ctx context.Context, in *DocsUpdateReq, opts ...grpc.CallOption) (*DocsUpdateResp, error) {
+	client := web.NewWebClient(m.cli.Conn())
+	return client.DocsUpdate(ctx, in, opts...)
 }

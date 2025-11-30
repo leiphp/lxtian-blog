@@ -184,6 +184,15 @@ message DocsResp {
   string data = 1;
 }
 
+message DocsUpdateReq {
+  int64 id = 1;
+  string content = 2;
+}
+message DocsUpdateResp {
+  string status = 1;
+  int64 id = 2;
+}
+
 service Web {
   rpc ArticleList(ArticleListReq) returns(ArticleListResp);
   rpc Article(ArticleReq) returns(ArticleResp);
@@ -206,6 +215,7 @@ service Web {
   rpc DocsLatest(DocsLatestReq) returns(DocsLatestResp);
   rpc DocsTags(DocsTagsReq) returns(DocsTagsResp);
   rpc Docs(DocsReq) returns(DocsResp);
+  rpc DocsUpdate(DocsUpdateReq) returns(DocsUpdateResp);
 }
 
 //goctl rpc protoc web.proto --go_out=. --go-grpc_out=. --zrpc_out=. -m

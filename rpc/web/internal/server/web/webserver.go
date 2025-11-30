@@ -122,3 +122,8 @@ func (s *WebServer) Docs(ctx context.Context, in *web.DocsReq) (*web.DocsResp, e
 	l := weblogic.NewDocsLogic(ctx, s.svcCtx)
 	return l.Docs(in)
 }
+
+func (s *WebServer) DocsUpdate(ctx context.Context, in *web.DocsUpdateReq) (*web.DocsUpdateResp, error) {
+	l := weblogic.NewDocsUpdateLogic(ctx, s.svcCtx)
+	return l.DocsUpdate(in)
+}

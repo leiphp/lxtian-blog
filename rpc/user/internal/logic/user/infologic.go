@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/leiphp/unit-go-sdk/pkg/gconv"
-	"github.com/zeromicro/go-zero/core/logx"
 	"lxtian-blog/common/model"
 	"lxtian-blog/common/pkg/redis"
 	"lxtian-blog/common/pkg/utils"
 	"lxtian-blog/common/repository/user_repo"
 	"lxtian-blog/rpc/user/internal/svc"
 	"lxtian-blog/rpc/user/user"
+
+	"github.com/leiphp/unit-go-sdk/pkg/gconv"
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type InfoLogic struct {
@@ -88,7 +89,7 @@ func (l *InfoLogic) Info(in *user.InfoReq) (*user.InfoResp, error) {
 func (l *InfoLogic) getUserFromDB(id uint32) (*model.TxyUser, error) {
 	var txyUser model.TxyUser
 	if err := l.svcCtx.DB.
-		Select("id", "uid", "username", "nickname", "head_img", "email", "gold", "score", "type", "status").
+		Select("id", "uid", "username", "nickname", "head_img", "email", "gold", "score", "type", "status", "is_admin").
 		Where("id = ?", id).
 		First(&txyUser).Error; err != nil {
 		return nil, err
@@ -108,8 +109,12 @@ func (l *InfoLogic) getAllUserFromDB(id uint32) (*model.TxyUser, error) {
 // buildUserInfo 从 TxyUser 构建 UserInfo
 func (l *InfoLogic) buildUserInfo(txyUser *model.TxyUser) *user.UserInfo {
 	username := ""
+	role := ""
 	if txyUser.Username != nil {
 		username = *txyUser.Username
+	}
+	if txyUser.IsAdmin == 1 {
+		role = "administrator"
 	}
 	return &user.UserInfo{
 		Id:       uint64(txyUser.ID),
@@ -122,6 +127,7 @@ func (l *InfoLogic) buildUserInfo(txyUser *model.TxyUser) *user.UserInfo {
 		Score:    uint64(txyUser.Score),
 		Type:     uint64(txyUser.Type),
 		Status:   uint64(txyUser.Status),
+		Role:     role,
 	}
 }
 

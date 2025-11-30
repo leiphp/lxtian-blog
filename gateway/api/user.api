@@ -69,6 +69,7 @@ type (
         Conscore     int    `json:"conscore"`
         Type         int    `json:"type"`
         Status       int    `json:"status"`
+        Role         string `json:"role"`
         CreatedA     string `json:"created_at"`
         Vip          *MemberShip `json:"vip"`
     }
