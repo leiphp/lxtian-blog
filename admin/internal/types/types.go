@@ -340,6 +340,10 @@ type TagsResp struct {
 	Data []map[string]interface{} `json:"data"`
 }
 
+type UploadReq struct {
+	Path string `form:"path,optional"`
+}
+
 type UploadResp struct {
 	Url string `json:"url"`
 }

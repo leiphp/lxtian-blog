@@ -26,7 +26,7 @@ func NewUploadLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UploadLogi
 	}
 }
 
-func (l *UploadLogic) Upload(r *http.Request) (resp *types.UploadResp, err error) {
+func (l *UploadLogic) Upload(r *http.Request, req *types.UploadReq) (resp *types.UploadResp, err error) {
 	resp = new(types.UploadResp)
 	// 获取上传文件
 	file, header, err := r.FormFile("file")
@@ -37,9 +37,17 @@ func (l *UploadLogic) Upload(r *http.Request) (resp *types.UploadResp, err error
 
 	// 自定义保存逻辑，例如保存到七牛或本地
 	filename := utils.GenerateFilename(header.Filename)
+
+	// 确定上传路径，如果未提供 path 参数，则使用默认值 "blog/cover"
+	uploadPath := "blog/cover"
+	if req.Path != "" {
+		uploadPath = req.Path
+	}
+
 	// 上传文件
-	url, err := l.svcCtx.QiniuClient.UploadFile(file, fmt.Sprintf("blog/cover/%s", filename))
+	url, err := l.svcCtx.QiniuClient.UploadFile(file, fmt.Sprintf("%s/%s", uploadPath, filename))
 	if err != nil {
+		l.Errorf("UploadFile Err:", err)
 		return nil, err
 	}
 	resp.Url = url

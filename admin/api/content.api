@@ -62,6 +62,9 @@ type (
 )
 
 type (
+    UploadReq {
+        Path       string `form:"path,optional"`
+    }
     UploadResp {
         Url       string `json:"url"`
     }
@@ -153,7 +156,7 @@ service admin-api {
 
     @doc "图片上传"
     @handler Upload
-    post /upload returns (UploadResp)
+    post /upload (UploadReq) returns (UploadResp)
 
     @doc "书单管理"
     @handler BooK
