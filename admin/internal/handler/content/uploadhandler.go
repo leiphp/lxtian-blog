@@ -13,6 +13,10 @@ func UploadHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		l := content.NewUploadLogic(r.Context(), svcCtx)
 		resp, err := l.Upload(r)
-		response.Response(r, w, resp.Url, err)
+		if err != nil {
+			response.Response(r, w, resp, err)
+		} else {
+			response.Response(r, w, resp.Url, err)
+		}
 	}
 }

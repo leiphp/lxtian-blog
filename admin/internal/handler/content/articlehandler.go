@@ -23,6 +23,10 @@ func ArticleHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := content.NewArticleLogic(r.Context(), svcCtx)
 		resp, err := l.Article(&req)
-		response.Response(r, w, resp.Data, err)
+		if err != nil {
+			response.Response(r, w, resp, err)
+		} else {
+			response.Response(r, w, resp.Data, err)
+		}
 	}
 }
