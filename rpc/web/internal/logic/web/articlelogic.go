@@ -59,7 +59,7 @@ func (l *ArticleLogic) Article(in *web.ArticleReq) (*web.ArticleResp, error) {
 
 	where := map[string]interface{}{}
 	where["id"] = in.Id
-	var article map[string]interface{}
+	article := make(map[string]interface{})
 	err = l.svcCtx.DB.
 		Table("txy_article as a").
 		Select("a.id,a.title,a.author,a.description,a.keywords,a.content,a.cid,a.tid,a.mid,a.view_count, DATE_FORMAT(a.created_at, '%Y-%m-%d %H:%i:%s') AS created_at, DATE_FORMAT(a.updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at,c.name category_name").
@@ -71,25 +71,26 @@ func (l *ArticleLogic) Article(in *web.ArticleReq) (*web.ArticleResp, error) {
 		return nil, err
 	}
 	//判断数据是否初始化
-	if len(article) > 0 {
-		// mongodb获取文章内容
-		conn := model.NewArticleModel(l.svcCtx.MongoUri, l.svcCtx.Config.MongoDB.DATABASE, "txy_article")
-		contentId, ok := article["mid"].(string)
-		if !ok {
-			// 处理类型断言失败的情况
-			return nil, errors.New("content_id is not a string")
-		}
-		if string(contentId) != "" {
-			res, err := conn.FindOne(l.ctx, string(contentId))
-			if err != nil {
-				if err != mongo.ErrNoDocuments && err.Error() != "invalid objectId" {
-					logc.Errorf(l.ctx, "Document not found or invalid ObjectId: %s", err)
-					// 对于其他类型的错误，仍然返回
-					return nil, err
-				}
-			} else {
-				article["content"] = res.Content
+	if len(article) == 0 {
+		return nil, errors.New("article not found")
+	}
+	// mongodb获取文章内容
+	conn := model.NewArticleModel(l.svcCtx.MongoUri, l.svcCtx.Config.MongoDB.DATABASE, "txy_article")
+	contentId, ok := article["mid"].(string)
+	if !ok {
+		// 处理类型断言失败的情况
+		return nil, errors.New("content_id is not a string")
+	}
+	if string(contentId) != "" {
+		res, err := conn.FindOne(l.ctx, string(contentId))
+		if err != nil {
+			if err != mongo.ErrNoDocuments && err.Error() != "invalid objectId" {
+				logc.Errorf(l.ctx, "Document not found or invalid ObjectId: %s", err)
+				// 对于其他类型的错误，仍然返回
+				return nil, err
 			}
+		} else {
+			article["content"] = res.Content
 		}
 	}
 	// 查询上一篇文章
