@@ -7,7 +7,7 @@ toolchain go1.23.10
 require (
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.6.0
-	github.com/leiphp/gokit v1.0.4
+	github.com/leiphp/gokit v1.0.6
 	github.com/leiphp/unit-go-sdk v1.0.4
 	github.com/leiphp/wechat v1.0.5
 	github.com/prometheus/client_golang v1.20.5
