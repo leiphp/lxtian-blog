@@ -120,7 +120,11 @@ type (
         Slug         string `json:"slug"`
         ColumnId     uint64 `json:"column_id"`
         Description  string `json:"description"`
+        Cover        string `json:"cover"`
+        Author       string `json:"author"`
         Status       bool   `json:"status"`
+        Badge        int    `json:"badge"`
+        Tags         []string `json:"tags"`
     }
     BookSaveResp {
         Data        bool `json:"data"`

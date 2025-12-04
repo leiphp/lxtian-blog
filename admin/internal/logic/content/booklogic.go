@@ -3,9 +3,11 @@ package content
 import (
 	"context"
 	"errors"
+	"fmt"
 	"gorm.io/gorm"
 	"lxtian-blog/common/pkg/model/mysql"
 	"lxtian-blog/common/pkg/utils"
+	"strings"
 
 	"lxtian-blog/admin/internal/svc"
 	"lxtian-blog/admin/internal/types"
@@ -41,6 +43,13 @@ func (l *BooKLogic) BooK() (resp *types.BookResp, err error) {
 		}
 		return nil, err // 其他数据库错误
 	}
+	fmt.Println("results:", results)
+	for k, book := range results {
+		if !strings.HasPrefix(book["cover"].(string), "http://") && !strings.HasPrefix(book["cover"].(string), "https://") {
+			results[k]["cover"] = l.svcCtx.QiniuClient.PrivateURL(book["cover"].(string), 3600)
+		}
+	}
+
 	utils.FormatTimeFields(results, "created_at", "updated_at")
 	utils.FormatBoolFields(results, "status")
 	resp.Data = results

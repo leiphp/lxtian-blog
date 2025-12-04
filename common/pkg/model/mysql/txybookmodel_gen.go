@@ -36,18 +36,20 @@ type (
 	}
 
 	TxyBook struct {
-		Id          uint64       `db:"id"`          // 主键
-		ColumnId    uint64       `db:"column_id"`   // 所属专栏 ID
-		Title       string       `db:"title"`       // 标题
-		Slug        string       `db:"slug"`        // URL 唯一标识
-		Description string       `db:"description"` // 描述
-		Cover       string       `db:"cover"`       // 封面
-		Author      string       `db:"author"`      // 作者
-		Status      int64        `db:"status"`      // 状态
-		Click       uint64       `db:"click"`       // 点击数
-		CreatedAt   sql.NullTime `db:"created_at"`  // 添加时间
-		UpdatedAt   sql.NullTime `db:"updated_at"`  // 修改时间
-		DeletedAt   sql.NullTime `db:"deleted_at"`  // 删除时间
+		Id          uint64         `db:"id"`          // 主键
+		ColumnId    uint64         `db:"column_id"`   // 所属专栏 ID
+		Title       string         `db:"title"`       // 标题
+		Slug        string         `db:"slug"`        // URL 唯一标识
+		Description string         `db:"description"` // 描述
+		Cover       string         `db:"cover"`       // 封面
+		Author      string         `db:"author"`      // 作者
+		Status      int64          `db:"status"`      // 状态
+		Click       uint64         `db:"click"`       // 点击数
+		Badge       int64          `db:"badge"`       // 徽章：1更新2完结
+		Tags        sql.NullString `db:"tags"`        // 标签
+		CreatedAt   sql.NullTime   `db:"created_at"`  // 添加时间
+		UpdatedAt   sql.NullTime   `db:"updated_at"`  // 修改时间
+		DeletedAt   sql.NullTime   `db:"deleted_at"`  // 删除时间
 	}
 )
 
@@ -79,14 +81,14 @@ func (m *defaultTxyBookModel) FindOne(ctx context.Context, id uint64) (*TxyBook,
 }
 
 func (m *defaultTxyBookModel) Insert(ctx context.Context, data *TxyBook) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, txyBookRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.ColumnId, data.Title, data.Slug, data.Description, data.Cover, data.Author, data.Status, data.Click, data.DeletedAt)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, txyBookRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.ColumnId, data.Title, data.Slug, data.Description, data.Cover, data.Author, data.Status, data.Click, data.Badge, data.Tags, data.DeletedAt)
 	return ret, err
 }
 
 func (m *defaultTxyBookModel) Update(ctx context.Context, data *TxyBook) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, txyBookRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.ColumnId, data.Title, data.Slug, data.Description, data.Cover, data.Author, data.Status, data.Click, data.DeletedAt, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.ColumnId, data.Title, data.Slug, data.Description, data.Cover, data.Author, data.Status, data.Click, data.Badge, data.Tags, data.DeletedAt, data.Id)
 	return err
 }
 

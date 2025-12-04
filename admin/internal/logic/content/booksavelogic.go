@@ -3,6 +3,7 @@ package content
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"lxtian-blog/common/pkg/model/mysql"
 	"time"
 
@@ -46,13 +47,27 @@ func (l *BookSaveLogic) BookSave(req *types.BookSaveReq) (resp *types.BookSaveRe
 		}
 	}()
 
+	// 序列化 tags 为 JSON 字符串
+	tagsJSON, err := json.Marshal(req.Tags)
+	if err != nil {
+		// 处理错误
+		return nil, err
+	}
+
 	// 1.判断是插入还是更新
 	data := mysql.TxyBook{
 		ColumnId:    req.ColumnId,
 		Title:       req.Title,
 		Slug:        req.Slug,
 		Description: req.Description,
-		Status:      status,
+		Author:      req.Author,
+		Tags: sql.NullString{
+			String: string(tagsJSON),
+			Valid:  len(req.Tags) > 0, // 如果 tags 为空，Valid 为 false
+		},
+		Status: status,
+		Cover:  req.Cover,
+		Badge:  int64(req.Badge),
 		UpdatedAt: sql.NullTime{
 			Time:  time.Now(),
 			Valid: true,
@@ -70,7 +85,7 @@ func (l *BookSaveLogic) BookSave(req *types.BookSaveReq) (resp *types.BookSaveRe
 
 	} else {
 		data.Id = uint64(req.Id)
-		if err = tx.Model(&data).Select("column_id", "title", "slug", "description", "status", "updated_at").Debug().Updates(data).Error; err != nil {
+		if err = tx.Model(&data).Select("column_id", "title", "slug", "description", "status", "cover", "auth", "tags", "updated_at").Debug().Updates(data).Error; err != nil {
 			tx.Rollback()
 			return nil, err
 		}

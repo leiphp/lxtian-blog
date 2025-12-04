@@ -93,12 +93,16 @@ type BookResp struct {
 }
 
 type BookSaveReq struct {
-	Id          int64  `json:"id,optional"`
-	Title       string `json:"title"`
-	Slug        string `json:"slug"`
-	ColumnId    uint64 `json:"column_id"`
-	Description string `json:"description"`
-	Status      bool   `json:"status"`
+	Id          int64    `json:"id,optional"`
+	Title       string   `json:"title"`
+	Slug        string   `json:"slug"`
+	ColumnId    uint64   `json:"column_id"`
+	Description string   `json:"description"`
+	Cover       string   `json:"cover"`
+	Author      string   `json:"author"`
+	Status      bool     `json:"status"`
+	Badge       int      `json:"badge"`
+	Tags        []string `json:"tags"`
 }
 
 type BookSaveResp struct {
