@@ -56,8 +56,17 @@ type (
 )
 
 type (
+    TagsReq {
+        Keywords    string `form:"keywords,optional"`
+        Page        int    `form:"page,default=1"`
+        PageSize    int    `form:"page_size,default=10"`
+    }
+
     TagsResp {
-        Data       [] map[string]interface{} `json:"data"`
+        Page       int `json:"page"`
+        PageSize   int `json:"page_size"`
+        List       [] map[string]interface{} `json:"list"`
+        Total      int64 `json:"total"`
     }
 )
 
@@ -140,6 +149,22 @@ type (
     }
 )
 
+type (
+    DocsReq {
+        Cid         int `form:"cid,optional"`
+        Keywords    string `form:"keywords,optional"`
+        Page        int    `form:"page,default=1"`
+        PageSize    int    `form:"page_size,default=10"`
+    }
+
+    DocsResp {
+        Page       int `json:"page"`
+        PageSize   int `json:"page_size"`
+        List       [] map[string]interface{} `json:"list"`
+        Total      int64 `json:"total"`
+    }
+)
+
 
 @server (
     middleware: JwtMiddleware
@@ -165,7 +190,7 @@ service admin-api {
 
     @doc "标签列表"
     @handler Tags
-    get /tags returns (TagsResp)
+    get /tags (TagsReq) returns (TagsResp)
 
     @doc "图片上传"
     @handler Upload
@@ -198,4 +223,8 @@ service admin-api {
     @doc "书单保存"
     @handler BookSave
     post /column/save (BookSaveReq) returns (BookSaveResp)
+
+    @doc "文档列表"
+    @handler Docs
+    get /docs (DocsReq) returns (DocsResp)
 }

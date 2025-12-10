@@ -86,6 +86,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: content.BookSaveHandler(serverCtx),
 				},
 				{
+					// 文档列表
+					Method:  http.MethodGet,
+					Path:    "/docs",
+					Handler: content.DocsHandler(serverCtx),
+				},
+				{
 					// 标签列表
 					Method:  http.MethodGet,
 					Path:    "/tags",

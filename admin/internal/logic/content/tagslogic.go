@@ -26,20 +26,43 @@ func NewTagsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *TagsLogic {
 	}
 }
 
-func (l *TagsLogic) Tags() (resp *types.TagsResp, err error) {
+func (l *TagsLogic) Tags(req *types.TagsReq) (resp *types.TagsResp, err error) {
 	resp = new(types.TagsResp)
 	var results []map[string]interface{}
-	err = l.svcCtx.DB.
-		Model(&mysql.TxyTag{}).
-		Select("*").
-		Find(&results).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("数据不存在")
-		}
-		return nil, err // 其他数据库错误
-	}
-	resp.Data = results
 
+	// 默认分页参数兜底
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 10
+	}
+
+	db := l.svcCtx.DB.Model(&mysql.TxyTag{})
+	if req.Keywords != "" {
+		like := "%" + req.Keywords + "%"
+		db = db.Where("name LIKE ? OR keywords LIKE ?", like, like)
+	}
+
+	// 统计总数
+	var total int64
+	if err = db.Count(&total).Error; err != nil {
+		return nil, err
+	}
+
+	// 分页查询
+	offset := (req.Page - 1) * req.PageSize
+	err = db.Order("id desc").
+		Limit(req.PageSize).
+		Offset(offset).
+		Find(&results).Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
+	resp.Page = req.Page
+	resp.PageSize = req.PageSize
+	resp.Total = total
+	resp.List = results
 	return
 }

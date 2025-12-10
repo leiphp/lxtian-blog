@@ -143,6 +143,20 @@ type ColumnListResp struct {
 	Data []map[string]interface{} `json:"data"`
 }
 
+type DocsReq struct {
+	Cid      int    `form:"cid,optional"`
+	Keywords string `form:"keywords,optional"`
+	Page     int    `form:"page,default=1"`
+	PageSize int    `form:"page_size,default=10"`
+}
+
+type DocsResp struct {
+	Page     int                      `json:"page"`
+	PageSize int                      `json:"page_size"`
+	List     []map[string]interface{} `json:"list"`
+	Total    int64                    `json:"total"`
+}
+
 type GoodsListReq struct {
 	ClassifyId int     `json:"classify_id"`
 	PriceMin   float32 `json:"price_min,optional"`
@@ -348,8 +362,17 @@ type RolesResp struct {
 	Total    int64                    `json:"total"`
 }
 
+type TagsReq struct {
+	Keywords string `form:"keywords,optional"`
+	Page     int    `form:"page,default=1"`
+	PageSize int    `form:"page_size,default=10"`
+}
+
 type TagsResp struct {
-	Data []map[string]interface{} `json:"data"`
+	Page     int                      `json:"page"`
+	PageSize int                      `json:"page_size"`
+	List     []map[string]interface{} `json:"list"`
+	Total    int64                    `json:"total"`
 }
 
 type UploadReq struct {
