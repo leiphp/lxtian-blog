@@ -2,8 +2,8 @@ package content
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
-	"fmt"
 	"gorm.io/gorm"
 	"lxtian-blog/common/pkg/model/mysql"
 	"lxtian-blog/common/pkg/utils"
@@ -43,8 +43,27 @@ func (l *BooKLogic) BooK() (resp *types.BookResp, err error) {
 		}
 		return nil, err // 其他数据库错误
 	}
-	fmt.Println("results:", results)
 	for k, book := range results {
+		// tags 可能是 json 字符串
+		switch v := book["tags"].(type) {
+		case string:
+			var arr []string
+			if json.Unmarshal([]byte(v), &arr) == nil {
+				book["tags"] = arr
+			} else {
+				book["tags"] = []string{}
+			}
+		case []byte: // 数据库可能返回 []byte
+			var arr []string
+			if json.Unmarshal(v, &arr) == nil {
+				book["tags"] = arr
+			} else {
+				book["tags"] = []string{}
+			}
+		default:
+			// 不是字符串，直接返回空数组
+			book["tags"] = []string{}
+		}
 		if !strings.HasPrefix(book["cover"].(string), "http://") && !strings.HasPrefix(book["cover"].(string), "https://") {
 			results[k]["cover"] = l.svcCtx.QiniuClient.PrivateURL(book["cover"].(string), 3600)
 		}

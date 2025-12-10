@@ -85,7 +85,7 @@ func (l *BookSaveLogic) BookSave(req *types.BookSaveReq) (resp *types.BookSaveRe
 
 	} else {
 		data.Id = uint64(req.Id)
-		if err = tx.Model(&data).Select("column_id", "title", "slug", "description", "status", "cover", "auth", "tags", "updated_at").Debug().Updates(data).Error; err != nil {
+		if err = tx.Model(&data).Select("column_id", "title", "badge", "slug", "description", "status", "cover", "auth", "tags", "updated_at").Debug().Updates(data).Error; err != nil {
 			tx.Rollback()
 			return nil, err
 		}

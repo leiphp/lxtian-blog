@@ -108,6 +108,15 @@ type (
 )
 
 type (
+    ChapterDeleteReq {
+        Id      int `path:"id"`
+    }
+    ChapterDeleteResp {
+        Data    map[string]interface{} `json:"data"`
+    }
+)
+
+type (
     ColumnListResp {
         Data       [] map[string]interface{} `json:"data"`
     }
@@ -174,9 +183,13 @@ service admin-api {
     @handler BookChapterSave
     post /book/chapter/save (BookChapterSaveReq) returns (BookChapterSaveResp)
 
-    @doc "书单详情"
+    @doc "章节详情"
     @handler ChapterDetail
     get /book/chapter/detail/:id (ChapterDetailReq) returns (ChapterDetailResp)
+
+    @doc "删除章节"
+    @handler ChapterDelete
+    delete /book/chapter/:id (ChapterDeleteReq) returns (ChapterDeleteResp)
 
     @doc "专栏列表"
     @handler ColumnList
