@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"lxtian-blog/rpc/web/internal/consts"
+	"strings"
 
 	"lxtian-blog/rpc/web/internal/svc"
 	"lxtian-blog/rpc/web/web"
@@ -56,6 +57,11 @@ func (l *BookListLogic) BookList(in *web.BookListReq) (*web.BookListResp, error)
 		Find(&results).Error
 	if err != nil {
 		return nil, err
+	}
+	for k, book := range results {
+		if !strings.HasPrefix(book["cover"].(string), "http://") && !strings.HasPrefix(book["cover"].(string), "https://") {
+			results[k]["cover"] = l.svcCtx.QiniuClient.PrivateURL(book["cover"].(string), 3600)
+		}
 	}
 	jsonData, err := json.Marshal(results)
 	if err != nil {
