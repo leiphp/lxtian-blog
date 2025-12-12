@@ -71,6 +71,27 @@ type (
 )
 
 type (
+    TagSaveReq {
+        Id           int64  `json:"id,optional"`
+        Name         string `json:"name"`
+        Keywords     string `json:"keywords,optional"`
+        Description  string `json:"description,optional"`
+    }
+    TagSaveResp {
+        Data        bool `json:"data"`
+    }
+)
+
+type (
+    TagDelReq {
+        Id      int `path:"id"`
+    }
+    TagDelResp {
+        Data    map[string]interface{} `json:"data"`
+    }
+)
+
+type (
     UploadReq {
         Path       string `form:"path,optional"`
     }
@@ -218,6 +239,14 @@ service admin-api {
     @doc "标签列表"
     @handler Tags
     get /tags (TagsReq) returns (TagsResp)
+
+    @doc "标签保存"
+    @handler TagSave
+    post /tag/save (TagSaveReq) returns (TagSaveResp)
+
+    @doc "标签删除"
+    @handler TagDel
+    delete /tag/:id (TagDelReq) returns (TagDelResp)
 
     @doc "图片上传"
     @handler Upload

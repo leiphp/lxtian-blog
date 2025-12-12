@@ -387,6 +387,25 @@ type RolesResp struct {
 	Total    int64                    `json:"total"`
 }
 
+type TagDelReq struct {
+	Id int `path:"id"`
+}
+
+type TagDelResp struct {
+	Data map[string]interface{} `json:"data"`
+}
+
+type TagSaveReq struct {
+	Id          int64  `json:"id,optional"`
+	Name        string `json:"name"`
+	Keywords    string `json:"keywords,optional"`
+	Description string `json:"description,optional"`
+}
+
+type TagSaveResp struct {
+	Data bool `json:"data"`
+}
+
 type TagsReq struct {
 	Keywords string `form:"keywords,optional"`
 	Page     int    `form:"page,default=1"`

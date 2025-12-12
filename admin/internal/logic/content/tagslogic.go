@@ -7,6 +7,7 @@ import (
 	"lxtian-blog/admin/internal/svc"
 	"lxtian-blog/admin/internal/types"
 	"lxtian-blog/common/pkg/model/mysql"
+	"lxtian-blog/common/pkg/utils"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -59,7 +60,7 @@ func (l *TagsLogic) Tags(req *types.TagsReq) (resp *types.TagsResp, err error) {
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
-
+	utils.FormatTimeFields(results, "created_at", "updated_at")
 	resp.Page = req.Page
 	resp.PageSize = req.PageSize
 	resp.Total = total

@@ -10,17 +10,17 @@ import (
 	"lxtian-blog/admin/internal/types"
 )
 
-// 文档保存
-func DocsSaveHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+// 标签保存
+func TagSaveHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.DocsSaveReq
+		var req types.TagSaveReq
 		if err := httpx.Parse(r, &req); err != nil {
 			response.Response(r, w, nil, err)
 			return
 		}
 
-		l := content.NewDocsSaveLogic(r.Context(), svcCtx)
-		resp, err := l.DocsSave(&req)
+		l := content.NewTagSaveLogic(r.Context(), svcCtx)
+		resp, err := l.TagSave(&req)
 		if err != nil {
 			response.Response(r, w, nil, err)
 		} else {
