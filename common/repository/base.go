@@ -124,7 +124,7 @@ func (r *baseRepository[T]) GetList(ctx context.Context, condition map[string]in
 
 // Update 更新记录
 func (r *baseRepository[T]) Update(ctx context.Context, entity *T) error {
-	if err := r.db.WithContext(ctx).Save(entity).Error; err != nil {
+	if err := r.db.WithContext(ctx).Debug().Save(entity).Error; err != nil {
 		return fmt.Errorf("failed to update entity: %w", err)
 	}
 	return nil

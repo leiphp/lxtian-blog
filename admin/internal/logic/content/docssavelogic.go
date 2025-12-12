@@ -61,9 +61,46 @@ func (l *DocsSaveLogic) DocsSave(req *types.DocsSaveReq) (resp *types.DocsSaveRe
 			return nil, err
 		}
 	} else {
-		// 更新
-		data.ID = int32(req.Id)
-		if err = repo.Update(l.ctx, &data); err != nil {
+		// 更新 - 使用 UpdateByCondition，只更新非零值字段
+		condition := map[string]interface{}{
+			"id": req.Id,
+		}
+
+		// 构建更新字段 map，排除零值字段
+		updates := make(map[string]interface{})
+		if data.CategoryID != 0 {
+			updates["category_id"] = data.CategoryID
+		}
+		if data.Title != "" {
+			updates["title"] = data.Title
+		}
+		if data.Description != "" {
+			updates["description"] = data.Description
+		}
+		if data.Content != nil {
+			updates["content"] = data.Content
+		}
+		if data.Level != "" {
+			updates["level"] = data.Level
+		}
+		if data.Tags != "" {
+			updates["tags"] = data.Tags
+		}
+		if data.Cover != "" {
+			updates["cover"] = data.Cover
+		}
+		if data.Author != "" {
+			updates["author"] = data.Author
+		}
+		// Status 是 bool 类型，需要显式设置
+		updates["status"] = data.Status
+		if data.View != 0 {
+			updates["view"] = data.View
+		}
+		// UpdatedAt 总是更新
+		updates["updated_at"] = data.UpdatedAt
+
+		if err = repo.UpdateByCondition(l.ctx, condition, updates); err != nil {
 			return nil, err
 		}
 	}

@@ -39,7 +39,9 @@ func (l *DocsLogic) Docs(req *types.DocsReq) (resp *types.DocsResp, err error) {
 	repo := web_repo.NewTxyDocsRepository(l.svcCtx.DB)
 	// 构建查询条件
 	condition := make(map[string]interface{})
-	condition["status"] = 1
+	if req.Status != nil {
+		condition["status"] = *req.Status
+	}
 	if req.Cid > 0 {
 		condition["category_id"] = req.Cid
 	}
