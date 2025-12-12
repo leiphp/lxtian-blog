@@ -165,6 +165,33 @@ type (
     }
 )
 
+type (
+    DocsSaveReq {
+        Id           int64  `json:"id,optional"`
+        Title        string `json:"title"`
+        CategoryId   int    `json:"category_id"`
+        Description  string `json:"description"`
+        Content      string `json:"content"`
+        Cover        string `json:"cover"`
+        Level        string `json:"level"`
+        Status       bool   `json:"status"`
+        Tags         []string `json:"tags"`
+        View         int64 `json:"view"`
+    }
+    DocsSaveResp {
+        Data        bool `json:"data"`
+    }
+)
+
+type (
+    DocsDelReq {
+        Id      int `path:"id"`
+    }
+    DocsDelResp {
+        Data    map[string]interface{} `json:"data"`
+    }
+)
+
 
 @server (
     middleware: JwtMiddleware
@@ -227,4 +254,12 @@ service admin-api {
     @doc "文档列表"
     @handler Docs
     get /docs (DocsReq) returns (DocsResp)
+
+    @doc "文档保存"
+    @handler DocsSave
+    post /docs/save (DocsSaveReq) returns (DocsSaveResp)
+
+    @doc "文档删除"
+    @handler DocsDel
+    delete /docs/:id (DocsDelReq) returns (DocsDelResp)
 }

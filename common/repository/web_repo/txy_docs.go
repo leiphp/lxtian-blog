@@ -22,8 +22,6 @@ type TxyDocsRepository interface {
 	IncrementDocView(ctx context.Context, docID int32, clientIP string, rds *redis.Redis) error
 	// GetDocDetail 获取文档详情，先从Redis缓存获取，如果没有则从数据库查询并加入缓存
 	GetDocDetail(ctx context.Context, docID int32, rds *redis.Redis) (*model.TxyDoc, error)
-	// ListDocs 查询文档列表（分页 + 过滤）
-	ListDocs(ctx context.Context, categoryID int, keywords string, page, pageSize int) ([]*model.TxyDoc, int64, error)
 }
 
 type txyDocsRepository struct {
@@ -138,42 +136,4 @@ func (r *txyDocsRepository) GetDocDetail(ctx context.Context, docID int32, rds *
 	}
 
 	return &doc, nil
-}
-
-// ListDocs 查询文档列表（分页 + 过滤）
-func (r *txyDocsRepository) ListDocs(ctx context.Context, categoryID int, keywords string, page, pageSize int) ([]*model.TxyDoc, int64, error) {
-	db := r.GetDB(ctx).Model(&model.TxyDoc{})
-
-	// 过滤分类
-	if categoryID > 0 {
-		db = db.Where("category_id = ?", categoryID)
-	}
-	// 关键词模糊匹配标题或描述
-	if keywords != "" {
-		like := "%" + keywords + "%"
-		db = db.Where("title LIKE ? OR description LIKE ?", like, like)
-	}
-
-	// 统计总数
-	var total int64
-	if err := db.Count(&total).Error; err != nil {
-		return nil, 0, err
-	}
-
-	// 分页参数兜底
-	if page <= 0 {
-		page = 1
-	}
-	if pageSize <= 0 {
-		pageSize = 10
-	}
-	offset := (page - 1) * pageSize
-
-	// 查询列表
-	var docs []*model.TxyDoc
-	if err := db.Order("id desc").Limit(pageSize).Offset(offset).Find(&docs).Error; err != nil {
-		return nil, 0, err
-	}
-
-	return docs, total, nil
 }

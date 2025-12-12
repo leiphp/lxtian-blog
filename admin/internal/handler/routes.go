@@ -92,6 +92,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: content.DocsHandler(serverCtx),
 				},
 				{
+					// 文档删除
+					Method:  http.MethodDelete,
+					Path:    "/docs/:id",
+					Handler: content.DocsDelHandler(serverCtx),
+				},
+				{
+					// 文档保存
+					Method:  http.MethodPost,
+					Path:    "/docs/save",
+					Handler: content.DocsSaveHandler(serverCtx),
+				},
+				{
 					// 标签列表
 					Method:  http.MethodGet,
 					Path:    "/tags",

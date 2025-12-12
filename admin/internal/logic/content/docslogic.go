@@ -3,12 +3,11 @@ package content
 import (
 	"context"
 	"encoding/json"
-	"strings"
-
 	"lxtian-blog/admin/internal/svc"
 	"lxtian-blog/admin/internal/types"
 	"lxtian-blog/common/pkg/utils"
 	"lxtian-blog/common/repository/web_repo"
+	"strings"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -38,13 +37,19 @@ func (l *DocsLogic) Docs(req *types.DocsReq) (resp *types.DocsResp, err error) {
 	}
 
 	repo := web_repo.NewTxyDocsRepository(l.svcCtx.DB)
-	docs, total, err := repo.ListDocs(l.ctx, req.Cid, req.Keywords, req.Page, req.PageSize)
+	// 构建查询条件
+	condition := make(map[string]interface{})
+	condition["status"] = 1
+	if req.Cid > 0 {
+		condition["category_id"] = req.Cid
+	}
+	result, total, err := repo.GetList(l.ctx, condition, req.Page, req.PageSize, "", req.Keywords, "title", "desc")
 	if err != nil {
 		return nil, err
 	}
 
 	// 转换为 map 便于前端消费
-	list, err := utils.StructSliceToMapSliceUsingJSON(docs)
+	list, err := utils.StructSliceToMapSliceUsingJSON(result)
 	if err != nil {
 		return nil, err
 	}
@@ -73,6 +78,7 @@ func (l *DocsLogic) Docs(req *types.DocsReq) (resp *types.DocsResp, err error) {
 			list[k]["cover"] = l.svcCtx.QiniuClient.PrivateURL(item["cover"].(string), 3600)
 		}
 	}
+	utils.FormatTimeFields(list, "created_at", "updated_at")
 	resp = &types.DocsResp{
 		Page:     req.Page,
 		PageSize: req.PageSize,

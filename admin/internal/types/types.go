@@ -143,6 +143,14 @@ type ColumnListResp struct {
 	Data []map[string]interface{} `json:"data"`
 }
 
+type DocsDelReq struct {
+	Id int `path:"id"`
+}
+
+type DocsDelResp struct {
+	Data map[string]interface{} `json:"data"`
+}
+
 type DocsReq struct {
 	Cid      int    `form:"cid,optional"`
 	Keywords string `form:"keywords,optional"`
@@ -155,6 +163,23 @@ type DocsResp struct {
 	PageSize int                      `json:"page_size"`
 	List     []map[string]interface{} `json:"list"`
 	Total    int64                    `json:"total"`
+}
+
+type DocsSaveReq struct {
+	Id          int64    `json:"id,optional"`
+	Title       string   `json:"title"`
+	CategoryId  int      `json:"category_id"`
+	Description string   `json:"description"`
+	Content     string   `json:"content"`
+	Cover       string   `json:"cover"`
+	Level       string   `json:"level"`
+	Status      bool     `json:"status"`
+	Tags        []string `json:"tags"`
+	View        int64    `json:"view"`
+}
+
+type DocsSaveResp struct {
+	Data bool `json:"data"`
 }
 
 type GoodsListReq struct {

@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/shopspring/decimal"
 	"lxtian-blog/common/pkg/define"
 	"math/rand"
 	"net/http"
 	"path"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 // 用户服务：通过 HTTP 调用聊天服务接口
@@ -135,14 +136,35 @@ func ConvertByteFieldsToString(data []map[string]interface{}) {
 }
 
 // 处理东八区字段为标准时间
+// 支持 time.Time、RFC3339 字符串（如 2025-07-14T00:06:19+08:00）、常见 "2006-01-02 15:04:05" 字符串，以及 []byte。
 func FormatTimeFields(data []map[string]interface{}, fields ...string) {
+	const layout = "2006-01-02 15:04:05"
 	for i := range data {
 		for _, field := range fields {
-			if t, ok := data[i][field].(time.Time); ok {
-				data[i][field] = t.Format("2006-01-02 15:04:05")
+			switch v := data[i][field].(type) {
+			case time.Time:
+				data[i][field] = v.Format(layout)
+			case string:
+				if parsed, err := parseTimeString(v); err == nil {
+					data[i][field] = parsed.Format(layout)
+				}
+			case []byte:
+				if parsed, err := parseTimeString(string(v)); err == nil {
+					data[i][field] = parsed.Format(layout)
+				}
 			}
 		}
 	}
+}
+
+// parseTimeString 尝试解析常见的时间字符串格式
+func parseTimeString(s string) (time.Time, error) {
+	// 优先尝试 RFC3339（含时区）
+	if t, err := time.Parse(time.RFC3339, s); err == nil {
+		return t, nil
+	}
+	// 兜底常用格式：yyyy-MM-dd HH:mm:ss
+	return time.Parse("2006-01-02 15:04:05", s)
 }
 
 // 处理东八区字段为标准时间
