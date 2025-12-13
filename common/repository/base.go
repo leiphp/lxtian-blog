@@ -145,7 +145,7 @@ func (r *baseRepository[T]) UpdateByCondition(ctx context.Context, condition map
 	return nil
 }
 
-// Delete 根据ID删除记录
+// Delete 根据ID删除记录（软删除，如果模型有DeletedAt字段）
 func (r *baseRepository[T]) Delete(ctx context.Context, id uint64) error {
 	if err := r.db.WithContext(ctx).Delete(new(T), id).Error; err != nil {
 		return fmt.Errorf("failed to delete entity by id: %w", err)
@@ -153,7 +153,7 @@ func (r *baseRepository[T]) Delete(ctx context.Context, id uint64) error {
 	return nil
 }
 
-// DeleteByCondition 根据条件删除记录
+// DeleteByCondition 根据条件删除记录（软删除，如果模型有DeletedAt字段）
 func (r *baseRepository[T]) DeleteByCondition(ctx context.Context, condition map[string]interface{}) error {
 	query := r.db.WithContext(ctx)
 
@@ -164,6 +164,29 @@ func (r *baseRepository[T]) DeleteByCondition(ctx context.Context, condition map
 
 	if err := query.Delete(new(T)).Error; err != nil {
 		return fmt.Errorf("failed to delete entities by condition: %w", err)
+	}
+	return nil
+}
+
+// ForceDelete 根据ID物理删除记录（永久删除，忽略DeletedAt字段）
+func (r *baseRepository[T]) ForceDelete(ctx context.Context, id uint64) error {
+	if err := r.db.WithContext(ctx).Unscoped().Delete(new(T), id).Error; err != nil {
+		return fmt.Errorf("failed to force delete entity by id: %w", err)
+	}
+	return nil
+}
+
+// ForceDeleteByCondition 根据条件物理删除记录（永久删除，忽略DeletedAt字段）
+func (r *baseRepository[T]) ForceDeleteByCondition(ctx context.Context, condition map[string]interface{}) error {
+	query := r.db.WithContext(ctx).Unscoped()
+
+	// 构建查询条件
+	for key, value := range condition {
+		query = query.Where(key, value)
+	}
+
+	if err := query.Delete(new(T)).Error; err != nil {
+		return fmt.Errorf("failed to force delete entities by condition: %w", err)
 	}
 	return nil
 }
