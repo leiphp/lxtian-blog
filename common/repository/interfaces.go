@@ -16,6 +16,8 @@ type BaseRepository[T any] interface {
 	UpdateByCondition(ctx context.Context, condition map[string]interface{}, updates map[string]interface{}) error
 	Delete(ctx context.Context, id uint64) error
 	DeleteByCondition(ctx context.Context, condition map[string]interface{}) error
+	ForceDelete(ctx context.Context, id uint64) error
+	ForceDeleteByCondition(ctx context.Context, condition map[string]interface{}) error
 	Count(ctx context.Context, condition map[string]interface{}) (int64, error)
 	Exists(ctx context.Context, condition map[string]interface{}) (bool, error)
 

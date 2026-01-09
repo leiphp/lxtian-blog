@@ -29,7 +29,8 @@ func (l *DocsListLogic) DocsList(in *web.DocsListReq) (*web.DocsListResp, error)
 	// 基础查询构建（包含JOIN分类表）
 	baseDB := l.svcCtx.DB.
 		Table("txy_docs as d").
-		Joins("left join txy_docs_categories as c on d.category_id = c.id")
+		Joins("left join txy_docs_categories as c on d.category_id = c.id").
+		Where("d.status = ? AND d.deleted_at IS NULL", 1)
 
 	// 填充WHERE条件
 	if in.CategoryId > 0 {

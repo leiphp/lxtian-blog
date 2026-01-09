@@ -173,6 +173,7 @@ type (
 type (
     DocsReq {
         Cid         int `form:"cid,optional"`
+        Status      *int `form:"status,optional"`
         Keywords    string `form:"keywords,optional"`
         Page        int    `form:"page,default=1"`
         PageSize    int    `form:"page_size,default=10"`
@@ -210,6 +211,12 @@ type (
     }
     DocsDelResp {
         Data    map[string]interface{} `json:"data"`
+    }
+)
+
+type (
+    DocsCategoryListResp {
+        Data       [] map[string]interface{} `json:"data"`
     }
 )
 
@@ -291,4 +298,8 @@ service admin-api {
     @doc "文档删除"
     @handler DocsDel
     delete /docs/:id (DocsDelReq) returns (DocsDelResp)
+
+    @doc "专栏列表"
+    @handler DocsCategoryList
+    get /docs/category/list returns (DocsCategoryListResp)
 }
