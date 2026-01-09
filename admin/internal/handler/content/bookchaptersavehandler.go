@@ -23,6 +23,10 @@ func BookChapterSaveHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := content.NewBookChapterSaveLogic(r.Context(), svcCtx)
 		resp, err := l.BookChapterSave(&req)
+		if err != nil {
+			response.Response(r, w, nil, err)
+			return
+		}
 		response.Response(r, w, resp.Data, err)
 	}
 }
