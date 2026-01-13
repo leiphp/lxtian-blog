@@ -30,8 +30,14 @@ func NewBookChapterSaveLogic(ctx context.Context, svcCtx *svc.ServiceContext) *B
 }
 
 func (l *BookChapterSaveLogic) BookChapterSave(req *types.BookChapterSaveReq) (resp *types.BookChapterSaveResp, err error) {
+	// req.Id 一定存在，因为 txy_chapter_data 是对 txy_chapter 的补充
+	if req.Id == 0 {
+		return nil, fmt.Errorf("章节ID不能为空")
+	}
+
 	now := time.Now()
 	data := mysql.TxyChapterData{
+		Id:      uint64(req.Id), // 必须设置 ID，因为表结构要求
 		Title:   req.Title,
 		Author:  req.Author,
 		Content: req.Content,
@@ -41,34 +47,38 @@ func (l *BookChapterSaveLogic) BookChapterSave(req *types.BookChapterSaveReq) (r
 		},
 	}
 
-	// 判断是新增还是更新：
-	// 1. 如果 cate == "insert"，强制新增（忽略 id）
-	// 2. 否则，req.Id == 0 表示新增，否则表示更新
-	isInsert := req.Cate == "insert" || req.Id == 0
+	// 判断是新增还是更新：cate == "insert" 表示新增，否则表示更新
+	isInsert := req.Cate == "insert"
 
 	if isInsert {
-		// 新增
+		// 新增：使用 req.Id 作为 id
 		data.CreatedAt = sql.NullTime{
 			Time:  now,
 			Valid: true,
 		}
 		if err = l.svcCtx.DB.Create(&data).Error; err != nil {
-			l.Errorf("创建章节失败: %v", err)
+			l.Errorf("创建章节失败: id=%d, err=%v", req.Id, err)
 			return nil, err
 		}
-		// Create 后会自动填充 data.Id（自增ID）
 	} else {
-		// 更新
-		data.Id = uint64(req.Id)
+		// 更新：使用 req.Id 作为 id
 		result := l.svcCtx.DB.Model(&mysql.TxyChapterData{}).Where("id = ?", req.Id).Updates(data)
 		if result.Error != nil {
 			l.Errorf("更新章节失败: id=%d, err=%v", req.Id, result.Error)
 			return nil, result.Error
 		}
-		// 检查是否有记录被更新
+		// 检查是否有记录被更新，如果没有记录则尝试插入
 		if result.RowsAffected == 0 {
-			l.Errorf("更新章节失败: id=%d 的记录不存在", req.Id)
-			return nil, fmt.Errorf("章节不存在: id=%d", req.Id)
+			// 记录不存在，转为插入
+			data.CreatedAt = sql.NullTime{
+				Time:  now,
+				Valid: true,
+			}
+			if err = l.svcCtx.DB.Create(&data).Error; err != nil {
+				l.Errorf("插入章节失败: id=%d, err=%v", req.Id, err)
+				return nil, err
+			}
+			l.Infof("章节记录不存在，已自动插入: id=%d", req.Id)
 		}
 	}
 	// 删除缓存（如果 Redis 可用）
