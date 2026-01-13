@@ -3,6 +3,7 @@ package content
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"lxtian-blog/common/pkg/model/mysql"
 	"lxtian-blog/common/pkg/utils"
 	"time"
@@ -40,8 +41,12 @@ func (l *BookChapterSaveLogic) BookChapterSave(req *types.BookChapterSaveReq) (r
 		},
 	}
 
-	// 判断是新增还是更新：req.Id == 0 表示新增，否则表示更新
-	if req.Id == 0 {
+	// 判断是新增还是更新：
+	// 1. 如果 cate == "insert"，强制新增（忽略 id）
+	// 2. 否则，req.Id == 0 表示新增，否则表示更新
+	isInsert := req.Cate == "insert" || req.Id == 0
+
+	if isInsert {
 		// 新增
 		data.CreatedAt = sql.NullTime{
 			Time:  now,
@@ -51,12 +56,19 @@ func (l *BookChapterSaveLogic) BookChapterSave(req *types.BookChapterSaveReq) (r
 			l.Errorf("创建章节失败: %v", err)
 			return nil, err
 		}
+		// Create 后会自动填充 data.Id（自增ID）
 	} else {
 		// 更新
 		data.Id = uint64(req.Id)
-		if err = l.svcCtx.DB.Model(&mysql.TxyChapterData{}).Where("id = ?", req.Id).Updates(data).Error; err != nil {
-			l.Errorf("更新章节失败: id=%d, err=%v", req.Id, err)
-			return nil, err
+		result := l.svcCtx.DB.Model(&mysql.TxyChapterData{}).Where("id = ?", req.Id).Updates(data)
+		if result.Error != nil {
+			l.Errorf("更新章节失败: id=%d, err=%v", req.Id, result.Error)
+			return nil, result.Error
+		}
+		// 检查是否有记录被更新
+		if result.RowsAffected == 0 {
+			l.Errorf("更新章节失败: id=%d 的记录不存在", req.Id)
+			return nil, fmt.Errorf("章节不存在: id=%d", req.Id)
 		}
 	}
 	// 删除缓存（如果 Redis 可用）
