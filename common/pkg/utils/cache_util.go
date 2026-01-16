@@ -51,6 +51,21 @@ func (c *CacheUtil) DeleteChapterCache(ctx context.Context, chapterID uint64) er
 	return nil
 }
 
+// DeleteBookCache 删除电子书缓存
+// bookID: 电子书ID
+func (c *CacheUtil) DeleteBookCache(ctx context.Context, bookID uint64) error {
+	key := redis.ReturnRedisKey(redis.ApiWebStringBook, bookID)
+
+	_, err := c.Rds.DelCtx(ctx, key)
+	if err != nil {
+		logx.Errorf("删除电子书缓存失败: %v", err)
+		return err
+	}
+
+	logx.Infof("电子书 %d 缓存删除成功", bookID)
+	return nil
+}
+
 // getArticleCacheKey 获取文章缓存Key
 func (c *CacheUtil) getArticleCacheKey(articleID uint64) string {
 	return fmt.Sprintf("%sarticle:detail:%d", redis.KeyPrefix, articleID)
