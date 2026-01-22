@@ -272,6 +272,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: user.RolesHandler(serverCtx),
 				},
 				{
+					// 用户保存
+					Method:  http.MethodPost,
+					Path:    "/user/save",
+					Handler: user.UserSaveHandler(serverCtx),
+				},
+				{
 					// 用户管理
 					Method:  http.MethodGet,
 					Path:    "/users",

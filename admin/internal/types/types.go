@@ -451,6 +451,21 @@ type User struct {
 	Permissions []string `json:"permissions"`
 }
 
+type UserSaveReq struct {
+	Id       int64  `json:"id"`
+	Nickname string `json:"nickname"`
+	Password string `json:"password,optional"`
+	RoleId   int    `json:"role_id,optional"`
+	Status   int    `json:"status,optional"`
+	Email    string `json:"email,optional"`
+	Gold     int64  `json:"gold,optional"`
+	Score    int64  `json:"score,optional"`
+}
+
+type UserSaveResp struct {
+	Data bool `json:"data"`
+}
+
 type UsersReq struct {
 	Role     string `form:"role,optional"`
 	Keywords string `form:"keywords,optional"`

@@ -53,7 +53,20 @@ func (l *UsersLogic) Users(req *types.UsersReq) (resp *types.UsersResp, err erro
 	}
 	offset := (req.Page - 1) * req.PageSize
 	var users []map[string]interface{}
-	err = baseDB.Select("txy_user.id,txy_user.username,txy_user.password,txy_user.nickname,txy_user.created_at,txy_user.email,txy_user.head_img,txy_user.type,r.name role_name").
+	err = baseDB.Select(
+		"txy_user.id," +
+			"txy_user.username," +
+			"txy_user.password," +
+			"txy_user.nickname," +
+			"txy_user.created_at," +
+			"txy_user.email," +
+			"txy_user.head_img," +
+			"txy_user.type," +
+			"txy_user.status," +
+			"txy_user.gold," +
+			"txy_user.score," +
+			"r.id role_id," +
+			"r.name role_name").
 		Limit(req.PageSize).
 		Offset(offset).
 		Order(order).

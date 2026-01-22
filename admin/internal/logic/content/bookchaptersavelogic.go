@@ -36,8 +36,9 @@ func (l *BookChapterSaveLogic) BookChapterSave(req *types.BookChapterSaveReq) (r
 	isInsert := req.Id == 0
 
 	data := mysql.TxyChapter{
-		BookId: uint64(req.BookId),
-		Title:  req.Title,
+		BookId:   uint64(req.BookId),
+		Title:    req.Title,
+		ParentId: req.Pid,
 		UpdatedAt: sql.NullTime{
 			Time:  now,
 			Valid: true,

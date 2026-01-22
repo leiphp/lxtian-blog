@@ -38,6 +38,23 @@ type (
 )
 
 type (
+    UserSaveReq {
+        Id          int64  `json:"id"`
+        Nickname    string `json:"nickname"`
+        Password    string `json:"password,optional"`
+        RoleId      int    `json:"role_id,optional"`
+        Status      int    `json:"status,optional"`
+        Email       string `json:"email,optional"`
+        Gold        int64  `json:"gold,optional"`
+        Score       int64  `json:"score,optional"`
+    }
+
+    UserSaveResp {
+        Data        bool `json:"data"`
+    }
+)
+
+type (
     InfoResp {
         User
     }
@@ -113,6 +130,10 @@ service admin-api {
     @doc "用户管理"
     @handler Users
     get /users (UsersReq) returns (UsersResp)
+
+    @doc "用户保存"
+    @handler UserSave
+    post /user/save (UserSaveReq) returns (UserSaveResp)
 
     @doc "角色管理"
     @handler Roles

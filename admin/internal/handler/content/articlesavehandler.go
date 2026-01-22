@@ -23,6 +23,10 @@ func ArticleSaveHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		l := content.NewArticleSaveLogic(r.Context(), svcCtx)
 		resp, err := l.ArticleSave(&req)
-		response.Response(r, w, resp.Data, err)
+		if err != nil {
+			response.Response(r, w, nil, err)
+		} else {
+			response.Response(r, w, resp.Data, err)
+		}
 	}
 }
