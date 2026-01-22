@@ -119,11 +119,24 @@ type (
     BookChapterSaveReq {
         Id           int64  `json:"id,optional"`
         Title        string `json:"title"`
+        IsGroup      *int   `json:"is_group"`
+        BookId       int64  `json:"book_id"`
+        Pid          int64  `json:"pid"`
+    }
+    BookChapterSaveResp {
+        Data        bool `json:"data"`
+    }
+)
+
+type (
+    BookChapterDataSaveReq {
+        Id           int64  `json:"id,optional"`
+        Title        string `json:"title"`
         Author       string `json:"author"`
         Content      string `json:"content"`
         Cate         string `json:"cate"`
     }
-    BookChapterSaveResp {
+    BookChapterDataSaveResp {
         Data        bool `json:"data"`
     }
 )
@@ -270,6 +283,10 @@ service admin-api {
     @doc "章节保存"
     @handler BookChapterSave
     post /book/chapter/save (BookChapterSaveReq) returns (BookChapterSaveResp)
+
+    @doc "章节数据保存"
+    @handler BookChapterDataSave
+    post /book/chapter/data/save (BookChapterDataSaveReq) returns (BookChapterDataSaveResp)
 
     @doc "章节详情"
     @handler ChapterDetail
