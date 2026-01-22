@@ -39,6 +39,7 @@ type (
 		Id          uint64         `db:"id"`          // 主键
 		BookId      uint64         `db:"book_id"`     // 所属书籍 ID
 		Title       string         `db:"title"`       // 标题
+		ParentId    int64          `db:"parent_id"`     // 父级ID
 		Slug        string         `db:"slug"`        // URL 唯一标识
 		Sort        int64          `db:"sort"`        // 排序值
 		IsGroup     int64          `db:"is_group"`    // 是否组
