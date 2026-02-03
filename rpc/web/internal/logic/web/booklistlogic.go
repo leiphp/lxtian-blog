@@ -48,7 +48,7 @@ func (l *BookListLogic) BookList(in *web.BookListReq) (*web.BookListResp, error)
 	}
 	offset := (in.Page - 1) * in.PageSize
 	var results []map[string]interface{}
-	err := baseDB.Select("b.id,b.title,b.cover,b.badge,status,b.c.name column_name").
+	err := baseDB.Select("b.id,b.title,b.cover,b.badge,b.status,c.name column_name").
 		Where(where).
 		Limit(int(in.PageSize)).
 		Offset(int(offset)).
