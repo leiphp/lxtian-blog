@@ -1,6 +1,8 @@
 Name: gateway-api
 Host: 0.0.0.0
 Port: 8888
+# HTTP 请求超时（毫秒）。未配置时 go-zero 默认约 3s，会导致调用 RPC 的接口报 context deadline exceeded
+Timeout: 15000
 
 Auth:
   AccessSecret: ${ACCESS_SECRET}

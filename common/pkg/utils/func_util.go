@@ -13,7 +13,9 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-// 用户服务：通过 HTTP 调用聊天服务接口
+// 用户服务：通过 HTTP 调用聊天服务接口（带超时，避免阻塞导致上游 context deadline exceeded）
+const sendMessageToChatTimeout = 3 * time.Second
+
 func SendMessageToChatService(host string, port int, userID, message string) error {
 	url := fmt.Sprintf("http://%s:%d/send_msg", host, port)
 	payload := map[string]string{
@@ -21,7 +23,8 @@ func SendMessageToChatService(host string, port int, userID, message string) err
 		"message": message,
 	}
 	body, _ := json.Marshal(payload)
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(body))
+	client := &http.Client{Timeout: sendMessageToChatTimeout}
+	resp, err := client.Post(url, "application/json", bytes.NewBuffer(body))
 	if err != nil {
 		return err
 	}

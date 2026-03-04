@@ -52,7 +52,11 @@ func (l *QrStatusLogic) QrStatus(in *user.QrStatusReq) (*user.QrStatusResp, erro
 		if err != nil {
 			return nil, err
 		}
-		utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, wsUserId, message)
+		go func() {
+			if err := utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, wsUserId, message); err != nil {
+				l.Errorf("SendMessageToChatService failed: %v", err)
+			}
+		}()
 	case 3:
 		//正在登录
 		l.svcCtx.Rds.Setex(redis.ReturnRedisKey(redis.UserScanString, in.Uuid), fmt.Sprintf(`{"code":%d}`, define.GoingCode), 5*60)
@@ -60,7 +64,11 @@ func (l *QrStatusLogic) QrStatus(in *user.QrStatusReq) (*user.QrStatusResp, erro
 		if err != nil {
 			return nil, err
 		}
-		utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, wsUserId, message)
+		go func() {
+			if err := utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, wsUserId, message); err != nil {
+				l.Errorf("SendMessageToChatService failed: %v", err)
+			}
+		}()
 	case 4:
 		//取消登录
 		l.svcCtx.Rds.Setex(redis.ReturnRedisKey(redis.UserScanString, in.Uuid), fmt.Sprintf(`{"code":%d}`, define.CancelCode), 5*60)
@@ -68,7 +76,11 @@ func (l *QrStatusLogic) QrStatus(in *user.QrStatusReq) (*user.QrStatusResp, erro
 		if err != nil {
 			return nil, err
 		}
-		utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, wsUserId, message)
+		go func() {
+			if err := utils.SendMessageToChatService(l.svcCtx.Config.WsService.Host, l.svcCtx.Config.WsService.Port, wsUserId, message); err != nil {
+				l.Errorf("SendMessageToChatService failed: %v", err)
+			}
+		}()
 	default:
 		return nil, errors.New("登录状态码错误")
 	}

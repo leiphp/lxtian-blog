@@ -7,7 +7,11 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
+
+// 请求 GitHub API 超时（国内访问可能较慢）
+const githubAPITimeout = 15 * time.Second
 
 type GithubClient struct {
 	Config *GithubConfig
@@ -48,7 +52,7 @@ func (c *GithubClient) GetAccessToken(code string) (string, error) {
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	client := &http.Client{}
+	client := &http.Client{Timeout: githubAPITimeout}
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("获取access_token失败: %w", err)
@@ -94,7 +98,7 @@ func (c *GithubClient) GetUserInfo(accessToken string) (*OAuthUserInfo, error) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
 	req.Header.Set("Accept", "application/json")
 
-	client := &http.Client{}
+	client := &http.Client{Timeout: githubAPITimeout}
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("获取用户信息失败: %w", err)
@@ -154,7 +158,7 @@ func (c *GithubClient) getUserEmail(accessToken string) (string, error) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
 	req.Header.Set("Accept", "application/json")
 
-	client := &http.Client{}
+	client := &http.Client{Timeout: githubAPITimeout}
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
