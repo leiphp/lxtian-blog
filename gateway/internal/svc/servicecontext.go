@@ -4,6 +4,7 @@ import (
 	"lxtian-blog/common/pkg/initdb"
 	"lxtian-blog/gateway/internal/config"
 	"lxtian-blog/gateway/internal/middleware"
+	"lxtian-blog/rpc/message/messageclient"
 	"lxtian-blog/rpc/payment/paymentclient"
 	"lxtian-blog/rpc/user/client/user"
 	"lxtian-blog/rpc/web/client/web"
@@ -20,6 +21,7 @@ type ServiceContext struct {
 	WebRpc              web.Web
 	UserRpc             user.User
 	PaymentRpc          paymentclient.Payment
+	MessageRpc          messageclient.Message
 	JwtMiddleware       rest.Middleware
 	AntiSpamMiddleware  rest.Middleware
 	RateLimitMiddleware rest.Middleware
@@ -33,6 +35,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		WebRpc:              web.NewWeb(zrpc.MustNewClient(c.WebRpc)),
 		UserRpc:             user.NewUser(zrpc.MustNewClient(c.UserRpc)),
 		PaymentRpc:          paymentclient.NewPayment(zrpc.MustNewClient(c.PaymentRpc)),
+		MessageRpc:          messageclient.NewMessage(zrpc.MustNewClient(c.MessageRpc)),
 		JwtMiddleware:       middleware.NewJwtMiddleware(c.Auth.AccessSecret, c.Auth.AccessExpire).Handle,
 		AntiSpamMiddleware:  middleware.NewAntiSpamMiddleware(rds).Handle,
 		RateLimitMiddleware: middleware.NewRateLimitMiddleware(rds).Handle,

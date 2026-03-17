@@ -1,0 +1,37 @@
+FROM ccr.ccs.tencentyun.com/lxtian/golang:1.23-alpine AS builder
+
+LABEL stage=gobuilder
+
+ENV CGO_ENABLED 0
+ENV GOOS linux
+ENV GOPROXY https://goproxy.cn,direct
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+
+# 安装时区和根证书
+RUN apk update --no-cache && apk add --no-cache tzdata ca-certificates
+
+WORKDIR /build
+
+# 设置 GOFLAGS 环境变量
+ENV GOFLAGS="-mod=mod"
+
+COPY . .
+COPY rpc/message/etc /app/etc
+RUN go mod download
+RUN go build -ldflags="-s -w" -o /app/message ./rpc/message/message.go
+
+# 最终阶段使用 scratch 镜像
+FROM scratch
+
+# 从构建阶段复制时区信息
+COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /usr/share/zoneinfo/Asia/Shanghai
+ENV TZ Asia/Shanghai
+
+# 从构建阶段复制根证书
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+
+WORKDIR /app
+COPY --from=builder /app/message /app/message
+COPY --from=builder /app/etc /app/etc
+
+CMD ["./message", "-f", "etc/message.yaml"]

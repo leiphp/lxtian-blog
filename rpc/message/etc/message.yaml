@@ -1,0 +1,13 @@
+Name: message.rpc
+ListenOn: 0.0.0.0:8084
+Etcd:
+  Hosts:
+    - ${ETCD_HOSTS}
+  Key: message.rpc
+
+Log:
+  ServiceName: message_rpc
+  Mode: file
+  KeepDays: 3
+  Rotation: daily
+  Stat: true
