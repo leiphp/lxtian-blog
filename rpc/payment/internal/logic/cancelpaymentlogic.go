@@ -89,6 +89,9 @@ func (l *CancelPaymentLogic) CancelPayment(in *payment.CancelPaymentReq) (*payme
 		// 即使本地更新失败，支付宝那边已经取消了，所以仍然返回成功
 	}
 
+	// 用户主动取消订单，计数减 1（不再视为待支付）
+	adjustUserDailyPendingCount(l.ctx, l.svcCtx.Rds, paymentOrder.UserID, paymentOrder.CreatedAt, -1)
+
 	// 记录日志
 	l.Infof("Cancelled payment order: paymentId=%s, orderSn=%s, outTradeNo=%s",
 		paymentOrder.PaymentID, paymentOrder.OrderSn, paymentOrder.OutTradeNo)

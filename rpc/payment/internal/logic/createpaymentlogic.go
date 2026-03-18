@@ -7,12 +7,13 @@ import (
 	"lxtian-blog/common/constant"
 	"lxtian-blog/common/model"
 	"lxtian-blog/common/pkg/alipay"
+	redisutil "lxtian-blog/common/pkg/redis"
 	"lxtian-blog/common/pkg/utils"
-	"lxtian-blog/common/repository/payment_repo"
 	"lxtian-blog/common/repository/user_repo"
 	"lxtian-blog/rpc/payment/internal/svc"
 	"lxtian-blog/rpc/payment/pb/payment"
 	"strconv"
+	"time"
 )
 
 type CreatePaymentLogic struct {
@@ -26,6 +27,7 @@ func NewCreatePaymentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cre
 }
 
 func (l *CreatePaymentLogic) CreatePayment(in *payment.CreatePaymentReq) (*payment.CreatePaymentResp, error) {
+	var err error
 	// 参数验证
 	if in.Amount <= 0 {
 		return nil, fmt.Errorf("支付金额必须大于0")
@@ -39,18 +41,23 @@ func (l *CreatePaymentLogic) CreatePayment(in *payment.CreatePaymentReq) (*payme
 		return nil, fmt.Errorf("用户ID不能为空")
 	}
 
-	// 检查用户是否有待支付的订单
-	paymentService := payment_repo.NewPaymentOrderRepository(l.svcCtx.DB)
-	pendingCount, err := paymentService.Count(l.ctx, map[string]interface{}{
-		"user_id": uint64(in.UserId),
-		"status":  constant.PaymentStatusPending,
-	})
-	if err != nil {
-		l.Errorf("Failed to check pending orders: %v", err)
-		return nil, fmt.Errorf("检查待支付订单失败: %w", err)
-	}
-	if pendingCount > 0 {
-		return nil, fmt.Errorf("您有待支付的订单，请先处理（取消或关闭）后再创建新订单")
+	// 使用 Redis 控制每日「待支付订单」上限：
+	// 每个用户每天最多允许 3 个“仍处于待支付状态”的订单。
+	// 这里只是预检查当前计数，真正的 +1 放在订单创建成功之后。
+	if l.svcCtx.Rds != nil {
+		today := time.Now()
+		dateStr := today.Format("2006-01-02")
+		dailyKey := fmt.Sprintf("%spayment:pending:count:%d:%s", redisutil.KeyPrefix, in.UserId, dateStr)
+
+		var current int64
+		if val, err := l.svcCtx.Rds.GetCtx(l.ctx, dailyKey); err == nil && val != "" {
+			if parsed, perr := strconv.ParseInt(val, 10, 64); perr == nil {
+				current = parsed
+			}
+		}
+		if current >= 3 {
+			return nil, fmt.Errorf("今日待支付订单数量已达上限（3个），请处理现有订单后再创建")
+		}
 	}
 
 	// 检查用户是否购买会员
@@ -124,6 +131,27 @@ func (l *CreatePaymentLogic) CreatePayment(in *payment.CreatePaymentReq) (*payme
 	if err != nil {
 		l.Errorf("Failed to insert payment_repo order: %v", err)
 		return nil, fmt.Errorf("创建支付订单失败: %w", err)
+	}
+
+	// 订单已成功写入数据库，此时将「待支付订单计数」+1
+	if l.svcCtx.Rds != nil {
+		today := paymentOrder.CreatedAt
+		dateStr := today.Format("2006-01-02")
+		dailyKey := fmt.Sprintf("%spayment:pending:count:%d:%s", redisutil.KeyPrefix, paymentOrder.UserID, dateStr)
+
+		dailyCount, rerr := l.svcCtx.Rds.IncrCtx(l.ctx, dailyKey)
+		if rerr != nil {
+			l.Errorf("failed to incr daily pending order count after create, key=%s, err=%v", dailyKey, rerr)
+		} else if dailyCount == 1 {
+			// 首次创建时，设置 key 在当天 23:59:59 过期
+			endOfDay := time.Date(today.Year(), today.Month(), today.Day(), 23, 59, 59, 0, today.Location())
+			ttl := int(endOfDay.Sub(time.Now()).Seconds())
+			if ttl > 0 {
+				if err := l.svcCtx.Rds.ExpireCtx(l.ctx, dailyKey, ttl); err != nil {
+					l.Errorf("failed to set expire for key=%s, err=%v", dailyKey, err)
+				}
+			}
+		}
 	}
 
 	// 3. 调用支付宝API创建支付订单

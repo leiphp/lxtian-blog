@@ -355,6 +355,9 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 			return err
 		}
 
+		// 支付成功后，当前订单不再属于「待支付」，从 Redis 计数中减 1
+		adjustUserDailyPendingCount(l.ctx, l.svcCtx.Rds, paymentOrder.UserID, paymentOrder.CreatedAt, -1)
+
 	case constant.TradeStatusClosed:
 		// 交易关闭
 		if paymentOrder.Status != constant.PaymentStatusClosed {
@@ -362,6 +365,9 @@ func (l *PaymentNotifyLogic) processNotify(notifyData map[string]string, notifyI
 			if err != nil {
 				return fmt.Errorf("failed to update status to closed: %w", err)
 			}
+
+			// 订单被关闭，同样视为不再处于待支付状态，减 1
+			adjustUserDailyPendingCount(l.ctx, l.svcCtx.Rds, paymentOrder.UserID, paymentOrder.CreatedAt, -1)
 		}
 
 	case constant.TradeStatusWaitBuyerPay:
