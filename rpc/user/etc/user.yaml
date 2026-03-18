@@ -33,6 +33,13 @@ MiniAppConf:
   Appid: ${APPID}
   Secret: ${SECRET}
 
+QiniuOss:
+  AccessKey: ${AccessKey}
+  SecretKey: ${SecretKey}
+  Bucket: ${Bucket}
+  Domain: ${Domain}
+  Region: ${Region}
+
 Log:
   ServiceName: user_rpc
   Mode: file

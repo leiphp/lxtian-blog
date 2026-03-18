@@ -2,6 +2,7 @@ package svc
 
 import (
 	"fmt"
+	"github.com/leiphp/gokit/pkg/sdk/qiniu"
 	"github.com/zeromicro/go-zero/core/logx"
 	"lxtian-blog/common/pkg/initcache"
 	"lxtian-blog/common/pkg/initdb"
@@ -13,10 +14,11 @@ import (
 )
 
 type ServiceContext struct {
-	Config config.Config
-	DB     *gorm.DB
-	Cache  *collection.Cache
-	Rds    *redis.Redis
+	Config      config.Config
+	DB          *gorm.DB
+	Cache       *collection.Cache
+	Rds         *redis.Redis
+	QiniuClient *qiniu.QiniuClient
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -36,10 +38,19 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 
 	rds := initdb.InitRedis(c.RedisConfig.Host, c.RedisConfig.Type, c.RedisConfig.Pass, c.RedisConfig.Tls)
+
+	qiniuClient := qiniu.NewClient(qiniu.QiniuConfig{
+		AccessKey: c.QiniuOss.AccessKey,
+		SecretKey: c.QiniuOss.SecretKey,
+		Bucket:    c.QiniuOss.Bucket,
+		Domain:    c.QiniuOss.Domain,
+		Region:    c.QiniuOss.Region,
+	})
 	return &ServiceContext{
-		Config: c,
-		DB:     mysqlDb,
-		Cache:  cache,
-		Rds:    rds,
+		Config:      c,
+		DB:          mysqlDb,
+		Cache:       cache,
+		Rds:         rds,
+		QiniuClient: qiniuClient,
 	}
 }

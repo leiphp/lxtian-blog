@@ -10,6 +10,7 @@ import (
 	"lxtian-blog/common/repository/user_repo"
 	"lxtian-blog/rpc/user/internal/svc"
 	"lxtian-blog/rpc/user/user"
+	"strings"
 
 	"github.com/leiphp/unit-go-sdk/pkg/gconv"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -116,13 +117,32 @@ func (l *InfoLogic) buildUserInfo(txyUser *model.TxyUser) *user.UserInfo {
 	if txyUser.IsAdmin == 1 {
 		role = "administrator"
 	}
+
+	headImg := txyUser.HeadImg
+	// 头像若存的是七牛 key 或七牛域名 URL，则返回带 token 的私有链接
+	if headImg != "" && l.svcCtx.QiniuClient != nil {
+		if !strings.HasPrefix(headImg, "http://") && !strings.HasPrefix(headImg, "https://") {
+			headImg = l.svcCtx.QiniuClient.PrivateURL(headImg, 3600)
+		} else if domain := strings.TrimSpace(l.svcCtx.Config.QiniuOss.Domain); domain != "" && strings.Contains(headImg, domain) {
+			// 兼容数据库里存的是完整 URL 的情况：尝试提取 key 再生成私链
+			key := headImg
+			key = strings.TrimPrefix(key, "http://")
+			key = strings.TrimPrefix(key, "https://")
+			key = strings.TrimPrefix(key, strings.TrimPrefix(domain, "http://"))
+			key = strings.TrimPrefix(key, strings.TrimPrefix(domain, "https://"))
+			key = strings.TrimPrefix(key, "/")
+			if key != "" {
+				headImg = l.svcCtx.QiniuClient.PrivateURL(key, 3600)
+			}
+		}
+	}
 	return &user.UserInfo{
 		Id:       uint64(txyUser.ID),
 		Uid:      uint64(txyUser.UID),
 		Username: username,
 		Nickname: txyUser.Nickname,
 		Email:    txyUser.Email,
-		HeadImg:  txyUser.HeadImg,
+		HeadImg:  headImg,
 		Gold:     uint64(txyUser.Gold),
 		Score:    uint64(txyUser.Score),
 		Type:     uint64(txyUser.Type),

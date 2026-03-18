@@ -26,4 +26,12 @@ type Config struct {
 		Appid  string `json:",env=APPID"`
 		Secret string `json:",env=SECRET"`
 	}
+
+	QiniuOss struct {
+		AccessKey string `json:",env=AccessKey"`
+		SecretKey string `json:",env=SecretKey"`
+		Bucket    string `json:",env=Bucket"`
+		Domain    string `json:",env=Domain"`
+		Region    string `json:",env=Region"`
+	}
 }
