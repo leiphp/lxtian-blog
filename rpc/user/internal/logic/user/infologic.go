@@ -10,6 +10,7 @@ import (
 	"lxtian-blog/common/repository/user_repo"
 	"lxtian-blog/rpc/user/internal/svc"
 	"lxtian-blog/rpc/user/user"
+	"net/url"
 	"strings"
 
 	"github.com/leiphp/unit-go-sdk/pkg/gconv"
@@ -123,16 +124,19 @@ func (l *InfoLogic) buildUserInfo(txyUser *model.TxyUser) *user.UserInfo {
 	if headImg != "" && l.svcCtx.QiniuClient != nil {
 		if !strings.HasPrefix(headImg, "http://") && !strings.HasPrefix(headImg, "https://") {
 			headImg = l.svcCtx.QiniuClient.PrivateURL(headImg, 3600)
-		} else if domain := strings.TrimSpace(l.svcCtx.Config.QiniuOss.Domain); domain != "" && strings.Contains(headImg, domain) {
-			// 兼容数据库里存的是完整 URL 的情况：尝试提取 key 再生成私链
-			key := headImg
-			key = strings.TrimPrefix(key, "http://")
-			key = strings.TrimPrefix(key, "https://")
-			key = strings.TrimPrefix(key, strings.TrimPrefix(domain, "http://"))
-			key = strings.TrimPrefix(key, strings.TrimPrefix(domain, "https://"))
-			key = strings.TrimPrefix(key, "/")
-			if key != "" {
-				headImg = l.svcCtx.QiniuClient.PrivateURL(key, 3600)
+		} else if domain := strings.TrimSpace(l.svcCtx.Config.QiniuOss.Domain); domain != "" {
+			// 兼容数据库里存的是完整 URL 的情况（http/https 均可）：解析 URL 后按 host 匹配域名，再提取 path 作为 key
+			domainURL := domain
+			if !strings.HasPrefix(domainURL, "http://") && !strings.HasPrefix(domainURL, "https://") {
+				domainURL = "https://" + domainURL
+			}
+			if du, derr := url.Parse(domainURL); derr == nil {
+				if hu, herr := url.Parse(headImg); herr == nil && hu.Host != "" && du.Host != "" && strings.EqualFold(hu.Host, du.Host) {
+					key := strings.TrimPrefix(hu.Path, "/")
+					if key != "" {
+						headImg = l.svcCtx.QiniuClient.PrivateURL(key, 3600)
+					}
+				}
 			}
 		}
 	}
